@@ -1,0 +1,54 @@
+<nav class="plm-navbar">
+
+  <!-- Left: brand + toggle -->
+  <div class="navbar__left">
+    <button class="nav-toggle" (click)="toggleMenu()" matTooltip="Menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <div class="navbar__brand">
+      <div class="brand-logo">
+        <span>TF</span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Textile<strong>PLM</strong></span>
+        <span class="brand-tagline">PLM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: notifications + user -->
+  <div class="navbar__right">
+
+    <button class="notif-btn icon-btn" matTooltip="Notifications">
+      <mat-icon [matBadge]="notificationCount" matBadgeColor="warn">notifications_none</mat-icon>
+    </button>
+
+    <div class="user-chip" [matMenuTriggerFor]="profileMenu">
+      <div class="user-avatar">
+        <mat-icon class="role-icon">{{ roleIcon }}</mat-icon>
+      </div>
+      <div class="user-info">
+        <span class="user-name">{{ userName }}</span>
+        <span class="user-role">{{ userRole }}</span>
+      </div>
+      <mat-icon class="chevron">expand_more</mat-icon>
+    </div>
+
+    <mat-menu #profileMenu="matMenu" class="plm-menu">
+      <div class="menu-user-header" mat-menu-item disabled>
+        <mat-icon>{{ roleIcon }}</mat-icon>
+        <div>
+          <div class="menu-name">{{ userName }}</div>
+          <div class="menu-role">{{ userRole }}</div>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item class="danger" (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
+      </button>
+    </mat-menu>
+
+  </div>
+</nav>

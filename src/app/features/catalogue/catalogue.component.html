@@ -1,0 +1,154 @@
+<div class="catalogue">
+
+  <div class="topbar">
+    <span class="top-title">Mes Modèles Textile</span>
+
+    <div class="top-search" *ngIf="!selectedProduct">
+      <mat-icon>search</mat-icon>
+      <input type="text" placeholder="Rechercher…"
+        (input)="onGlobalSearch($event)"
+        [value]="searchTerm">
+    </div>
+
+    <button *ngIf="userRole === 'Styliste' && !selectedProduct" class="btn-create" (click)="allerAuFormulaire()">
+      <mat-icon>add</mat-icon> Créer une idée
+    </button>
+  </div>
+
+  <ng-container *ngIf="selectedProduct; else catalogueView">
+    <div class="back-nav">
+      <button class="btn-ghost" (click)="closeSummary()">
+        <mat-icon>arrow_back</mat-icon> Retour au catalogue
+      </button>
+    </div>
+    <app-product-summary
+      [product]="selectedProduct"
+      (onArchived)="onProductArchived()"
+      (onUpdate)="loadProducts()">
+    </app-product-summary>
+  </ng-container>
+
+  <ng-template #catalogueView>
+
+    <div class="split-header">
+      <div class="sh-tab" [class.sh-tab--on]="activeTab === 'actif'" (click)="switchTab('actif')">
+        <mat-icon>grid_view</mat-icon>
+        Catalogue Actif
+        <span class="sh-tab__count">{{ filteredProducts.length }}</span>
+      </div>
+      <div class="sh-tab" *ngIf="showArchiveTab"
+        [class.sh-tab--on]="activeTab === 'archives'"
+        (click)="switchTab('archives')">
+        <mat-icon>inventory_2</mat-icon>
+        Archives
+        <span class="sh-tab__count">{{ filteredArchives.length }}</span>
+      </div>
+    </div>
+
+    <div class="split-body">
+
+      <div class="split-panel" [class.split-panel--open]="activeTab === 'actif'" id="panel-actif">
+
+        <div class="ptoolbar">
+          <div class="filter-wrap">
+            <button
+              class="btn-filter"
+              [class.active]="statusFilter !== 'tous'"
+              [class.open]="filterDropdownOpen"
+              (click)="toggleFilterDropdown()">
+              <mat-icon>filter_list</mat-icon>
+              <span>{{ currentFilterLabel }}</span>
+              <mat-icon class="chevron">expand_more</mat-icon>
+            </button>
+
+            <div class="filter-dropdown" [class.open]="filterDropdownOpen">
+              <div class="filter-dropdown__header">Filtrer par statut</div>
+              <div class="filter-dropdown__item"
+                *ngFor="let f of visibleStatusFilters"
+                [class.on]="statusFilter === f.value"
+                (click)="onStatusFilter(f.value)">
+                <span class="filter-dropdown__dot" [style.background]="getStatusDotColor(f.value)"></span>
+                {{ f.label }}
+                <mat-icon class="filter-dropdown__check" *ngIf="statusFilter === f.value">check</mat-icon>
+              </div>
+              <div class="filter-dropdown__divider"></div>
+              <button class="filter-dropdown__reset" (click)="onStatusFilter('tous')">Réinitialiser</button>
+            </div>
+          </div>
+          <span class="ptoolbar-count">{{ filteredProducts.length }} modèles</span>
+        </div>
+
+        <div class="panel-scroll">
+          <div class="product-grid" *ngIf="filteredProducts.length > 0; else emptyActif">
+            <div class="pcard" *ngFor="let product of filteredProducts" (click)="onSelectProduct(product)">
+              <div class="pcard__img">
+                <img [src]="getProductImageUrl(product)" (error)="handleImageError($event)" [alt]="product.designation">
+                <span class="pcard__cat">{{ product.categorie || 'Modèle' }}</span>
+              </div>
+              <div class="pcard__body">
+                <p class="pcard__name">{{ product.designation || 'Sans Nom' }}</p>
+                <div class="pcard__footer">
+                  <span class="pcard__gender">
+                   <mat-icon>person</mat-icon>
+                   {{ product.section || 'N/A' }}
+                  </span>
+                  <span class="badge" [ngClass]="'badge--' + getStatusClass(product)">
+                    {{ getEffectiveStatus(product) | uppercase }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #emptyActif>
+            <div class="empty-state">
+              <mat-icon>inventory_2</mat-icon>
+              <p>Aucun modèle trouvé</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="split-divider" *ngIf="showArchiveTab"></div>
+
+      <div class="split-panel" [class.split-panel--open]="activeTab === 'archives'" *ngIf="showArchiveTab" id="panel-arch">
+
+        <div class="ptoolbar">
+          <span class="ptoolbar-count">{{ filteredArchives.length }} éléments</span>
+        </div>
+
+        <div class="panel-scroll">
+          <div class="product-grid" *ngIf="filteredArchives.length > 0; else emptyArch">
+            <div class="pcard pcard--archived" *ngFor="let product of filteredArchives">
+              <div class="pcard__img">
+                <img [src]="getProductImageUrl(product)" (error)="handleImageError($event)">
+                <button class="pcard__unarc" title="Désarchiver" (click)="onUnarchive(product.idProduct, $event)">
+                  <mat-icon>unarchive</mat-icon>
+                </button>
+              </div>
+              <div class="pcard__body">
+                <p class="pcard__name">{{ product.designation || 'Sans Nom' }}</p>
+                <div class="pcard__footer">
+                  <span class="pcard__gender">
+                    <mat-icon>person</mat-icon>
+                    {{ product.genre || 'N/A' }}
+                  </span>
+                  <span class="badge badge--archive">ARCHIVÉ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #emptyArch>
+            <div class="empty-state">
+              <mat-icon>inventory_2</mat-icon>
+              <p>Aucun élément archivé</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+    </div>
+  </ng-template>
+
+</div>

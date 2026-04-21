@@ -1,0 +1,111 @@
+<aside class="plm-sidebar" [class.collapsed]="isCollapsed">
+  <nav class="sidebar__nav">
+
+    <div class="nav-section">
+      <p class="nav-section__label" *ngIf="!isCollapsed">Principal</p>
+
+      <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item"
+         [matTooltip]="isCollapsed ? 'Accueil' : ''" matTooltipPosition="right">
+        <div class="nav-item__icon">
+          <mat-icon>home</mat-icon>
+        </div>
+        <span class="nav-item__label" *ngIf="!isCollapsed">Accueil</span>
+      </a>
+    </div>
+
+    <ng-container *ngIf="userRole === 'admin'">
+      <div class="nav-section">
+        <p class="nav-section__label" *ngIf="!isCollapsed">Administration</p>
+
+        <a routerLink="/admin/users" routerLinkActive="active" class="nav-item"
+           [matTooltip]="isCollapsed ? 'Utilisateurs' : ''" matTooltipPosition="right">
+          <div class="nav-item__icon">
+            <mat-icon>people</mat-icon>
+          </div>
+          <span class="nav-item__label" *ngIf="!isCollapsed">Utilisateurs</span>
+        </a>
+
+        <a routerLink="/admin/listes" routerLinkActive="active" class="nav-item"
+           [matTooltip]="isCollapsed ? 'Listes de contrôle' : ''" matTooltipPosition="right">
+          <div class="nav-item__icon">
+            <mat-icon>rule</mat-icon>
+          </div>
+          <span class="nav-item__label" *ngIf="!isCollapsed">Listes de contrôle</span>
+        </a>
+      </div>
+    </ng-container>
+
+    <div class="nav-section" *ngIf="userRole !== 'admin'">
+      <p class="nav-section__label" *ngIf="!isCollapsed">Workflow</p>
+      
+      <a routerLink="/products/catalogue" routerLinkActive="active" class="nav-item"
+         [matTooltip]="isCollapsed ? 'Catalogue' : ''" matTooltipPosition="right">
+        <div class="nav-item__icon">
+          <mat-icon>grid_view</mat-icon>
+        </div>
+        <span class="nav-item__label" *ngIf="!isCollapsed">Catalogue</span>
+      </a>
+
+      <a *ngIf="userRole === 'responsableachat'" 
+         routerLink="/fournisseurs" 
+         routerLinkActive="active" 
+         class="nav-item"
+         [matTooltip]="isCollapsed ? 'Gestion des fournisseurs' : ''" 
+         matTooltipPosition="right">
+        <div class="nav-item__icon">
+          <mat-icon>store</mat-icon>
+        </div>
+        <span class="nav-item__label" *ngIf="!isCollapsed">Gestion des fournisseurs</span>
+      </a>
+    </div>
+
+    <div class="nav-section" *ngIf="userRole !== 'admin'">
+      <p class="nav-section__label" *ngIf="!isCollapsed">Calendrier</p>
+      <button
+        type="button"
+        class="nav-item nav-item--btn"
+        [class.nav-item--active-panel]="reunionsPanelOpen"
+        [matTooltip]="isCollapsed ? ('Réunions (' + upcomingCount + ')') : ''"
+        matTooltipPosition="right"
+        (click)="toggleReunionsPanel()"
+      >
+        <div class="nav-item__icon">
+          <mat-icon>event</mat-icon>
+          <span class="nav-item__badge nav-item__badge--dot" *ngIf="isCollapsed && upcomingCount > 0">
+            {{ upcomingCount }}
+          </span>
+        </div>
+        <span class="nav-item__label" *ngIf="!isCollapsed">Réunions</span>
+        <span class="nav-item__badge" *ngIf="!isCollapsed && upcomingCount > 0">{{ upcomingCount }}</span>
+        <mat-icon class="nav-item__chevron" *ngIf="!isCollapsed">
+          {{ reunionsPanelOpen ? 'chevron_left' : 'chevron_right' }}
+        </mat-icon>
+      </button>
+    </div>
+
+  </nav>
+
+  <div class="sidebar__footer">
+    <button class="toggle-btn" type="button" (click)="toggleSidebar()">
+      <mat-icon>{{ isCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      <span *ngIf="!isCollapsed">Réduire le menu</span>
+    </button>
+  </div>
+</aside>
+
+<ng-container *ngIf="userRole !== 'admin'">
+  <div class="rp-overlay" [class.rp-overlay--open]="reunionsPanelOpen" (click)="closeReunionsPanel()"></div>
+  <div class="rp-drawer" 
+       [class.rp-drawer--open]="reunionsPanelOpen" 
+       [style.left]="isCollapsed ? '68px' : '260px'">
+    <div class="rp-drawer__header">
+      <span class="rp-drawer__title"><mat-icon>event</mat-icon> Réunions</span>
+      <button class="rp-drawer__close" type="button" (click)="closeReunionsPanel()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="rp-drawer__body">
+      <app-reunions-panel *ngIf="reunionsPanelOpen"></app-reunions-panel>
+    </div>
+  </div>
+</ng-container>

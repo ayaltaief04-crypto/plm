@@ -1,0 +1,132 @@
+// --- DESIGN TOKENS ---
+$bg-app:      #f8fafc;
+$bg-card:     #ffffff;
+$text-main:    #0f172a;
+$text-sub:    #64748b;
+$accent:      #2563eb;
+$border:      #e2e8f0;
+$radius:      12px;
+$shadow:      0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+.gl-wrap {
+  padding: 2rem;
+  background: $bg-app;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.gl-header {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  
+  &__icon { color: $accent; font-size: 2.5rem; width: 2.5rem; height: 2.5rem; }
+  &__title { font-size: 1.5rem; font-weight: 800; color: $text-main; margin: 0; }
+  &__sub { color: $text-sub; margin: 0; font-size: 0.9rem; }
+}
+
+.gl-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+}
+
+// SIDEBAR
+.gl-svc-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: $radius;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+
+  &--active {
+    background: white;
+    border-color: $border;
+    box-shadow: $shadow;
+    color: var(--svc-color);
+    font-weight: 600;
+  }
+  
+  &:hover:not(.gl-svc-btn--active) { background: #f1f5f9; }
+  
+  &__name { display: block; font-size: 0.95rem; color: $text-main; }
+  &__role { font-size: 0.75rem; color: $text-sub; font-weight: 400; }
+}
+
+// MAIN CONTENT
+.gl-main {
+  background: $bg-card;
+  border-radius: $radius;
+  border: 1px solid $border;
+  box-shadow: $shadow;
+  display: flex;
+  flex-direction: column;
+}
+
+.gl-service-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid $border;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h2 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+  p { margin: 0.25rem 0 0; color: $text-sub; font-size: 0.85rem; }
+}
+
+.gl-elements {
+  padding: 1.5rem;
+  min-height: 200px;
+}
+
+.gl-element {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid $border;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  transition: transform 0.2s;
+
+  &:hover { transform: translateX(5px); background: #f1f5f9; }
+  &--bloquant { border-left: 4px solid #f59e0b; }
+  
+  &__input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid $accent;
+    border-radius: 4px;
+    outline: none;
+  }
+}
+
+// BUTTONS
+.gl-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+
+  &--primary { background: $accent; color: white; &:hover { background: darken($accent, 10%); } }
+  &--ghost { background: transparent; color: $text-sub; border-color: $border; &:hover { background: #f1f5f9; } }
+}
+
+.gl-icon-btn {
+  background: transparent; border: none; cursor: pointer; color: $text-sub;
+  &:hover { color: $accent; }
+  &--delete:hover { color: #ef4444; }
+}

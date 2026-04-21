@@ -1,0 +1,60 @@
+<div class="version-list">
+
+  <div class="version-list__header">
+    <div>
+      <h3 class="version-list__title">
+        <mat-icon>layers</mat-icon>
+        Historique des Versions
+      </h3>
+    </div>
+    <button class="btn btn--accent btn--sm" (click)="requestNew()">
+      <mat-icon>add</mat-icon>
+      Nouvelle Version
+    </button>
+  </div>
+
+  <div class="version-table-wrap" *ngIf="(product?.versions?.length ?? 0) > 0">
+    <table class="version-table">
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Statut</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of product?.versions">
+          <td>
+            <div class="version-name-cell">
+              <mat-icon>layers</mat-icon>
+              {{ v.versionName }}
+            </div>
+          </td>
+          <td>
+            <span class="status-badge {{ getStatusClass(v.statut) }}">
+              {{ v.statut || 'Publié' }}
+            </span>
+          </td>
+          <td class="col-actions">
+            <div class="action-btns">
+              <button class="btn btn--outline btn--sm" (click)="trigger('view', v)">
+                <mat-icon>visibility</mat-icon>
+                Consulter
+              </button>
+              <button class="btn btn--ghost btn--sm" (click)="trigger('edit', v)">
+                <mat-icon>edit_note</mat-icon>
+                Modifier
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" *ngIf="!product?.versions || product?.versions?.length === 0">
+    <mat-icon>layers</mat-icon>
+    <p>Aucune version disponible pour ce produit.</p>
+  </div>
+
+</div>

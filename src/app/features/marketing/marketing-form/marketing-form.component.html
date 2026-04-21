@@ -1,0 +1,108 @@
+<div class="mk-wrap">
+  <div class="mk-loading" *ngIf="isLoading">
+    <mat-icon class="mk-loading__icon">hourglass_top</mat-icon>
+    <span>Chargement des données...</span>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <div class="mk-action-bar" *ngIf="canInteract">
+      <div class="mk-feedback mk-feedback--success" *ngIf="saveSuccess">
+        <mat-icon>check_circle</mat-icon><span>Enregistré !</span>
+      </div>
+      <div class="mk-feedback mk-feedback--error" *ngIf="saveError">
+        <mat-icon>error</mat-icon><span>{{ saveError }}</span>
+      </div>
+
+      <div class="mk-action-bar__btns">
+        <button *ngIf="!isEditing" class="tp-btn tp-btn--outline-dark" (click)="activerEdition()">
+          <mat-icon>edit</mat-icon> {{ hasData ? 'Modifier' : 'Remplir' }}
+        </button>
+        <ng-container *ngIf="isEditing">
+          <button class="tp-btn tp-btn--ghost" (click)="annuler()" [disabled]="isSaving">Annuler</button>
+          <button class="tp-btn tp-btn--primary" type="submit" form="mkForm" [disabled]="isSaving || marketingForm.invalid">
+            {{ isSaving ? 'Envoi...' : 'Enregistrer' }}
+          </button>
+        </ng-container>
+      </div>
+    </div>
+
+    <form id="mkForm" [formGroup]="marketingForm" (ngSubmit)="onSubmit()">
+      
+      <div class="tp-section">
+        <div class="tp-section__head"><mat-icon>groups</mat-icon><h3>Cible & Style</h3></div>
+        <div class="tp-grid g3">
+          <div class="tp-field">
+            <label>Public Cible <span class="req">*</span></label>
+            <input type="text" formControlName="PublicCible">
+          </div>
+          <div class="tp-field"><label>Tranche d'âge</label><input type="text" formControlName="TrancheAge"></div>
+          <div class="tp-field"><label>Style de vie</label><input type="text" formControlName="StyleDeVie"></div>
+          <div class="tp-field"><label>Occasion de portée</label><input type="text" formControlName="OccasionPortee"></div>
+          <div class="tp-field">
+            <label>Niveau de Gamme</label>
+            <select formControlName="NiveauGamme">
+              <option [ngValue]="null">-- Choisir --</option>
+              <option *ngFor="let g of NIVEAUX_GAMME" [value]="g.value">{{ g.label }}</option>
+            </select>
+          </div>
+          <div class="tp-field"><label>Attractivité /10</label><input type="number" formControlName="NoteAttractiviteVisuelle"></div>
+        </div>
+      </div>
+
+      <div class="tp-section">
+        <div class="tp-section__head"><mat-icon>payments</mat-icon><h3>Commercial & Prix</h3></div>
+        <div class="tp-grid g4">
+          <div class="tp-field">
+            <label>Prix Vente (TND) <span class="req">*</span></label>
+            <input type="number" formControlName="PrixVenteEstime" step="0.01">
+          </div>
+          <div class="tp-field"><label>Prix Psychologique</label><input type="number" formControlName="PrixPsychologique"></div>
+          <div class="tp-field"><label>Quantité Estimée</label><input type="number" formControlName="QuantiteEstimee"></div>
+          <div class="tp-field"><label>Indice Compétitivité</label><input type="number" formControlName="IndiceCompetitivite"></div>
+          <div class="tp-field"><label>Marge Cible (%)</label><input type="number" formControlName="MargeCible"></div>
+        </div>
+      </div>
+
+      <div class="tp-section">
+        <div class="tp-section__head"><mat-icon>trending_up</mat-icon><h3>Stratégie</h3></div>
+        <div class="tp-grid g2">
+          <div class="tp-field">
+            <label>USP (Argument Unique) <span class="req">*</span></label>
+            <textarea formControlName="USP_ArgumentUnique" rows="2"></textarea>
+          </div>
+          <div class="tp-field"><label>Référence Best-seller</label><textarea formControlName="ReferenceBestSeller" rows="2"></textarea></div>
+          <div class="tp-field">
+            <label>Nom Commercial <span class="req">*</span></label>
+            <input type="text" formControlName="NomCommercial">
+          </div>
+          <div class="tp-field">
+            <label>Canal Distribution</label>
+            <select formControlName="CanalDistribution">
+              <option value="">-- Choisir --</option>
+              <option *ngFor="let c of CANAUX_DISTRIBUTION" [value]="c.value">{{ c.label }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="tp-section tp-section--rse">
+        <div class="tp-section__head"><mat-icon>eco</mat-icon><h3>Éco-Marketing</h3></div>
+        <div class="tp-grid g2">
+          <div class="tp-field"><label>Argument "Seconde Vie"</label><textarea formControlName="ArgumentSecondeVie" rows="2"></textarea></div>
+          <div class="tp-field"><label>Score Éco-Conception</label><input type="text" formControlName="ScoreEcoConception"></div>
+        </div>
+      </div>
+
+      <div class="tp-section">
+        <div class="tp-section__head"><mat-icon>insights</mat-icon><h3>SWOT</h3></div>
+        <div class="tp-grid g2">
+          <div class="tp-field"><label class="label--success">Forces</label><textarea formControlName="Forces" rows="2"></textarea></div>
+          <div class="tp-field"><label class="label--warning">Faiblesses</label><textarea formControlName="Faiblesses" rows="2"></textarea></div>
+          <div class="tp-field"><label class="label--info">Opportunités</label><textarea formControlName="Opportunites" rows="2"></textarea></div>
+          <div class="tp-field"><label class="label--danger">Menaces</label><textarea formControlName="Menaces" rows="2"></textarea></div>
+        </div>
+      </div>
+
+    </form>
+  </ng-container>
+</div>

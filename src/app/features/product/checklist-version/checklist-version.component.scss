@@ -1,0 +1,554 @@
+// ============================================================
+//  checklist-version.component.scss — Industriel Light
+// ============================================================
+
+$bg-app:      #f0f2f5;
+$surface:     #ffffff;
+$surface-2:   #f7f8fa;
+$surface-3:   #eef0f4;
+$border:      #d1d5db;
+$border-dark: #b0b7c3;
+$text:        #1a2233;
+$text-sec:    #4b5568;
+$muted:       #8a94a6;
+$accent:      #1a3a5c;
+$primary:     #1d4ed8;
+$success:     #15803d;
+$danger:      #b91c1c;
+$warning:     #b45309;
+$success-bg:  #f0fdf4;
+$danger-bg:   #fef2f2;
+$warning-bg:  #fffbeb;
+$success-bd:  #86efac;
+$danger-bd:   #fca5a5;
+$warning-bd:  #fcd34d;
+$transition:  0.18s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ─── WRAP ────────────────────────────────────────────────────
+.cl-wrap {
+  padding: 1.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  background: $bg-app;
+  color: $text;
+  min-height: 100%;
+  font-family: 'IBM Plex Sans', 'Inter', sans-serif;
+}
+
+// ─── ONGLETS ─────────────────────────────────────────────────
+.cl-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 0.35rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.cl-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1.5px solid transparent;
+  background: transparent;
+  color: $muted;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition;
+
+  mat-icon { font-size: 1rem; width: 1rem; height: 1rem; flex-shrink: 0; }
+
+  &:hover { background: $surface-3; color: $text-sec; }
+
+  &--active {
+    background: $surface-3;
+    border-color: var(--tab-color, $primary);
+    color: var(--tab-color, $primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    mat-icon { color: var(--tab-color, $primary); }
+  }
+}
+
+.cl-tab-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: #e2e8f0;
+  color: $muted;
+  border: 1px solid $border;
+
+  &--ro { background: #f1f5f9; color: #94a3b8; }
+}
+
+.cl-tab-score {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  margin-left: 2px;
+  padding: 0.1rem 0.35rem;
+  background: $surface-3;
+  border-radius: 4px;
+  border: 1px solid $border;
+}
+
+// ─── BANDEAU LECTURE SEULE ────────────────────────────────────
+.cl-readonly-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid $border;
+  border-left: 4px solid $border-dark;
+  color: $text-sec;
+  font-size: 0.82rem;
+  font-weight: 500;
+
+  mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; flex-shrink: 0; color: $muted; }
+}
+
+// ─── HEADER ──────────────────────────────────────────────────
+.cl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: $surface;
+  border: 1px solid $border;
+  border-top: 3px solid var(--cl-color, $primary);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__icon-wrap {
+    width: 46px; height: 46px;
+    border-radius: 8px;
+    background: $surface-3;
+    border: 1.5px solid var(--cl-color, $primary);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cl-color, $primary);
+    flex-shrink: 0;
+    mat-icon { font-size: 1.4rem; width: 1.4rem; height: 1.4rem; }
+  }
+
+  &__title {
+    margin: 0 0 0.15rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $text;
+    letter-spacing: -0.01em;
+  }
+
+  &__sub { font-size: 0.78rem; color: $muted; display: block; }
+
+  &__date {
+    display: flex; align-items: center; gap: 0.35rem;
+    font-size: 0.78rem; color: $muted;
+    mat-icon { font-size: 0.95rem; width: 0.95rem; height: 0.95rem; }
+  }
+}
+
+// ─── SCORE CARD ──────────────────────────────────────────────
+.cl-score-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: $surface-2;
+  border: 1px solid $border;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+
+  &__fraction {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+  }
+
+  &__num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    font-family: 'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    transition: color $transition;
+  }
+
+  &__sep {
+    font-size: 1.2rem;
+    color: $muted;
+    font-weight: 300;
+  }
+
+  &__total {
+    font-size: 1.1rem;
+    color: $muted;
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  &__unit {
+    font-size: 0.72rem;
+    color: $muted;
+    font-weight: 500;
+    margin-left: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    align-self: flex-end;
+    margin-bottom: 2px;
+  }
+
+  &__divider {
+    width: 1px;
+    height: 40px;
+    background: $border;
+    flex-shrink: 0;
+  }
+
+  &__note {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+  }
+
+  &__val {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    font-family: 'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    transition: color $transition;
+  }
+
+  &__max {
+    font-size: 1rem;
+    color: $muted;
+    font-weight: 500;
+  }
+
+  &__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    align-self: flex-end;
+    margin-bottom: 3px;
+    transition: color $transition;
+  }
+}
+
+// ─── LOADING ─────────────────────────────────────────────────
+.cl-loading {
+  display: flex; align-items: center; gap: 0.5rem;
+  color: $muted; font-size: 0.85rem; padding: 1rem 0;
+  .cl-spin { animation: spin 1s linear infinite; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ─── PROGRESSION ─────────────────────────────────────────────
+.cl-progress {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 1rem 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  position: relative;
+
+  &__info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+    font-size: 0.82rem;
+    color: $text-sec;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__stats {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+
+    strong { font-weight: 700; }
+  }
+
+  &__track {
+    height: 8px;
+    border-radius: 4px;
+    background: $surface-3;
+    border: 1px solid $border;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease-out;
+  }
+
+  // Marqueurs 0 → 8
+  &__markers {
+    position: relative;
+    height: 18px;
+    margin-top: 2px;
+  }
+
+  &__marker {
+    position: absolute;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+
+    &::before {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 5px;
+      background: $border-dark;
+    }
+  }
+
+  &__marker-label {
+    font-size: 0.6rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: $muted;
+    font-weight: 600;
+    line-height: 1;
+  }
+}
+
+// ─── ALERTES ─────────────────────────────────────────────────
+.cl-alert {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.85rem 1rem; border-radius: 6px;
+  font-size: 0.85rem; font-weight: 500;
+
+  mat-icon { font-size: 1.15rem; width: 1.15rem; height: 1.15rem; flex-shrink: 0; margin-top: 1px; }
+
+  &--warn {
+    background: $warning-bg; color: $warning;
+    border: 1px solid $warning-bd; border-left: 4px solid $warning;
+  }
+  &--ok {
+    background: $success-bg; color: $success;
+    border: 1px solid $success-bd; border-left: 4px solid $success;
+  }
+}
+
+// ─── EMPTY ───────────────────────────────────────────────────
+.cl-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.6rem; padding: 3.5rem 1rem; color: $muted; text-align: center;
+  background: $surface; border: 1.5px dashed $border; border-radius: 8px;
+
+  mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; opacity: 0.3; }
+  p        { margin: 0; font-size: 0.9rem; color: $text-sec; font-weight: 500; }
+  small    { font-size: 0.78rem; opacity: 0.65; }
+}
+
+// ─── ITEMS ───────────────────────────────────────────────────
+.cl-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.cl-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid $border;
+  background: $surface;
+  transition: background $transition;
+  cursor: pointer;
+
+  &:last-child { border-bottom: none; }
+  &:nth-child(even) { background: $surface-2; }
+  &:hover { background: $surface-3; }
+
+  &--bloquant { border-left: 4px solid $warning; padding-left: 1rem; }
+
+  &--coche {
+    background: $success-bg !important;
+    &:hover { background: darken($success-bg, 1%) !important; }
+
+    .cl-item__text { text-decoration: line-through; color: $muted; }
+    .cl-item__num  { background: $success-bg; color: $success; border-color: $success-bd; }
+  }
+
+  &--readonly {
+    cursor: default;
+    &:hover { background: inherit !important; }
+  }
+
+  &__num {
+    width: 26px; height: 26px;
+    border-radius: 4px;
+    background: $surface-3; border: 1px solid $border;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700; color: $muted;
+    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  &__content { flex: 1; min-width: 0; }
+
+  &__text {
+    margin: 0; font-size: 0.88rem;
+    color: $text; line-height: 1.5; font-weight: 500;
+  }
+
+  &__badge {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    font-size: 0.65rem; font-weight: 700;
+    padding: 0.1rem 0.45rem; border-radius: 3px;
+    background: $warning-bg; color: $warning;
+    border: 1px solid $warning-bd;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.3rem;
+    mat-icon { font-size: 0.7rem; width: 0.7rem; height: 0.7rem; }
+  }
+
+  // Droite : contrib + statut
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+    flex-shrink: 0;
+  }
+
+  &__contrib {
+    font-size: 0.68rem;
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+    color: $success;
+    background: $success-bg;
+    border: 1px solid $success-bd;
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+  }
+
+  &__status {
+    mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+    .ok      { color: $success; }
+    .pending { color: $border-dark; }
+    .warn    { color: $warning; }
+  }
+}
+
+// ─── CHECKBOX ────────────────────────────────────────────────
+.cl-checkbox {
+  width: 18px; height: 18px;
+  border-radius: 3px;
+  border: 1.5px solid $border-dark;
+  background: $surface;
+  display: flex; align-items: center; justify-content: center;
+  transition: all $transition;
+  flex-shrink: 0;
+
+  &--checked {
+    background: var(--cl-color, $primary);
+    border-color: var(--cl-color, $primary);
+    mat-icon { color: white; font-size: 0.85rem; width: 0.85rem; height: 0.85rem; }
+  }
+
+  &--disabled { opacity: 0.45; cursor: default; }
+}
+
+// ─── FORMULE RÉCAPITULATIF ────────────────────────────────────
+.cl-formula {
+  display: flex;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+
+  &__text {
+    font-size: 0.85rem;
+    color: $text-sec;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+
+    strong { font-weight: 700; color: $text; }
+  }
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────
+.cl-actions {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: $surface; border: 1px solid $border;
+  border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  flex-wrap: wrap; gap: 0.75rem;
+
+  &__left, &__right {
+    display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  }
+}
+
+.cl-btn {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.5rem 1.1rem; border-radius: 6px;
+  font-size: 0.83rem; font-weight: 600;
+  cursor: pointer; border: 1.5px solid transparent;
+  transition: all $transition; letter-spacing: 0.01em;
+
+  mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
+
+  &--primary {
+    background: $accent; color: #fff; border-color: $accent;
+    &:hover { background: darken($accent, 8%); box-shadow: 0 3px 10px rgba(26,58,92,0.25); }
+  }
+
+  &--ghost {
+    background: $surface; color: $text-sec; border-color: $border;
+    &:hover { background: $surface-3; border-color: $border-dark; color: $text; }
+  }
+}
+
+// ─── FEEDBACK ────────────────────────────────────────────────
+.cl-feedback {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 0.8rem; border-radius: 5px;
+  font-size: 0.8rem; font-weight: 600;
+  animation: fadeIn 0.25s ease;
+
+  mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
+
+  &--ok  { background: $success-bg; color: $success; border: 1px solid $success-bd; }
+  &--err { background: $danger-bg;  color: $danger;  border: 1px solid $danger-bd; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

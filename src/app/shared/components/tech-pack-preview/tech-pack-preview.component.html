@@ -1,0 +1,85 @@
+<div class="tech-pack-sheet">
+  <div class="tp-row top-section">
+    <div class="tp-col brand-box">
+      <h2>STREETWEAR TECH PACK</h2>
+      <div class="main-image-container">
+        <img [src]="data?.image || 'assets/placeholder.png'" alt="Product View">
+        <p class="img-label">PRODUIT : {{ data?.designation || 'N/A' }}</p>
+      </div>
+    </div>
+    
+    <div class="tp-col meta-table">
+      <div class="meta-row"><label>RÉFÉRENCE</label> <span>{{data?.reference || '---'}}</span></div>
+      <div class="meta-row"><label>CATÉGORIE</label> <span>{{data?.categorie}}</span></div>
+      <div class="meta-row"><label>COLLECTION</label> <span>{{data?.collection}}</span></div>
+      <div class="meta-row"><label>SAISON</label> <span>{{data?.saison}}</span></div>
+      <div class="meta-row"><label>SECTION</label> <span>{{data?.section}}</span></div>
+      <div class="meta-row"><label>SILHOUETTE</label> <span>{{data?.silhouette}}</span></div>
+      <div class="meta-row"><label>THÈME</label> <span>{{data?.theme}}</span></div>
+    </div>
+  </div>
+
+  <div class="tp-section-title">MATERIALS, COMPONENTS & LABELS</div>
+  <div class="tp-row">
+    <div class="tp-col">
+      <table class="tp-table">
+        <thead>
+          <tr>
+            <th width="40%">Composant</th>
+            <th width="60%">Détails Matières</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Matière Principale</td><td>{{data?.matierePrincipale}}</td></tr>
+          <tr><td>Matière Secondaire</td><td>{{data?.matiereSecondaire}}</td></tr>
+          <tr><td>Composition</td><td>{{data?.composition}}</td></tr>
+          <tr><td>Type de Fil</td><td>{{data?.typeFil}}</td></tr>
+          <tr><td>Accessoires</td><td>{{data?.accessoires}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tp-section-title">TECHNICAL SPECIFICATIONS & CONSTRUCTION</div>
+  <div class="tp-row">
+    <div class="tp-col">
+      <table class="tp-table">
+        <thead>
+          <tr>
+            <th width="40%">Spécification</th>
+            <th width="60%">Détail Technique</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Type de Fermeture</td><td>{{data?.typeFermeture}}</td></tr>
+          <tr><td>Type de Coupage</td><td>{{data?.typeCoupage}}</td></tr>
+          <tr><td>Complexité Montage</td><td>{{data?.complexiteMontage}}</td></tr>
+          <tr><td>Grille de Tailles</td><td>{{data?.grilleTailles}}</td></tr>
+          <tr><td>Finitions</td><td>{{data?.finitions}}</td></tr>
+          <tr><td>Étiquetage</td><td>{{data?.detailsEtiquette}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tp-section-title">DESIGN STORY & PREVISIONS</div>
+  <div class="tp-row design-info">
+    <div class="tp-col padding-10">
+      <label class="small-label">DESCRIPTION & CONCEPT</label>
+      <p>{{data?.description}}</p>
+      
+      <label class="small-label">INSPIRATIONS</label>
+      <p>{{data?.inspirations}}</p>
+    </div>
+    <div class="tp-col padding-10">
+      <div class="meta-row no-border"><label>PALETTE COULEURS</label> <span>{{data?.paletteCouleurs}}</span></div>
+      <div class="meta-row no-border"><label>GAMME DE PRIX</label> <span>{{data?.gammePrix}} TND</span></div>
+      
+      <label class="small-label mt-10">DOCUMENTS JOINTS</label>
+      <div class="files-list">
+         <span *ngIf="!data?.fichiers">Aucun fichier joint</span>
+         <span class="file-tag" *ngFor="let f of data?.fichiers">{{f.name}}</span>
+      </div>
+    </div>
+  </div>
+</div>

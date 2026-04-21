@@ -1,0 +1,793 @@
+/* nomenclature-view.component.scss */
+
+// ─── Variables ────────────────────────────────────────────────────────────────
+$primary:       #0080ff;
+$primary-dark:  #0056cc;
+$achat:         #059669;
+$achat-light:   #ecfdf5;
+$achat-border:  #6ee7b7;
+$danger:        #ef4444;
+$success:       #16a34a;
+$warning:       #f59e0b;
+$border:        #e2e8f0;
+$bg:            #f1f5f9;
+$white:         #ffffff;
+$text:          #1e293b;
+$text-muted:    #64748b;
+$radius:        10px;
+$shadow-sm:     0 1px 3px rgba(0,0,0,.08);
+$shadow:        0 4px 12px rgba(0,0,0,.10);
+
+// ─── Container ────────────────────────────────────────────────────────────────
+.bom-container {
+  padding: 20px;
+  background: $bg;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 13px;
+  color: $text;
+  box-sizing: border-box;
+}
+
+// ─── Loading ──────────────────────────────────────────────────────────────────
+.bom-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 60px 20px;
+  color: $text-muted;
+  font-size: 14px;
+}
+
+// ─── Alertes ──────────────────────────────────────────────────────────────────
+.bom-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: $radius;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  animation: slideDown .2s ease;
+
+  mat-icon { font-size: 18px; height: 18px; width: 18px; flex-shrink: 0; }
+
+  &--error   { background: #fef2f2; color: $danger;  border-left: 4px solid $danger;  }
+  &--success { background: #f0fdf4; color: $success; border-left: 4px solid $success; }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+.bom-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: $white;
+  border-radius: $radius;
+  padding: 16px 22px;
+  margin-bottom: 14px;
+  box-shadow: $shadow-sm;
+  border: 1px solid $border;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+}
+
+.bom-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: $radius;
+  background: $primary;
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba($primary, .3);
+}
+
+.bom-title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 800;
+  color: $primary;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.bom-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: $text-muted;
+
+  mat-icon { font-size: 14px; height: 14px; width: 14px; }
+
+  strong { color: $text; }
+}
+
+.meta-readonly-input {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: $text;
+  outline: none;
+  min-width: 100px;
+}
+
+// ─── Badge rôle ───────────────────────────────────────────────────────────────
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: .3px;
+
+  mat-icon { font-size: 15px; height: 15px; width: 15px; }
+
+  &--ingenieur {
+    background: #eff6ff;
+    color: $primary;
+    border: 1px solid #bfdbfe;
+  }
+
+  &--achat {
+    background: $achat-light;
+    color: $achat;
+    border: 1px solid $achat-border;
+  }
+}
+
+// ─── Coût total ───────────────────────────────────────────────────────────────
+.cost-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 8px 18px;
+  min-width: 110px;
+
+  &__label {
+    font-size: 9px;
+    font-weight: 800;
+    color: $text-muted;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+  }
+
+  &__value {
+    font-size: 18px;
+    font-weight: 800;
+    color: $primary;
+
+    em { font-style: normal; font-size: 11px; color: $text-muted; margin-left: 3px; }
+  }
+}
+
+// ─── Boutons ──────────────────────────────────────────────────────────────────
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s ease;
+  white-space: nowrap;
+
+  mat-icon { font-size: 18px; height: 18px; width: 18px; }
+
+  &:disabled { opacity: .5; cursor: not-allowed; }
+
+  &--primary {
+    background: $primary;
+    color: $white;
+    &:hover:not(:disabled) { background: $primary-dark; box-shadow: 0 4px 10px rgba($primary,.3); }
+  }
+
+  &--outline {
+    background: $white;
+    color: $primary;
+    border: 1.5px solid $primary;
+    &:hover:not(:disabled) { background: #eff6ff; }
+  }
+
+  &--ghost {
+    background: $bg;
+    color: $text-muted;
+    border: 1px solid $border;
+    &:hover:not(:disabled) { background: darken($bg, 4%); }
+  }
+
+  &--achat {
+    background: $achat;
+    color: $white;
+    &:hover:not(:disabled) { background: darken($achat, 8%); box-shadow: 0 4px 10px rgba($achat,.3); }
+  }
+
+  &--add {
+    background: #16a34a;
+    color: $white;
+    &:hover:not(:disabled) { background: darken(#16a34a, 8%); }
+  }
+}
+
+.btn-spinner {
+  ::ng-deep circle { stroke: white !important; }
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  transition: all .15s;
+
+  mat-icon { font-size: 20px; height: 20px; width: 20px; }
+
+  &--edit {
+    color: $primary;
+    &:hover { background: #eef4ff; }
+  }
+  &--cancel {
+    color: $warning;
+    &:hover { background: #fef3c7; }
+  }
+  &--danger {
+    color: $danger;
+    &:hover:not(:disabled) { background: #fef2f2; }
+    &:disabled { opacity: .4; cursor: not-allowed; }
+  }
+}
+
+// ─── Barre technique ──────────────────────────────────────────────────────────
+.tech-bar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+
+  @media (max-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 640px)  { grid-template-columns: 1fr; }
+}
+
+.tech-card {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 10px;
+    background: #f8fafc;
+    border-bottom: 1px solid $border;
+    font-size: 10px;
+    font-weight: 800;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+
+    mat-icon { font-size: 14px; height: 14px; width: 14px; }
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 72px;
+    border: none;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: $text;
+    resize: vertical;
+    background: transparent;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+
+    &:focus:not(:disabled) { background: #fffbeb; }
+    &:disabled { color: $text-muted; background: #fafafa; cursor: default; }
+    &::placeholder { color: #94a3b8; }
+  }
+}
+
+// ─── Carte tableau ────────────────────────────────────────────────────────────
+.bom-card {
+  background: $white;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  border: 1px solid $border;
+  overflow: hidden;
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 2px solid $bg;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: $text;
+    text-transform: uppercase;
+
+    mat-icon { font-size: 18px; height: 18px; width: 18px; color: $primary; }
+  }
+}
+
+.count-badge {
+  background: $primary;
+  color: $white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+// Bannière info responsable achat
+.achat-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: $achat-light;
+  border-bottom: 1px solid $achat-border;
+  font-size: 12px;
+  color: $achat;
+
+  mat-icon { font-size: 16px; height: 16px; width: 16px; flex-shrink: 0; }
+}
+
+// ─── Tableau ──────────────────────────────────────────────────────────────────
+.table-wrap {
+  overflow-x: auto;
+}
+
+.bom-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 960px;
+
+  thead tr {
+    background: #eef2ff;
+  }
+
+  th {
+    padding: 10px 8px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #4338ca;
+    text-align: left;
+    border-bottom: 2px solid $border;
+    white-space: nowrap;
+    letter-spacing: .4px;
+  }
+
+  .col-achat-header { color: $achat !important; }
+
+  td {
+    padding: 7px 8px;
+    border-bottom: 1px solid $bg;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+.bom-row {
+  transition: background .12s;
+  &:hover { background: #f8fafc; }
+
+  &--achat .achat-cell {
+    background: $achat-light;
+  }
+}
+
+// ─── Colonnes ─────────────────────────────────────────────────────────────────
+.col-img        { width: 60px; }
+.col-designation{ min-width: 140px; }
+.col-ref        { min-width: 90px; }
+.col-taille     { width: 70px; }
+.col-couleur    { width: 80px; }
+.col-pos        { width: 60px; }
+.col-qty        { width: 65px; }
+.col-unite      { width: 75px; }
+.col-fourn      { min-width: 130px; }
+.col-rempl      { min-width: 110px; }
+.col-pu         { width: 100px; }
+.col-total      { width: 90px; }
+.col-action     { width: 90px; } // assez large pour deux boutons
+
+// ─── Image cellule ────────────────────────────────────────────────────────────
+.img-cell {
+  position: relative;
+  width: 44px;
+  height: 44px;
+}
+
+.thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid $border;
+  display: block;
+}
+
+.no-image-placeholder {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-radius: 6px;
+  color: #94a3b8;
+  mat-icon { font-size: 24px; width: 24px; height: 24px; }
+}
+
+.img-upload-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.45);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+
+  mat-icon { color: $white; font-size: 18px; }
+
+  &:hover { opacity: 1; }
+}
+
+.img-file-input {
+  display: none;
+}
+
+// ─── Inputs cellule ───────────────────────────────────────────────────────────
+.cell-input {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 5px 6px;
+  font-size: 12px;
+  color: $text;
+  background: transparent;
+  outline: none;
+  transition: border-color .15s, background .15s;
+  box-sizing: border-box;
+  font-family: inherit;
+
+  &:focus:not(:disabled) {
+    border-color: $primary;
+    background: $white;
+    box-shadow: 0 0 0 2px rgba($primary, .12);
+  }
+
+  &:disabled {
+    color: $text-muted;
+    cursor: default;
+    background: transparent;
+  }
+
+  &::placeholder { color: #94a3b8; }
+}
+
+.bold-input   { font-weight: 700; color: $primary; }
+.center-input { text-align: center; }
+.right-input  { text-align: right; }
+
+// Champ achat actif (responsable achat)
+.achat-input {
+  background: $achat-light !important;
+  border-color: $achat-border !important;
+  color: darken($achat, 5%) !important;
+  font-weight: 600;
+
+  &:focus:not(:disabled) {
+    border-color: $achat !important;
+    box-shadow: 0 0 0 2px rgba($achat, .15) !important;
+  }
+}
+
+.cell-select {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 5px 4px;
+  font-size: 12px;
+  color: $text;
+  background: #f1f5f9;
+  outline: none;
+  cursor: pointer;
+
+  &:focus  { border-color: $primary; background: $white; }
+  &:disabled { color: $text-muted; cursor: default; background: #f8fafc; }
+}
+
+.achat-cell {
+  background: $achat-light;
+  border-left: 2px solid rgba($achat, .25);
+}
+
+// ─── Total ────────────────────────────────────────────────────────────────────
+.total-val {
+  text-align: right;
+  font-weight: 800;
+  color: $achat;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+// ─── Ligne vide ───────────────────────────────────────────────────────────────
+.empty-row {
+  text-align: center;
+  padding: 50px 20px !important;
+  color: $text-muted;
+
+  mat-icon {
+    display: block;
+    margin: 0 auto 10px;
+    font-size: 36px;
+    height: 36px;
+    width: 36px;
+    color: $border;
+  }
+
+  span { font-size: 13px; }
+}
+
+// ─── Indicateur champ requis ──────────────────────────────────────────────────
+.req { color: $danger; margin-left: 2px; }
+
+// ─── Styles pour le sélecteur fournisseur (bouton plus) ───────────────────────
+.fournisseur-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  .cell-input {
+    flex: 1;
+  }
+  .btn-plus {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: $achat-light;
+    border: 1px solid $achat-border;
+    border-radius: 6px;
+    cursor: pointer;
+    color: $achat;
+    transition: all 0.2s;
+    &:hover {
+      background: $achat;
+      color: white;
+      border-color: $achat;
+      transform: scale(1.02);
+    }
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// ─── MODALE FOURNISSEUR (agrandie avec recherche) ─────────────────────────────
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  background: $white;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 750px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: fadeInScale 0.2s ease;
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid $border;
+  background: $bg;
+}
+
+.modal__header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: $primary;
+  letter-spacing: -0.3px;
+}
+
+.modal__close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: $text-muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 30px;
+  transition: background 0.15s;
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: $text;
+  }
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+// Barre de recherche dans la modale
+.fournisseur-search {
+  padding: 16px 24px;
+  border-bottom: 1px solid $border;
+  background: $white;
+
+  .search-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: 40px;
+    padding: 8px 16px;
+    transition: all 0.2s;
+
+    &:focus-within {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.15);
+    }
+
+    mat-icon {
+      color: $text-muted;
+      font-size: 20px;
+      margin-right: 10px;
+    }
+
+    input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 14px;
+      color: $text;
+      &::placeholder {
+        color: $text-muted;
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+.modal__body {
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.fournisseur-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.fournisseur-item {
+  padding: 14px 24px;
+  cursor: pointer;
+  border-bottom: 1px solid $border;
+  transition: background 0.15s;
+  &:hover {
+    background: $bg;
+  }
+  &__name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: $text;
+    margin-bottom: 4px;
+  }
+  &__contact, &__email {
+    font-size: 0.75rem;
+    color: $text-muted;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: $text-muted;
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}

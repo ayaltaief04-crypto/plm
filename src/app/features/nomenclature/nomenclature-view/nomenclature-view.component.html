@@ -1,0 +1,329 @@
+<!-- nomenclature-view.component.html -->
+<div class="bom-container" [formGroup]="nomForm">
+
+  <!-- LOADING -->
+  <div class="bom-loading" *ngIf="isLoading">
+    <mat-spinner diameter="44"></mat-spinner>
+    <span>Chargement de la nomenclature…</span>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="bom-alert bom-alert--error" *ngIf="errorMsg && !isLoading">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMsg }}</span>
+  </div>
+  <div class="bom-alert bom-alert--success" *ngIf="successMsg">
+    <mat-icon>check_circle_outline</mat-icon>
+    <span>{{ successMsg }}</span>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- HEADER -->
+    <header class="bom-header">
+      <div class="bom-header__left">
+        <div class="bom-logo">BOM</div>
+        <div>
+          <h1 class="bom-title">Nomenclature / Bill of Materials</h1>
+          <div class="bom-meta">
+            <span class="meta-chip">
+              <mat-icon>label</mat-icon>
+              <strong>Produit :</strong>
+              <input formControlName="designationProduit" class="meta-readonly-input" readonly>
+            </span>
+            <span class="meta-chip">
+              <mat-icon>qr_code</mat-icon>
+              <strong>Réf. :</strong>
+              <input formControlName="reference" class="meta-readonly-input" readonly>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="bom-header__right">
+        <span class="role-badge"
+          [class.role-badge--ingenieur]="isIngenieur"
+          [class.role-badge--achat]="isAchat">
+          <mat-icon>{{ isIngenieur ? 'engineering' : isAchat ? 'shopping_cart' : 'visibility' }}</mat-icon>
+          {{ isIngenieur ? 'Ingénieur Textile' : isAchat ? 'Responsable Achat' : 'Lecture seule' }}
+        </span>
+
+        <ng-container *ngIf="isIngenieur">
+          <button class="btn btn--primary" type="button"
+            [disabled]="isSaving || nomForm.invalid"
+            (click)="saveIngenieur()">
+            <mat-spinner *ngIf="isSaving" diameter="16" class="btn-spinner"></mat-spinner>
+            <mat-icon *ngIf="!isSaving">save</mat-icon>
+            {{ isSaving ? 'Enregistrement…' : 'Enregistrer' }}
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="isAchat">
+          <button class="btn btn--achat" type="button"
+            [disabled]="isSaving"
+            (click)="saveAchat()">
+            <mat-spinner *ngIf="isSaving" diameter="16" class="btn-spinner"></mat-spinner>
+            <mat-icon *ngIf="!isSaving">save</mat-icon>
+            {{ isSaving ? 'Enregistrement…' : 'Enregistrer (Achat)' }}
+          </button>
+        </ng-container>
+
+        <div class="cost-chip">
+          <span class="cost-chip__label">COÛT TOTAL</span>
+          <span class="cost-chip__value">{{ calculateTotal() | number:'1.2-2' }} <em>TND</em></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- INFOS TECHNIQUES -->
+    <section class="tech-bar">
+      <div class="tech-card">
+        <div class="tech-card__head"><mat-icon>science</mat-icon> Composition</div>
+        <textarea formControlName="compositionDetaillee" placeholder="Matières principales…"></textarea>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card__head"><mat-icon>straighten</mat-icon> Tolérances</div>
+        <textarea formControlName="tolerancesDim" placeholder="Tolérances dimensionnelles…"></textarea>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card__head"><mat-icon>assignment_turned_in</mat-icon> Tests requis</div>
+        <textarea formControlName="testsRequis" placeholder="Tests de conformité…"></textarea>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card__head"><mat-icon>settings_suggest</mat-icon> Procédés fab.</div>
+        <textarea formControlName="procederFabrication" placeholder="Procédés de fabrication…"></textarea>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card__head"><mat-icon>auto_awesome</mat-icon> Techniques spéc.</div>
+        <textarea formControlName="techniquesSpecifiques" placeholder="Techniques spécifiques…"></textarea>
+      </div>
+    </section>
+
+    <!-- TABLE COMPOSANTS -->
+    <div class="bom-card">
+      <div class="bom-card__toolbar">
+        <h2 class="bom-card__title">
+          <mat-icon>list_alt</mat-icon>
+          Composants & Fournitures
+          <span class="count-badge">{{ items.length }}</span>
+        </h2>
+        <button class="btn btn--add" type="button" *ngIf="isIngenieur" (click)="addItem()">
+          <mat-icon>add_circle</mat-icon> Ajouter Composant
+        </button>
+      </div>
+
+      <div class="achat-banner" *ngIf="isAchat">
+        <mat-icon>info</mat-icon>
+        <span>Vous pouvez modifier les colonnes <strong>Fournisseur</strong> et <strong>Prix unitaire</strong> (cliquez sur "Modifier" par ligne).</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="bom-table">
+          <thead>
+            <tr>
+              <th class="col-img">Image</th>
+              <th class="col-designation">Désignation<span class="req" *ngIf="isIngenieur">*</span></th>
+              <th class="col-ref">Réf.</th>
+              <th class="col-taille">Taille</th>
+              <th class="col-couleur">Couleur</th>
+              <th class="col-pos">Pos.</th>
+              <th class="col-qty">Qté</th>
+              <th class="col-unite">Unité</th>
+              <th class="col-fourn col-achat-header">Fournisseur</th>
+              <th class="col-rempl">Remplacement</th>
+              <th class="col-pu col-achat-header">P.U (TND)</th>
+              <th class="col-total">Total</th>
+              <th class="col-action">Actions</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="items">
+            <tr *ngFor="let item of items.controls; let i = index"
+              [formGroupName]="i"
+              class="bom-row"
+              [class.bom-row--achat]="isAchat">
+
+              <!-- Image -->
+              <td class="col-img">
+                <div class="img-cell">
+                  <img *ngIf="item.get('imgUrl')?.value"
+                    [src]="item.get('imgUrl')?.value"
+                    class="thumb" alt="composant">
+                  <div *ngIf="!item.get('imgUrl')?.value" class="no-image-placeholder">
+                    <mat-icon>image_not_supported</mat-icon>
+                  </div>
+                  <label class="img-upload-btn" *ngIf="isIngenieur"
+                    [for]="'img-' + i" title="Changer l'image">
+                    <mat-icon>photo_camera</mat-icon>
+                  </label>
+                  <input [id]="'img-' + i" type="file" accept="image/*"
+                    class="img-file-input" *ngIf="isIngenieur"
+                    (change)="onImageUpload($event, i)">
+                </div>
+              </td>
+
+              <td class="col-designation">
+                <input class="cell-input bold-input" formControlName="designation" placeholder="Désignation *">
+              </td>
+              <td class="col-ref">
+                <input class="cell-input" formControlName="reference" placeholder="Réf.">
+              </td>
+              <td class="col-taille">
+                <input class="cell-input" formControlName="taille" placeholder="Taille">
+              </td>
+              <td class="col-couleur">
+                <input class="cell-input" formControlName="couleur" placeholder="Couleur">
+              </td>
+              <td class="col-pos">
+                <input class="cell-input" formControlName="position" placeholder="Pos.">
+              </td>
+              <td class="col-qty">
+                <input class="cell-input center-input" type="number" min="0" formControlName="quantite">
+              </td>
+              <td class="col-unite">
+                <select class="cell-select" formControlName="unite">
+                  <option *ngFor="let u of unites" [value]="u">{{ u }}</option>
+                </select>
+              </td>
+
+              <!-- Fournisseur -->
+              <td class="col-fourn" [class.achat-cell]="isAchat">
+                <!-- Mode achat -->
+                <ng-container *ngIf="isAchat">
+                  <div class="fournisseur-cell-display" *ngIf="achatEditingRowIndex !== i">
+                    <!-- ✅ getRawValue() pour lire la valeur même si le contrôle est disabled -->
+                    <span class="cell-readonly-val">
+                      {{ item.getRawValue().fournisseur || '—' }}
+                    </span>
+                  </div>
+                  <div class="fournisseur-selector" *ngIf="achatEditingRowIndex === i">
+                    <input class="cell-input achat-input" formControlName="fournisseur"
+                      placeholder="Fournisseur" readonly>
+                    <button type="button" class="btn-plus"
+                      (click)="openFournisseurPopup(i)"
+                      title="Sélectionner un fournisseur">
+                      <mat-icon>add_circle</mat-icon>
+                    </button>
+                  </div>
+                </ng-container>
+                <!-- Autres rôles -->
+                <ng-container *ngIf="!isAchat">
+                  <input class="cell-input" formControlName="fournisseur" placeholder="Fournisseur">
+                </ng-container>
+              </td>
+
+              <td class="col-rempl">
+                <input class="cell-input" formControlName="articleRemplacement" placeholder="Remplacement">
+              </td>
+
+              <!-- Prix unitaire -->
+              <td class="col-pu" [class.achat-cell]="isAchat">
+                <!-- Mode achat -->
+                <ng-container *ngIf="isAchat">
+                  <!-- ✅ getRawValue() pour afficher la valeur même si le contrôle est disabled -->
+                  <span class="cell-readonly-val" *ngIf="achatEditingRowIndex !== i">
+                    {{ item.getRawValue().prixUnitaire | number:'1.2-2' }}
+                  </span>
+                  <input *ngIf="achatEditingRowIndex === i"
+                    class="cell-input right-input achat-input"
+                    type="number" min="0" step="0.01"
+                    formControlName="prixUnitaire">
+                </ng-container>
+                <!-- Autres rôles -->
+                <ng-container *ngIf="!isAchat">
+                  <input class="cell-input right-input" type="number" min="0" step="0.01"
+                    formControlName="prixUnitaire">
+                </ng-container>
+              </td>
+
+              <!-- Total ligne : toujours via getRawValue() -->
+              <td class="col-total total-val">
+                {{ (item.getRawValue().quantite * item.getRawValue().prixUnitaire) | number:'1.2-2' }}
+              </td>
+
+              <!-- Actions -->
+              <td class="col-action">
+                <!-- INGÉNIEUR -->
+                <ng-container *ngIf="isIngenieur">
+                  <button *ngIf="editingRowIndex !== i"
+                    class="btn-icon btn-icon--edit"
+                    (click)="editRow(i)" title="Modifier">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button *ngIf="editingRowIndex === i"
+                    class="btn-icon btn-icon--cancel"
+                    (click)="cancelEditRow()" title="Annuler">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  <button class="btn-icon btn-icon--danger"
+                    (click)="removeItem(i)"
+                    [disabled]="isSaving" title="Supprimer">
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </ng-container>
+
+                <!-- ACHAT -->
+                <ng-container *ngIf="isAchat">
+                  <button *ngIf="achatEditingRowIndex !== i"
+                    class="btn-icon btn-icon--edit"
+                    (click)="editAchatRow(i)" title="Modifier les infos achat">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button *ngIf="achatEditingRowIndex === i"
+                    class="btn-icon btn-icon--cancel"
+                    (click)="cancelEditAchatRow()" title="Annuler">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </ng-container>
+              </td>
+            </tr>
+
+            <tr *ngIf="items.length === 0">
+              <td [attr.colspan]="13" class="empty-row">
+                <mat-icon>inbox</mat-icon>
+                <span>Aucun composant.
+                  <ng-container *ngIf="isIngenieur">
+                    Cliquez sur <strong>Ajouter Composant</strong> pour commencer.
+                  </ng-container>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- MODALE FOURNISSEURS -->
+<div class="modal-overlay" *ngIf="showFournisseurModal" (click)="closeFournisseurModal()">
+  <div class="modal modal-fournisseur" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h3>Choisir un fournisseur</h3>
+      <button class="modal__close" (click)="closeFournisseurModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="fournisseur-search">
+      <div class="search-input-wrapper">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Rechercher un fournisseur..."
+          [(ngModel)]="fournisseurSearchTerm"
+          (input)="filterFournisseurs()">
+      </div>
+    </div>
+    <div class="modal__body">
+      <div class="fournisseur-list">
+        <div class="fournisseur-item"
+          *ngFor="let f of filteredFournisseurs"
+          (click)="selectFournisseur(f)">
+          <div class="fournisseur-item__name">{{ f.nomSociete }}</div>
+          <div class="fournisseur-item__contact">{{ f.prenomContact }} {{ f.nomContact }}</div>
+          <div class="fournisseur-item__email">{{ f.email }}</div>
+        </div>
+        <div *ngIf="filteredFournisseurs.length === 0" class="empty-state">
+          <mat-icon>store_mall_directory</mat-icon>
+          <p>Aucun fournisseur trouvé.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,235 @@
+<div class="cl-wrap">
+
+  <!-- ONGLETS -->
+  <div class="cl-tabs">
+    <button
+      *ngFor="let onglet of onglets"
+      class="cl-tab-btn"
+      [class.cl-tab-btn--active]="ongletActif === onglet"
+      [style.--tab-color]="onglet.couleur"
+      (click)="selectionnerOnglet(onglet)"
+    >
+      <mat-icon>{{ onglet.icone }}</mat-icon>
+      <span>{{ onglet.nomListe }}</span>
+      <span class="cl-tab-badge" *ngIf="!onglet.readOnly">Ma liste</span>
+      <span class="cl-tab-badge cl-tab-badge--ro" *ngIf="onglet.readOnly">Lecture</span>
+      <span class="cl-tab-score"
+            *ngIf="onglet.checklist"
+            [style.color]="couleurNote(noteCalculee(onglet))">
+        {{ noteCalculee(onglet) }}/10
+      </span>
+    </button>
+  </div>
+
+  <!-- CONTENU -->
+  <ng-container *ngIf="ongletActif">
+
+    <!-- BANDEAU LECTURE SEULE -->
+    <div class="cl-readonly-banner" *ngIf="ongletActif.readOnly">
+      <mat-icon>visibility</mat-icon>
+      <span>
+        Liste « {{ ongletActif.nomListe }} » — consultation uniquement.
+        Seul l'acteur responsable peut modifier cette liste.
+      </span>
+    </div>
+
+    <!-- HEADER + SCORE CARD -->
+    <div class="cl-header" [style.--cl-color]="ongletActif.couleur">
+
+      <div class="cl-header__left">
+        <div class="cl-header__icon-wrap">
+          <mat-icon>{{ ongletActif.icone }}</mat-icon>
+        </div>
+        <div>
+          <h2 class="cl-header__title">Liste de Contrôle — {{ ongletActif.nomListe }}</h2>
+          <span class="cl-header__sub">
+            {{ versionName }} &nbsp;·&nbsp;
+            {{ ongletActif.readOnly ? 'Lecture seule' : 'Votre checklist personnelle' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- SCORE AUTOMATIQUE -->
+      <div class="cl-score-card" *ngIf="ongletActif.checklist">
+        <div class="cl-score-card__fraction">
+          <span class="cl-score-card__num"
+                [style.color]="couleurNote(noteCalculee(ongletActif))">
+            {{ nbCoches(ongletActif) }}
+          </span>
+          <span class="cl-score-card__sep">/</span>
+          <span class="cl-score-card__total">{{ TOTAL }}</span>
+          <span class="cl-score-card__unit">éléments</span>
+        </div>
+        <div class="cl-score-card__divider"></div>
+        <div class="cl-score-card__note">
+          <span class="cl-score-card__val"
+                [style.color]="couleurNote(noteCalculee(ongletActif))">
+            {{ noteCalculee(ongletActif) }}
+          </span>
+          <span class="cl-score-card__max">/10</span>
+        </div>
+        <div class="cl-score-card__label"
+             [style.color]="couleurNote(noteCalculee(ongletActif))">
+          {{ labelNote(noteCalculee(ongletActif)) }}
+        </div>
+      </div>
+
+      <div class="cl-header__date" *ngIf="ongletActif.checklist?.dateEnregistrement">
+        <mat-icon>event_available</mat-icon>
+        <span>Enregistré le {{ ongletActif.checklist!.dateEnregistrement | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+
+    </div>
+
+    <!-- LOADING -->
+    <div class="cl-loading" *ngIf="ongletActif.loading">
+      <mat-icon class="cl-spin">sync</mat-icon>
+      <span>Chargement…</span>
+    </div>
+
+    <ng-container *ngIf="!ongletActif.loading">
+
+      <div class="cl-progress" *ngIf="ongletActif.checklist?.reponses?.length">
+  <div class="cl-progress__info">
+    <span>Progression</span>
+    <span class="cl-progress__stats">
+      <strong>{{ nbCoches(ongletActif) }} / {{ TOTAL }}</strong>
+      
+      &nbsp;—&nbsp;
+
+      <strong [style.color]="couleurNote(noteCalculee(ongletActif))">
+        {{ progressionPct(ongletActif) | number:'1.0-0' }}%
+      </strong>
+    </span>
+  </div>
+
+  <div class="cl-progress__track">
+    <div class="cl-progress__fill"
+         [style.width.%]="progressionPct(ongletActif)"
+         [style.background]="ongletActif.couleur || '#3b82f6'">
+    </div>
+  </div>
+
+        <!-- Marqueurs tous les 2 éléments -->
+        <div class="cl-progress__markers">
+          <span *ngFor="let m of [0,1,2,3,4,5,6,7,8]"
+                class="cl-progress__marker"
+                [style.left.%]="(m / TOTAL) * 100">
+            <span class="cl-progress__marker-label">{{ m }}</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- ALERTES -->
+      <div class="cl-alert cl-alert--warn"
+           *ngIf="!ongletActif.readOnly && blocquesNonCoches(ongletActif).length > 0">
+        <mat-icon>warning</mat-icon>
+        <span>
+          <strong>{{ blocquesNonCoches(ongletActif).length }} élément(s) bloquant(s)</strong>
+          non validés — doivent être cochés avant de passer à l'étape suivante.
+        </span>
+      </div>
+
+      <div class="cl-alert cl-alert--ok" *ngIf="toutComplete(ongletActif)">
+        <mat-icon>verified</mat-icon>
+        <span><strong>Score parfait — 10/10.</strong> Tous les éléments ont été validés.</span>
+      </div>
+
+      <!-- LISTE VIDE -->
+      <div class="cl-empty"
+           *ngIf="ongletActif.checklist && ongletActif.checklist.reponses.length === 0">
+        <mat-icon>playlist_add</mat-icon>
+        <p>Aucun élément configuré pour ce service.</p>
+        <small>Demandez à l'administrateur de configurer la liste « {{ ongletActif.nomListe }} ».</small>
+      </div>
+
+      <div class="cl-empty" *ngIf="!ongletActif.checklist">
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>Impossible de charger la liste.</p>
+      </div>
+
+      <!-- ITEMS -->
+      <div class="cl-items"
+           *ngIf="ongletActif.checklist && ongletActif.checklist.reponses.length > 0">
+
+        <div
+          *ngFor="let rep of ongletActif.checklist.reponses; let i = index"
+          class="cl-item"
+          [class.cl-item--coche]="rep.coche"
+          [class.cl-item--bloquant]="rep.estBloquant"
+          [class.cl-item--readonly]="ongletActif.readOnly"
+          (click)="toggleReponse(ongletActif, rep)"
+        >
+          <span class="cl-item__num">{{ i + 1 }}</span>
+
+          <div class="cl-checkbox"
+               [class.cl-checkbox--checked]="rep.coche"
+               [class.cl-checkbox--disabled]="ongletActif.readOnly"
+               [style.--cl-color]="ongletActif.couleur">
+            <mat-icon *ngIf="rep.coche">check</mat-icon>
+          </div>
+
+          <div class="cl-item__content">
+            <p class="cl-item__text">{{ rep.contenu }}</p>
+            <span class="cl-item__badge" *ngIf="rep.estBloquant">
+              <mat-icon>lock</mat-icon> Bloquant
+            </span>
+          </div>
+
+          <div class="cl-item__right">
+            <!-- Contribution à la note si coché -->
+            <span class="cl-item__contrib" *ngIf="rep.coche">
+              +{{ (10 / TOTAL) | number:'1.2-2' }} pts
+            </span>
+            <div class="cl-item__status">
+              <mat-icon *ngIf="rep.coche" class="ok">check_circle</mat-icon>
+              <mat-icon *ngIf="!rep.coche && rep.estBloquant" class="warn">warning</mat-icon>
+              <mat-icon *ngIf="!rep.coche && !rep.estBloquant" class="pending">radio_button_unchecked</mat-icon>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RÉCAPITULATIF FORMULE -->
+      <div class="cl-formula" *ngIf="ongletActif.checklist?.reponses?.length">
+        <span class="cl-formula__text">
+          Note =
+          <strong>({{ nbCoches(ongletActif) }} / {{ TOTAL }})</strong>
+          × 10 =
+          <strong [style.color]="couleurNote(noteCalculee(ongletActif))">
+            {{ noteCalculee(ongletActif) }} / 10
+          </strong>
+        </span>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="cl-actions"
+           *ngIf="!ongletActif.readOnly && ongletActif.checklist && ongletActif.checklist.reponses.length > 0">
+        <div class="cl-actions__left">
+          <button class="cl-btn cl-btn--ghost" (click)="toutCocher(ongletActif)">
+            <mat-icon>done_all</mat-icon> Tout cocher
+          </button>
+          <button class="cl-btn cl-btn--ghost" (click)="toutDecocher(ongletActif)">
+            <mat-icon>remove_done</mat-icon> Tout décocher
+          </button>
+        </div>
+
+        <div class="cl-actions__right">
+          <span class="cl-feedback cl-feedback--ok" *ngIf="ongletActif.saveSuccess">
+            <mat-icon>check_circle</mat-icon> Enregistrée !
+          </span>
+          <span class="cl-feedback cl-feedback--err" *ngIf="ongletActif.saveError">
+            <mat-icon>error</mat-icon> Erreur.
+          </span>
+          <button class="cl-btn cl-btn--primary"
+                  [style.background]="ongletActif.couleur"
+                  (click)="enregistrer(ongletActif)">
+            <mat-icon>save</mat-icon> Enregistrer
+          </button>
+        </div>
+      </div>
+
+    </ng-container>
+  </ng-container>
+</div>

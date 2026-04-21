@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100vh; // Fixe la hauteur totale de l'application
+}
+
+.app-shell {
+  display: flex;
+  // Calcule la hauteur restante : 100% de l'écran moins la hauteur de la navbar
+  height: calc(100vh - var(--navbar-h)); 
+  overflow: hidden;
+  transition: all var(--t-base); // Pour une transition fluide si la sidebar bouge
+
+  // Quand on est sur la page de Login/Auth
+  &.auth-layout {
+    height: 100vh; // Pas de navbar, donc 100% de hauteur
+    display: block; // On casse le flex pour que le login soit centré ou plein écran
+    
+    .app-content {
+      height: 100vh;
+    }
+  }
+}
+
+.app-content {
+  flex: 1;
+  height: 100%; // Prend toute la hauteur du parent (.app-shell)
+  overflow-y: auto;
+  background: var(--bg-app);
+  padding: 0; // Nettoyé selon ta demande
+  position: relative; // Important pour le positionnement des drawers ou overlays
+  
+  // Style spécifique au mode auth si nécessaire
+  &.auth-mode {
+    height: 100vh;
+    padding: 0;
+  }
+}
+
+// Optionnel : Gestion du scrollbar pour que ce soit propre
+.app-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-content::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}

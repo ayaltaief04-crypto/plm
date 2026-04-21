@@ -1,0 +1,290 @@
+// ── CONFIGURATION & VARIABLES ────────────────────────────────────────────────
+$navy: #389fff;
+$navy-dk: #296cb8;
+$accent: #00B89A;
+$border: #E1E8F0;
+$bg: #F7F9FC;
+$white: #FFFFFF;
+$text: #0D1B2E;
+$muted: #7A90A8;
+$danger: #DC2626;
+$t: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+
+:host {
+  --sidebar-w: 260px;
+  --sidebar-w-col: 68px;
+  --t-base: 0.3s ease;
+  --primary: #0d053d;
+  --accent-main: #0056b3;
+  --current-sidebar-w: var(--sidebar-w);
+  position: relative;
+  display: flex;
+  height: 100vh;
+}
+
+// ── SIDEBAR ──────────────────────────────────────────────────────────────────
+.plm-sidebar {
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--primary);
+  display: flex;
+  flex-direction: column;
+  transition: width var(--t-base);
+  position: relative;
+  overflow: hidden;
+  z-index: 300;
+  flex-shrink: 0;
+
+  &.collapsed {
+    width: var(--sidebar-w-col);
+    --current-sidebar-w: var(--sidebar-w-col);
+
+    .nav-section__label,
+    .nav-item__label,
+    .toggle-btn span,
+    .nav-item__chevron {
+      display: none;
+    }
+
+    .nav-item,
+    .toggle-btn {
+      justify-content: center;
+    }
+
+    /* ✅ en collapsed, on garde le badge-dot visible */
+    .nav-item__badge--dot {
+      display: inline-flex !important;
+    }
+  }
+}
+
+.sidebar__nav {
+  flex: 1;
+  padding: 24px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.nav-section {
+  margin-bottom: 20px;
+
+  .nav-section__label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);
+    padding: 0 12px;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s;
+  width: 100%;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  text-align: left;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+  }
+
+  &.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+
+    .nav-item__icon {
+      color: var(--accent-main);
+    }
+  }
+
+  &--active-panel {
+    background: rgba(0, 184, 154, 0.15) !important;
+    color: #00B89A !important;
+  }
+
+  &__icon {
+    position: relative; /* ✅ nécessaire pour badge-dot */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: currentColor;
+    }
+  }
+
+  &__badge {
+    background: #00B89A;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+    line-height: 1.2;
+  }
+
+  /* ✅ badge version collapsed: petit rond sur l’icône */
+  &__badge--dot {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    margin-left: 0;
+    padding: 0 5px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    display: none; /* affiché via *ngIf + collapsed */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px var(--primary);
+  }
+
+  &__chevron {
+    margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: currentColor;
+      opacity: 0.9;
+    }
+  }
+}
+
+.sidebar__footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  .toggle-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    mat-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+// ── OVERLAY + DRAWER (tu peux garder tes valeurs) ────────────────────────────
+.rp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 6500;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--t-base), visibility var(--t-base);
+
+  &--open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+.rp-drawer {
+  position: fixed;
+  top: 0;
+  width: 760px;
+  max-width: calc(100vw - var(--current-sidebar-w));
+  height: 100vh;
+  background: $bg;
+  z-index: 7000;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 28px rgba(7, 15, 30, 0.14);
+  border-right: 1px solid $border;
+
+  transform: translateX(-105%);
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform $t, left var(--t-base), visibility $t;
+
+  &--open {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: $navy;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+
+    mat-icon {
+      color: $accent;
+      font-size: 20px;
+    }
+  }
+
+  &__close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 20px;
+  }
+}

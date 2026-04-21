@@ -1,0 +1,66 @@
+$bg-color: #f4f7fe;
+$primary: #4318ff;
+$text-main: #1b2559;
+$text-muted: #a3aed0;
+$shadow: 0px 10px 30px rgba(0, 0, 0, 0.05);
+$success: #05cd99;
+$danger: #ee5d50;
+
+.page-container { padding: 40px; background: $bg-color; min-height: 100vh; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+.header-section {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+  h1 { color: $text-main; font-weight: 800; font-size: 26px; margin: 0; }
+  .count-badge { color: $text-muted; font-size: 14px; font-weight: 600; }
+}
+
+.action-bar {
+  display: flex; align-items: center; gap: 12px; background: white; padding: 10px 20px; border-radius: 50px; box-shadow: $shadow;
+  
+  .search-wrapper {
+    display: flex; align-items: center; background: #f4f7fe; padding: 6px 14px; border-radius: 20px;
+    input { border: none; background: transparent; outline: none; width: 150px; font-size: 13px; }
+    mat-icon { color: $text-muted; font-size: 20px; }
+  }
+
+  .filter-select {
+    border: none; background: #f4f7fe; padding: 8px 12px; border-radius: 15px; font-size: 13px; font-weight: 600; color: $text-main; outline: none; cursor: pointer;
+  }
+  
+  .divider { width: 1px; height: 24px; background: #e0e5f2; }
+
+  .btn-action {
+    mat-icon { font-size: 22px; }
+    &:hover { background: #f4f7fe; }
+    &.delete:hover { color: $danger; }
+    &.password:hover { color: #ffb800; }
+    &:disabled { opacity: 0.2; }
+  }
+}
+
+.table-container {
+  background: white; border-radius: 24px; box-shadow: $shadow; overflow: hidden;
+  table { width: 100%; th { color: $text-muted; font-size: 11px; text-transform: uppercase; padding: 20px !important; } 
+  td { padding: 15px 20px !important; font-weight: 600; color: $text-main; }
+  tr:hover { background: #fcfdfe; } .selected-row { background: #f4f7fe !important; } }
+}
+
+.user-info { display: flex; align-items: center; gap: 10px; .avatar { width: 32px; height: 32px; background: $primary; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; } }
+.status-pill { padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; background: #fff5f5; color: $danger; &.active { background: #e6faf5; color: $success; } }
+.role-badge { background: #f4f7fe; color: $primary; padding: 4px 10px; border-radius: 8px; font-size: 11px; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modern-modal {
+  background: white; width: 450px; border-radius: 24px; padding: 30px;
+  h2 { margin-bottom: 20px; font-weight: 800; color: $text-main; }
+  .modal-body { display: flex; flex-direction: column; gap: 15px; 
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; label { font-size: 12px; font-weight: 700; }
+    input, .modern-select { height: 44px; border: 2px solid #e0e5f2; border-radius: 12px; padding: 0 15px; outline: none; &:focus { border-color: $primary; } } }
+  }
+  .modal-footer { margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px; }
+}
+
+.btn-primary { background: $primary; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; &:disabled { opacity: 0.5; cursor: not-allowed; } }
+.btn-secondary { background: #f4f7fe; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.error-text { color: $danger; font-size: 11px; font-weight: 600; margin-top: 5px; }

@@ -1,0 +1,194 @@
+$blue-primary:  #0d1f3c;
+$blue-accent:   #0080ff;
+$blue-light:    #eff6ff;
+$success:       #10b981;
+$gray-50:       #f8fafc;
+$gray-100:      #f1f5f9;
+$gray-200:      #e2e8f0;
+$gray-500:      #64748b;
+$gray-800:      #1e293b;
+$white:         #ffffff;
+
+$font-main:     'IBM Plex Sans', -apple-system, sans-serif;
+$shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.1);
+$border-radius: 8px;
+$transition:    all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+.qc-wrap {
+  font-family: $font-main;
+  padding: 0 0.5rem;
+}
+
+.qc-title {
+  color: $blue-primary;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+}
+
+// ─── SECTION ─────────────────────────────────────────────────────────────────
+.tp-section {
+  background: $white;
+  padding: 1.5rem;
+  border-radius: $border-radius;
+  border: 1px solid $gray-200;
+  box-shadow: $shadow-sm;
+  margin-bottom: 1.5rem;
+
+  &--rse {
+    border-left: 6px solid $success;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    color: $blue-accent;
+    border-bottom: 1px solid $gray-100;
+    padding-bottom: 0.75rem;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: $blue-accent;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: $blue-accent;
+    }
+  }
+}
+
+.rse-badge {
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-left: 4px;
+}
+
+// ─── GRILLE ──────────────────────────────────────────────────────────────────
+.tp-grid {
+  display: grid;
+  gap: 1rem;
+
+  &.g2 { grid-template-columns: repeat(2, 1fr); }
+  &.g3 { grid-template-columns: repeat(3, 1fr); }
+  &.g4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+// ─── CHAMP ───────────────────────────────────────────────────────────────────
+.tp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $gray-500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+
+    .req { color: $blue-accent; }
+  }
+
+  input, select, textarea {
+    padding: 0.6rem 0.8rem;
+    border: 1.5px solid $gray-200;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: $font-main;
+    background: $white;
+    color: $gray-800;
+    transition: $transition;
+    resize: vertical;
+
+    &:focus {
+      outline: none;
+      border-color: $blue-accent;
+      box-shadow: 0 0 0 3px rgba(36, 120, 200, 0.1);
+    }
+
+    &:disabled {
+      background: $gray-100;
+      cursor: not-allowed;
+      border-color: transparent;
+      color: $gray-500;
+    }
+  }
+}
+
+// ─── TOGGLES ─────────────────────────────────────────────────────────────────
+.toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  :host ::ng-deep .mat-mdc-slide-toggle {
+    .mdc-label {
+      font-size: 0.9rem;
+      font-family: $font-main;
+      color: $gray-800;
+    }
+  }
+}
+
+// ─── BOUTON ──────────────────────────────────────────────────────────────────
+.tp-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.tp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  transition: $transition;
+  font-family: $font-main;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &--primary {
+    background: $blue-accent;
+    color: $white;
+    &:hover { background: darken($blue-accent, 10%); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+}
+
+// ─── RESPONSIVE ──────────────────────────────────────────────────────────────
+@media (max-width: 1024px) {
+  .tp-grid.g4 { grid-template-columns: repeat(2, 1fr); }
+  .tp-grid.g3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .tp-grid.g4,
+  .tp-grid.g3,
+  .tp-grid.g2 { grid-template-columns: 1fr; }
+}

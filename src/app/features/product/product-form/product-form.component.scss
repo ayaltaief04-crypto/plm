@@ -1,0 +1,599 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// VARIABLES
+// ─────────────────────────────────────────────────────────────────────────────
+$blue-primary:   #0d1f3c;
+$blue-accent:    #389fff;
+$blue-dark:      #151b27;
+$blue-bg-viewer: #1e2433;
+$blue-light:     #eff6ff;
+$success:        #10b981;
+$danger:         #ef4444;
+$warning:        #f59e0b;
+$gray-50:        #f8fafc;
+$gray-100:       #f1f5f9;
+$gray-200:       #e2e8f0;
+$gray-500:       #64748b;
+$gray-800:       #1e293b;
+$white:          #ffffff;
+
+$font-main:  'IBM Plex Sans', -apple-system, sans-serif;
+$font-mono:  'IBM Plex Mono', monospace;
+$shadow-sm:  0 1px 3px rgba(0,0,0,.10);
+$shadow-md:  0 4px 6px -1px rgba(0,0,0,.10);
+$shadow-lg:  0 10px 25px rgba(0,0,0,.18);
+$radius:     8px;
+$transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LAYOUT PRINCIPAL
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-wrap {
+  font-family: $font-main;
+  background-color: $gray-50;
+  min-height: 100vh;
+  color: $gray-800;
+
+  &.is-locked {
+    .tp-field input:not([type="color"]),
+    .tp-field textarea,
+    .tp-field select {
+      background-color: $gray-100;
+      cursor: not-allowed;
+      border-color: transparent;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HEADER
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-header {
+  background: $blue-primary;
+  color: $white;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 64px;
+  box-shadow: $shadow-md;
+
+  &__left  { display: flex; align-items: center; gap: 1rem; }
+  &__right { display: flex; align-items: center; gap: .75rem; }
+  &__meta  { display: flex; flex-direction: column; gap: 2px; }
+  &__brand { font-weight: 700; font-size: .9rem; letter-spacing: 1px; }
+  &__doc   { font-size: .8rem; display: flex; align-items: center; gap: 10px; font-family: $font-mono; }
+
+  .tp-logo {
+    background: $blue-accent;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-weight: 800; font-size: .9rem; flex-shrink: 0;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VERSION SELECTOR
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-version-selector {
+  display: flex; align-items: center; gap: 6px;
+  color: rgba(255,255,255,.7); font-size: .8rem;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  select {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    color: $white; border-radius: 6px; padding: 4px 8px;
+    font-size: .8rem; cursor: pointer; font-family: $font-main;
+    option { background: $blue-primary; color: $white; }
+    &:focus { outline: none; border-color: $blue-accent; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ONGLETS
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-tabs {
+  background: $white;
+  border-bottom: 1px solid $gray-200;
+  display: flex; padding: 0 1.5rem; gap: 2rem;
+  position: sticky; top: 64px; z-index: 999; height: 48px;
+
+  .tp-tab-btn {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: $gray-500;
+    position: relative; transition: $transition; white-space: nowrap;
+
+    &::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 3px; background: transparent; transition: $transition;
+    }
+    &.is-active { color: $blue-accent; &::after { background: $blue-accent; } }
+
+    &.tp-tab-btn--checklist {
+      color: #e8c97e; opacity: .75;
+      &.is-active { opacity: 1; color: #e8c97e; &::after { background: #e8c97e; } }
+      &:hover { opacity: 1; }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WORKFLOW BAR
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-workflow-bar {
+  background: $blue-dark;
+  padding: .625rem 1.5rem;
+  // NE PAS mettre sticky ici pour ne pas cacher le contenu du formulaire
+  // La barre reste en flux normal pour éviter de masquer le formulaire
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  position: relative;
+  z-index: 998;
+
+  .tp-workflow-container {
+    display: flex; align-items: center; gap: .75rem;
+    flex-wrap: wrap; max-width: 1600px; margin: 0 auto;
+  }
+  .tp-workflow-label {
+    display: flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,.7); font-size: .82rem; flex: 1;
+    mat-icon { font-size: 16px; width: 16px; height: 16px; color: $blue-accent; }
+  }
+  .tp-workflow-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .tp-workflow-info {
+    display: flex; align-items: center; gap: 6px;
+    color: rgba(255,255,255,.6); font-size: .82rem; flex: 1;
+  }
+  .tp-workflow-message {
+    display: flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,.7); font-size: .82rem;
+    background: rgba(255,255,255,.05);
+    padding: .4rem .8rem; border-radius: 6px;
+    border-left: 3px solid $blue-accent; flex: 1;
+    mat-icon { font-size: 16px; width: 16px; height: 16px; color: $blue-accent; }
+
+    &--success {
+      border-left-color: $success;
+      mat-icon { color: $success; }
+    }
+    &--locked {
+      border-left-color: $gray-500;
+      color: rgba(255,255,255,.5);
+      mat-icon { color: $gray-500; }
+    }
+  }
+  &--creation { background: darken($blue-dark, 3%); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PRINT BAR
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-print-bar {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 14px; padding: 8px 24px;
+  background: $white; border-bottom: 1px solid $gray-200;
+}
+
+.tp-btn-print {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 16px; border-radius: $radius;
+  background: transparent; border: 1.5px solid $gray-200;
+  color: $gray-500; font-family: $font-main;
+  font-size: 12.5px; font-weight: 600;
+  cursor: pointer; transition: $transition; white-space: nowrap;
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  &:hover {
+    background: $blue-primary; border-color: $blue-primary;
+    color: $white; box-shadow: 0 3px 12px rgba(11,61,110,.2);
+    transform: translateY(-1px);
+  }
+  &:active { transform: translateY(0); box-shadow: none; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOADING
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-loading {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px; padding: 80px 20px;
+  color: $gray-500; font-size: .9rem;
+  &__icon {
+    font-size: 40px; width: 40px; height: 40px;
+    animation: spin 1.2s linear infinite; color: $blue-accent;
+  }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BODY & LAYOUT
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-body {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.tp-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tp-body-inner {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.tp-main  { display: flex; flex-direction: column; gap: 1.5rem; }
+.tp-aside { display: flex; flex-direction: column; gap: 1.5rem; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PANELS
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-panel {
+  background: $white; border-radius: $radius;
+  border: 1px solid $gray-200; overflow: hidden; box-shadow: $shadow-sm;
+
+  &__head {
+    background: $gray-50; padding: .75rem 1rem;
+    border-bottom: 1px solid $gray-200;
+    display: flex; align-items: center; gap: 8px; color: $blue-primary;
+    span { font-weight: 600; font-size: .85rem; text-transform: uppercase; }
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+  &__body { padding: 1rem; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GALERIE IMAGES — galerie principale avec hover zoom
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-gallery-main {
+  position: relative;
+  height: 220px;
+  background: $gray-100;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+
+  // Curseur zoom si image présente
+  &--clickable { cursor: zoom-in; }
+
+  &__img {
+    width: 100%; height: 100%;
+    object-fit: contain; display: block;
+    transition: transform 0.3s ease;
+  }
+
+  &--clickable:hover &__img { transform: scale(1.04); }
+
+  &__empty {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: $gray-500; font-size: .8rem;
+    mat-icon { font-size: 36px; width: 36px; height: 36px; opacity: .4; }
+  }
+
+  // Overlay boutons (zoom + delete) → visible au hover
+  &__overlay {
+    position: absolute; top: 8px; right: 8px;
+    display: flex; gap: 6px;
+    opacity: 0; transition: opacity 0.2s ease;
+  }
+  &:hover &__overlay { opacity: 1; }
+}
+
+// Miniatures
+.tp-gallery-thumbs {
+  display: flex; gap: 6px; padding: 8px; overflow-x: auto;
+  background: $gray-50; border-top: 1px solid $gray-200; min-height: 64px;
+  &::-webkit-scrollbar       { height: 3px; }
+  &::-webkit-scrollbar-thumb { background: $gray-200; border-radius: 3px; }
+}
+
+.tp-thumb-wrap {
+  position: relative; width: 52px; height: 52px;
+  border-radius: 6px; overflow: hidden; cursor: pointer;
+  border: 2px solid transparent; flex-shrink: 0; transition: $transition;
+
+  img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+
+  &.active  { border-color: $blue-accent; box-shadow: 0 0 0 2px rgba(56,159,255,.3); }
+  &.dragging { opacity: .4; }
+  &:hover   { border-color: $gray-500; }
+}
+
+.tp-thumb-drag {
+  position: absolute; top: 2px; left: 2px;
+  background: rgba(0,0,0,.5); border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; cursor: grab;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; color: $white; }
+}
+
+.tp-gallery-add { padding: 8px; border-top: 1px solid $gray-200; }
+
+.tp-add-btn {
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+  padding: .4rem .75rem; width: 100%;
+  border: 1.5px dashed $gray-200; border-radius: 6px;
+  cursor: pointer; font-size: .8rem; color: $gray-500; transition: $transition;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:hover { border-color: $blue-accent; color: $blue-accent; background: $blue-light; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LIGHTBOX
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-lightbox {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  cursor: zoom-out;
+
+  &__backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,.88);
+    backdrop-filter: blur(4px);
+  }
+
+  &__container {
+    position: relative; z-index: 1;
+    max-width: 92vw; max-height: 92vh;
+    display: flex; align-items: center; justify-content: center;
+    cursor: default;
+  }
+
+  &__img {
+    max-width: 90vw; max-height: 90vh;
+    object-fit: contain;
+    border-radius: $radius;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    animation: lb-in 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  &__close {
+    position: absolute; top: -14px; right: -14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,.15); border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: $white; cursor: pointer; transition: $transition;
+    backdrop-filter: blur(4px);
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    &:hover { background: rgba(255,255,255,.28); transform: scale(1.1); }
+  }
+}
+
+@keyframes lb-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FICHIERS
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-fichiers-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+
+.tp-fichier-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; background: $gray-50;
+  border: 1px solid $gray-200; border-radius: 6px; transition: $transition;
+  &:hover { background: $blue-light; border-color: $blue-accent; }
+}
+
+.tp-fichier-icon { color: $blue-accent; font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+.tp-fichier-info { flex: 1; min-width: 0; }
+.tp-fichier-nom  { display: block; font-size: .8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: $gray-800; }
+.tp-fichier-taille { display: block; font-size: .7rem; color: $gray-500; }
+.tp-fichier-actions { display: flex; gap: 4px; }
+
+.tp-fichiers-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 16px; color: $gray-500; font-size: .8rem;
+  mat-icon { font-size: 24px; width: 24px; height: 24px; opacity: .4; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORMULAIRES & SECTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-edit-content { padding: 0; }
+
+.tp-section {
+  background: $white; padding: 1.5rem; border-radius: $radius;
+  border: 1px solid $gray-200; box-shadow: $shadow-sm; margin-bottom: 1.5rem;
+
+  &__head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 1.5rem;
+    color: $blue-accent; border-bottom: 1px solid $gray-100; padding-bottom: .75rem;
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    h3 { margin: 0; font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  }
+}
+
+.tp-grid {
+  display: grid; gap: 1rem;
+  &.g2 { grid-template-columns: repeat(2, 1fr); }
+  &.g3 { grid-template-columns: repeat(3, 1fr); }
+  &.g4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+.tp-field {
+  display: flex; flex-direction: column; gap: 6px;
+
+  label {
+    font-size: .72rem; font-weight: 700; color: $gray-500;
+    text-transform: uppercase; letter-spacing: .4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  input:not([type="color"]), select, textarea {
+    padding: .6rem .8rem;
+    border: 1.5px solid $gray-200; border-radius: 6px;
+    font-size: .9rem; transition: $transition;
+    font-family: $font-main; background: $white; color: $gray-800; resize: vertical;
+    &:focus { outline: none; border-color: $blue-accent; box-shadow: 0 0 0 3px rgba(56,159,255,.1); }
+    &:disabled { background-color: $gray-100; cursor: not-allowed; border-color: transparent; }
+  }
+
+  &__ref {
+    font-family: $font-mono !important; font-weight: 600;
+    color: $blue-accent !important; background: $blue-light !important; border-color: transparent !important;
+  }
+  &__auto-badge {
+    background: $blue-accent; color: $white;
+    font-size: .6rem; padding: 1px 5px; border-radius: 3px; font-weight: 700; letter-spacing: .5px;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PALETTE COULEURS
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-palette-container  { display: flex; flex-direction: column; gap: 1rem; }
+.tp-palette-swatches   { display: flex; flex-wrap: wrap; gap: 10px; min-height: 50px; }
+
+.tp-palette-empty {
+  display: flex; align-items: center; gap: 8px;
+  color: $gray-500; font-size: .8rem; font-style: italic;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; opacity: .5; }
+}
+
+.tp-swatch {
+  position: relative; width: 56px; height: 56px;
+  border-radius: 8px; border: 2px solid rgba(0,0,0,.1);
+  display: flex; align-items: flex-end; justify-content: center;
+  overflow: hidden; box-shadow: $shadow-sm; transition: $transition;
+  &:hover { transform: scale(1.05); box-shadow: $shadow-md; }
+
+  &__remove {
+    position: absolute; top: 2px; right: 2px;
+    background: rgba(0,0,0,.55); border: none; border-radius: 50%;
+    width: 16px; height: 16px; display: none; align-items: center; justify-content: center;
+    cursor: pointer;
+    mat-icon { font-size: 11px; width: 11px; height: 11px; color: $white; }
+  }
+  &:hover &__remove { display: flex; }
+
+  &__hex {
+    font-size: .6rem; font-family: $font-mono;
+    background: rgba(0,0,0,.5); color: $white;
+    padding: 1px 4px; border-radius: 3px 3px 0 0; letter-spacing: .5px;
+  }
+}
+
+.tp-palette-picker { padding-top: .5rem; border-top: 1px solid $gray-100; }
+.tp-color-input-row { display: flex; align-items: center; gap: 10px; }
+.tp-color-picker {
+  width: 48px !important; height: 38px !important; padding: 2px !important;
+  cursor: pointer !important; border-radius: 6px !important;
+  border: 1.5px solid $gray-200 !important; background: none !important;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BOUTONS
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; padding: .5rem 1rem; border-radius: 6px; font-weight: 600;
+  font-size: .85rem; cursor: pointer; transition: $transition; border: none;
+  white-space: nowrap; font-family: $font-main;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &--primary { background: $blue-accent; color: $white;
+    &:hover { background: darken($blue-accent, 10%); } }
+  &--outline  { background: transparent; color: $white; border: 1px solid rgba(255,255,255,.3);
+    &:hover { background: rgba(255,255,255,.1); } }
+  &--success  { background: $success; color: $white; &:hover { background: darken($success, 8%); } }
+  &--danger   { background: $danger;  color: $white; &:hover { background: darken($danger,  8%); } }
+  &--warning  { background: $warning; color: $white; &:hover { background: darken($warning, 8%); } }
+  &--accent   { background: linear-gradient(135deg, #116ee7, #0400ff); color: $white; &:hover { opacity: .88; } }
+  &--sm       { padding: .35rem .75rem; font-size: .8rem; }
+}
+
+.tp-icon-btn {
+  background: rgba(0,0,0,.05); border: none; border-radius: 6px;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: $transition; color: $gray-500; text-decoration: none;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:hover       { background: $gray-200; color: $gray-800; }
+  &--danger:hover { background: $danger;  color: $white; }
+  // Bouton zoom sur la photo
+  &--zoom {
+    background: rgba(0,0,0,.5);
+    color: $white;
+    &:hover { background: $blue-accent; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATUS PILLS
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-status-pill {
+  padding: 3px 10px; border-radius: 20px; font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px;
+  &[data-status="Brouillon"] { background: $gray-500;   color: $white; }
+  &[data-status="Publié"]    { background: $blue-accent; color: $white; }
+  &[data-status="En cours"]  { background: $warning;     color: $white; }
+  &[data-status="Clôturé"]   { background: $gray-800;    color: $white; }
+  &[data-status="Validé"]    { background: $success;     color: $white; }
+  &[data-status="Archivé"]   { background: $gray-200;    color: $gray-500; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// READONLY BANNER
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-readonly-banner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25);
+  border-radius: $radius; margin-bottom: 20px;
+  font-size: 13px; color: #92400e; font-weight: 500;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: #d97706; flex-shrink: 0; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TAB BADGE
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-tab-badge {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .4px; padding: 2px 6px; border-radius: 10px; margin-left: 4px;
+  &.ro { background: rgba(100,116,139,.12); color: $gray-500; border: 1px solid rgba(100,116,139,.2); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESPONSIVE
+// ─────────────────────────────────────────────────────────────────────────────
+@media (max-width: 1024px) {
+  .tp-body-inner { grid-template-columns: 1fr; }
+  .tp-aside { flex-direction: row; flex-wrap: wrap; }
+  .tp-panel { flex: 1 1 280px; }
+  .tp-grid.g4 { grid-template-columns: repeat(2, 1fr); }
+  .tp-grid.g3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .tp-body { padding: 1rem; }
+  .tp-body-inner { gap: 1rem; }
+  .tp-grid.g4, .tp-grid.g3, .tp-grid.g2 { grid-template-columns: 1fr; }
+  .tp-workflow-bar .tp-workflow-container { flex-direction: column; align-items: stretch; }
+  .tp-btn { justify-content: center; }
+  .tp-header__right .tp-version-selector { display: none; }
+  .tp-lightbox__img { max-width: 96vw; max-height: 80vh; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PRINT
+// ─────────────────────────────────────────────────────────────────────────────
+@media print {
+  .tp-header, .tp-tabs, .tp-workflow-bar,
+  .tp-print-bar, .tp-lightbox, .no-print { display: none !important; }
+  .tp-body { display: block; padding: 0; }
+  .tp-aside { display: none; }
+  .tp-section { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+}

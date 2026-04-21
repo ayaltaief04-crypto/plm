@@ -1,0 +1,159 @@
+<!-- ============================================================
+     gestion-listes.component.html
+     Admin configure les éléments de chaque liste de contrôle,
+     liée à un rôle métier précis.
+============================================================ -->
+<div class="gl-wrap">
+
+  <!-- HEADER -->
+  <div class="gl-header">
+    <mat-icon class="gl-header__icon">rule_settings</mat-icon>
+    <div>
+      <h1 class="gl-header__title">Listes de Contrôle</h1>
+      <p class="gl-header__sub">
+        Configurez les points de contrôle pour chaque acteur. Chaque acteur trouvera sa liste personnalisée dans le formulaire produit.
+      </p>
+    </div>
+  </div>
+
+  <div class="gl-layout">
+
+    <!-- SIDEBAR SERVICES -->
+    <aside class="gl-sidebar">
+      <p class="gl-sidebar__label">Services</p>
+      <button
+        *ngFor="let svc of SERVICES"
+        class="gl-svc-btn"
+        [class.gl-svc-btn--active]="serviceActif.nomListe === svc.nomListe"
+        (click)="afficherService(svc)"
+        [style.--svc-color]="svc.couleur"
+      >
+        <mat-icon>{{ svc.icon }}</mat-icon>
+        <div class="gl-svc-btn__info">
+          <span class="gl-svc-btn__name">{{ svc.nomListe }}</span>
+          <span class="gl-svc-btn__role">{{ svc.roleCible }}</span>
+        </div>
+        <span class="gl-svc-btn__count" *ngIf="modeleActuel && serviceActif.nomListe === svc.nomListe">
+          {{ modeleActuel.elements.length }}
+        </span>
+      </button>
+    </aside>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="gl-main">
+
+      <!-- ENTÊTE DU SERVICE ACTIF -->
+      <div class="gl-service-header" [style.--svc-color]="serviceActif.couleur">
+        <mat-icon>{{ serviceActif.icon }}</mat-icon>
+        <div>
+          <h2>{{ serviceActif.nomListe }}</h2>
+          <p>
+            <mat-icon class="inline-icon">person</mat-icon>
+            Visible par : <strong>{{ serviceActif.roleCible }}</strong>
+          </p>
+        </div>
+        <div class="gl-service-header__count">
+          <strong>{{ modeleActuel?.elements?.length || 0 }}</strong>
+          <span>éléments</span>
+        </div>
+      </div>
+
+      <!-- LISTE DES ÉLÉMENTS -->
+      <div class="gl-elements"
+           cdkDropList
+           (cdkDropListDropped)="drop($event)">
+
+        <div class="gl-element-empty" *ngIf="!modeleActuel?.elements?.length">
+          <mat-icon>playlist_add</mat-icon>
+          <p>Aucun élément. Cliquez sur « Ajouter » pour créer le premier point de contrôle.</p>
+        </div>
+
+        <div
+          *ngFor="let el of modeleActuel?.elements; let i = index"
+          class="gl-element"
+          [class.gl-element--bloquant]="el.estBloquant"
+          [class.gl-element--edit]="el.enEdition"
+          cdkDrag
+        >
+          <!-- Drag handle -->
+          <div class="gl-element__drag" cdkDragHandle>
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+
+          <!-- Numéro -->
+          <span class="gl-element__num">{{ i + 1 }}</span>
+
+          <!-- Contenu -->
+          <div class="gl-element__body">
+            <input
+              *ngIf="el.enEdition"
+              class="gl-element__input"
+              [(ngModel)]="el.contenu"
+              (keyup.enter)="validerElement(el)"
+              (keyup.escape)="el.enEdition = false"
+              placeholder="Ex: Vérifier la qualité des coutures..."
+              autofocus
+            >
+            <span *ngIf="!el.enEdition" class="gl-element__text">
+              {{ el.contenu || 'Élément sans texte...' }}
+            </span>
+            <span class="gl-element__badge" *ngIf="el.estBloquant">
+              <mat-icon>lock</mat-icon> Bloquant
+            </span>
+          </div>
+
+          <!-- Actions -->
+          <div class="gl-element__actions">
+            <ng-container *ngIf="!el.enEdition">
+              <button
+                class="gl-icon-btn"
+                [class.gl-icon-btn--active]="el.estBloquant"
+                (click)="toggleBloquant(el)"
+                [title]="el.estBloquant ? 'Bloquant : cliquer pour désactiver' : 'Non bloquant : cliquer pour activer'"
+              >
+                <mat-icon>{{ el.estBloquant ? 'lock' : 'lock_open' }}</mat-icon>
+              </button>
+              <button class="gl-icon-btn gl-icon-btn--edit" (click)="el.enEdition = true" title="Modifier">
+                <mat-icon>edit_note</mat-icon>
+              </button>
+              <button class="gl-icon-btn gl-icon-btn--delete" (click)="supprimerElement(el.idElement)" title="Supprimer">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </ng-container>
+
+            <ng-container *ngIf="el.enEdition">
+              <button class="gl-icon-btn gl-icon-btn--confirm" (click)="validerElement(el)" title="Valider">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+              <button class="gl-icon-btn gl-icon-btn--cancel" (click)="el.enEdition = false" title="Annuler">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </ng-container>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER ACTIONS -->
+      <div class="gl-footer">
+        <button class="gl-btn gl-btn--ghost" (click)="ajouterElement()">
+          <mat-icon>add_circle_outline</mat-icon> Ajouter un élément
+        </button>
+
+        <div class="gl-footer__right">
+          <div class="gl-feedback gl-feedback--ok" *ngIf="savedOk">
+            <mat-icon>check_circle</mat-icon>
+            Liste « {{ serviceActif.nomListe }} » enregistrée — visible par {{ serviceActif.roleCible }}
+          </div>
+          <div class="gl-feedback gl-feedback--err" *ngIf="savedErr">
+            <mat-icon>error</mat-icon> Erreur lors de l'enregistrement.
+          </div>
+          <button class="gl-btn gl-btn--primary" (click)="sauvegarder()" [disabled]="!modeleActuel">
+            <mat-icon>save</mat-icon> Enregistrer
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>

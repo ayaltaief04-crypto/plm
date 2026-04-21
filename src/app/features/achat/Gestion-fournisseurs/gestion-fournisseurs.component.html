@@ -1,0 +1,264 @@
+<div class="fournisseurs-page">
+
+  <!-- En-tête de page -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <div class="page-header__icon">
+        <mat-icon>store</mat-icon>
+      </div>
+      <div>
+        <h1 class="page-title">Gestion des Fournisseurs</h1>
+        <p class="page-subtitle">{{ fournisseurs.length }} fournisseur{{ fournisseurs.length > 1 ? 's' : '' }} enregistré{{ fournisseurs.length > 1 ? 's' : '' }}</p>
+      </div>
+    </div>
+    <button class="btn-add" (click)="openAdd()">
+      <mat-icon>add</mat-icon>
+      Ajouter un fournisseur
+    </button>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="search-bar">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      class="search-input"
+      type="text"
+      placeholder="Rechercher par société, contact, email, type de produit…"
+      [(ngModel)]="searchTerm"
+    />
+    <button *ngIf="searchTerm" class="search-clear" (click)="searchTerm=''">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Liste des fournisseurs -->
+  <div class="fournisseurs-grid" *ngIf="filtered.length > 0">
+    <div class="fournisseur-card" *ngFor="let f of filtered">
+      <div class="fournisseur-card__header">
+        <div class="fournisseur-card__avatar">{{ getInitiales(f) }}</div>
+        <div class="fournisseur-card__info">
+          <h3 class="fournisseur-card__societe">{{ f.nomSociete }}</h3>
+          <span class="fournisseur-card__type">
+            <mat-icon>category</mat-icon>
+            {{ f.typeProduit }}
+          </span>
+        </div>
+        <div class="fournisseur-card__actions">
+          <button class="icon-btn icon-btn--edit" (click)="openEdit(f)" matTooltip="Modifier">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="icon-btn icon-btn--delete" (click)="askDelete(f.id)" matTooltip="Supprimer">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="fournisseur-card__body">
+        <div class="info-row">
+          <mat-icon>person</mat-icon>
+          <span>{{ f.prenomContact }} {{ f.nomContact }}</span>
+        </div>
+        <div class="info-row">
+          <mat-icon>email</mat-icon>
+          <a [href]="'mailto:' + f.email">{{ f.email }}</a>
+        </div>
+        <div class="info-row">
+          <mat-icon>phone</mat-icon>
+          <span>{{ f.telephone }}</span>
+        </div>
+        <div class="info-row">
+          <mat-icon>place</mat-icon>
+          <span>{{ f.adresse }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- État vide -->
+  <div class="empty-state" *ngIf="filtered.length === 0">
+    <mat-icon>store_mall_directory</mat-icon>
+    <p *ngIf="!searchTerm">Aucun fournisseur enregistré. Cliquez sur « Ajouter » pour commencer.</p>
+    <p *ngIf="searchTerm">Aucun résultat pour « {{ searchTerm }} ».</p>
+  </div>
+
+</div>
+
+<!-- ======================================================
+     MODAL : Ajouter / Modifier
+====================================================== -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <div class="modal__header-left">
+        <mat-icon>{{ isEditing ? 'edit' : 'store' }}</mat-icon>
+        <h2>{{ isEditing ? 'Modifier le fournisseur' : 'Ajouter un fournisseur' }}</h2>
+      </div>
+      <button class="modal__close" (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="modal__body">
+
+      <!-- Ligne 1 : Nom Société -->
+      <div class="form-group form-group--full">
+        <label class="form-label">
+          <mat-icon>business</mat-icon>
+          Nom de la Société <span class="required">*</span>
+        </label>
+        <input
+          class="form-input"
+          [class.is-invalid]="form.get('nomSociete')?.invalid && form.get('nomSociete')?.touched"
+          type="text"
+          formControlName="nomSociete"
+          placeholder="Ex: Tissu Pro SARL"
+        />
+        <span class="form-error" *ngIf="form.get('nomSociete')?.invalid && form.get('nomSociete')?.touched">
+          Le nom de la société est obligatoire.
+        </span>
+      </div>
+
+      <!-- Ligne 2 : Nom & Prénom Contact -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>badge</mat-icon>
+            Nom Contact <span class="required">*</span>
+          </label>
+          <input
+            class="form-input"
+            [class.is-invalid]="form.get('nomContact')?.invalid && form.get('nomContact')?.touched"
+            type="text"
+            formControlName="nomContact"
+            placeholder="Ex: Ben Ali"
+          />
+          <span class="form-error" *ngIf="form.get('nomContact')?.invalid && form.get('nomContact')?.touched">
+            Champ obligatoire.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>person</mat-icon>
+            Prénom Contact <span class="required">*</span>
+          </label>
+          <input
+            class="form-input"
+            [class.is-invalid]="form.get('prenomContact')?.invalid && form.get('prenomContact')?.touched"
+            type="text"
+            formControlName="prenomContact"
+            placeholder="Ex: Karim"
+          />
+          <span class="form-error" *ngIf="form.get('prenomContact')?.invalid && form.get('prenomContact')?.touched">
+            Champ obligatoire.
+          </span>
+        </div>
+      </div>
+
+      <!-- Ligne 3 : Email & Téléphone -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>email</mat-icon>
+            E-mail <span class="required">*</span>
+          </label>
+          <input
+            class="form-input"
+            [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+            type="email"
+            formControlName="email"
+            placeholder="contact@societe.com"
+          />
+          <span class="form-error" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+            E-mail invalide.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>phone</mat-icon>
+            Téléphone <span class="required">*</span>
+          </label>
+          <input
+            class="form-input"
+            [class.is-invalid]="form.get('telephone')?.invalid && form.get('telephone')?.touched"
+            type="tel"
+            formControlName="telephone"
+            placeholder="+216 XX XXX XXX"
+          />
+          <span class="form-error" *ngIf="form.get('telephone')?.invalid && form.get('telephone')?.touched">
+            Champ obligatoire.
+          </span>
+        </div>
+      </div>
+
+      <!-- Ligne 4 : Adresse & Type de Produit -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>place</mat-icon>
+            Adresse <span class="required">*</span>
+          </label>
+          <input
+            class="form-input"
+            [class.is-invalid]="form.get('adresse')?.invalid && form.get('adresse')?.touched"
+            type="text"
+            formControlName="adresse"
+            placeholder="Rue, Ville, Pays"
+          />
+          <span class="form-error" *ngIf="form.get('adresse')?.invalid && form.get('adresse')?.touched">
+            Champ obligatoire.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>category</mat-icon>
+            Type de Produit <span class="required">*</span>
+          </label>
+          <select
+            class="form-select"
+            [class.is-invalid]="form.get('typeProduit')?.invalid && form.get('typeProduit')?.touched"
+            formControlName="typeProduit"
+          >
+            <option value="">-- Sélectionner --</option>
+            <option *ngFor="let t of typesProduit" [value]="t">{{ t }}</option>
+          </select>
+          <span class="form-error" *ngIf="form.get('typeProduit')?.invalid && form.get('typeProduit')?.touched">
+            Champ obligatoire.
+          </span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="modal__footer">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Annuler</button>
+        <button type="submit" class="btn-submit">
+          <mat-icon>{{ isEditing ? 'save' : 'add' }}</mat-icon>
+          {{ isEditing ? 'Enregistrer' : 'Ajouter' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ======================================================
+     MODAL : Confirmation suppression
+====================================================== -->
+<div class="modal-overlay" *ngIf="confirmDeleteId !== null" (click)="cancelDelete()">
+  <div class="modal modal--confirm" (click)="$event.stopPropagation()">
+    <div class="confirm-icon">
+      <mat-icon>warning</mat-icon>
+    </div>
+    <h3>Supprimer ce fournisseur ?</h3>
+    <p>Cette action est irréversible.</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
+      <button class="btn-danger" (click)="confirmDelete()">
+        <mat-icon>delete</mat-icon>
+        Supprimer
+      </button>
+    </div>
+  </div>
+</div>
