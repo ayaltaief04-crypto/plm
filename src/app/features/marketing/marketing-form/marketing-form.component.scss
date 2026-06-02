@@ -1,216 +1,352 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// VARIABLES (harmonisées avec product-form)
-// ─────────────────────────────────────────────────────────────────────────────
-$blue-accent: #389fff;
-$success:     #10b981;
-$warning:     #f59e0b;
-$danger:      #ef4444;
-$gray-50:     #f8fafc;
-$gray-100:    #f1f5f9;
-$gray-200:    #e2e8f0;
-$gray-500:    #64748b;
-$gray-800:    #1e293b;
-$white:       #ffffff;
-$font-main:   'IBM Plex Sans', -apple-system, sans-serif;
-$radius:      8px;
-$transition:  all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+// VARIABLES
+$blue-primary:  #09288b;
+$blue-accent:   #0080ff;
+$blue-light:    #eff6ff;
+$success:       #10b981;
+$gray-50:       #f8fafc;
+$gray-100:      #f1f5f9;
+$gray-200:      #e2e8f0;
+$gray-400:      #94a3b8;
+$gray-500:      #64748b;
+$gray-600:      #475569;
+$gray-800:      #1e293b;
+$white:         #ffffff;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WRAPPER
-// ─────────────────────────────────────────────────────────────────────────────
-.mk-wrap {
+$font-main:     'IBM Plex Sans', -apple-system, sans-serif;
+$shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.1);
+$border-radius: 8px;
+$transition:    all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+// CONTAINER PRINCIPAL
+.mk-container {
   font-family: $font-main;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  background: $gray-50;
+  min-height: 100vh;
+  padding: 1.5rem;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LOADING
-// ─────────────────────────────────────────────────────────────────────────────
-.mk-loading {
-  display: flex; align-items: center; justify-content: center;
-  gap: 12px; padding: 60px 20px;
-  color: $gray-500; font-size: .9rem;
+.mk-layout {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding-bottom: 2rem;
+}
 
-  &__icon {
-    font-size: 28px; width: 28px; height: 28px;
-    color: $blue-accent;
-    animation: mk-spin 1.2s linear infinite;
+// PANNEAUX
+.mk-panel {
+  background: $white;
+  border-radius: $border-radius;
+  border: 1px solid $gray-200;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+
+  &.eco-panel {
+    border-left: 6px solid $success;
+    background: linear-gradient(to right, #f0fdf4, $white);
+  }
+
+  .panel-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid $gray-100;
+    background: $white;
+
+    .icon-box {
+      color: $blue-accent;
+      display: flex;
+      align-items: center;
+      mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    }
+
+    .title-box {
+      h2 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: $blue-primary;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      p { margin: 0; font-size: 0.75rem; color: $gray-500; }
+    }
+  }
+
+  .panel-content { padding: 1.5rem; }
+}
+
+// GRILLES
+.mk-grid-top {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1.2rem;
+}
+
+.mk-stack { display: flex; flex-direction: column; gap: 1.2rem; }
+.field-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.field-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.grid-eco { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+// INPUTS
+.mk-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 1rem;
+
+  label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $gray-500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    .req { color: $blue-accent; }
+  }
+
+  input, select, textarea {
+    padding: 0.65rem 0.8rem;
+    border: 1.5px solid $gray-200;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: $font-main;
+    background: $white;
+    color: $gray-800;
+    transition: $transition;
+
+    &::placeholder { color: $gray-400; font-style: normal; }
+
+    &:focus {
+      outline: none;
+      border-color: $blue-accent;
+      box-shadow: 0 0 0 3px rgba(0, 128, 255, 0.1);
+    }
+    &:disabled {
+      background: $gray-100;
+      color: $gray-500;
+      cursor: not-allowed;
+      border-color: transparent;
+    }
+  }
+
+  .large-input { font-weight: 700; color: $blue-primary; border-bottom: 2px solid $blue-accent; }
+  .highlight-input { background: $blue-light; border-color: rgba($blue-accent, 0.3); font-weight: 700; }
+  .score-input { font-weight: 800; color: $success; text-align: center; }
+}
+
+// SWOT MATRIX — sans cadre noir, style épuré
+.swot-matrix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  .swot-item {
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1.5px solid $gray-100;
+    background: $gray-50;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+      font-size: 0.85rem;
+      font-family: $font-main;
+      min-height: 60px;
+      resize: none;
+      color: $gray-800;
+
+      &::placeholder {
+        color: $gray-400;
+        font-style: italic;
+        font-size: 0.78rem;
+        font-weight: 400;
+        letter-spacing: 0.2px;
+        opacity: 0.85;
+      }
+
+      &:focus { box-shadow: none !important; }
+    }
+
+    &.s { border-top: 3px solid $success; label { color: $success; } }
+    &.w { border-top: 3px solid #f59e0b; label { color: #0babf5; } }
+    &.o { border-top: 3px solid $blue-accent; label { color: $blue-accent; } }
+    &.t { border-top: 3px solid #ef4444; label { color: #ef4444; }
+      label { color: #e11d48; }
+    }
   }
 }
 
-@keyframes mk-spin {
+// ACTIONS INTÉGRÉES AU BAS DU FORMULAIRE
+.mk-form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid $gray-100;
+
+  .alert {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+
+    mat-icon { font-size: 18px; height: 18px; width: 18px; }
+  }
+
+  .alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+
+  .alert-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
+// HEADER
+.mk-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: $white;
+  border-radius: $border-radius;
+  border: 1px solid $gray-200;
+  box-shadow: $shadow-sm;
+
+  .mk-title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $blue-primary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 1.2em;
+      background: $blue-accent;
+      border-radius: 2px;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+}
+
+// BOUTONS
+.tp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  font-family: $font-main;
+
+  mat-icon { font-size: 18px; height: 18px; width: 18px; }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+// Bleu — Enregistrer / Modifier
+.tp-btn--primary {
+  background: $blue-accent;
+  color: $white;
+  &:hover:not(:disabled) {
+    background: darken($blue-accent, 8%);
+    box-shadow: 0 2px 8px rgba($blue-accent, 0.4);
+  }
+}
+
+// Gris — Annuler
+.tp-btn--neutral {
+  background: $gray-100;
+  color: $gray-600;
+  border: 1px solid $gray-200;
+  &:hover:not(:disabled) {
+    background: $gray-200;
+    color: $gray-800;
+  }
+}
+
+// LOADER
+.mk-loader-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 60vh;
+  color: $gray-500;
+  font-size: 0.9rem;
+
+  .spin {
+    animation: spin 1s linear infinite;
+    font-size: 2rem;
+    color: $blue-accent;
+  }
+}
+
+@keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BARRE D'ACTIONS
-// ─────────────────────────────────────────────────────────────────────────────
-.mk-action-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: 12px 16px;
-  background: $gray-50; border: 1px solid $gray-200;
-  border-radius: $radius; margin-bottom: 1.25rem; flex-wrap: wrap;
-
-  &__btns { display: flex; gap: 8px; margin-left: auto; }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// FEEDBACK (succès / erreur)
-// ─────────────────────────────────────────────────────────────────────────────
-.mk-feedback {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 13px; font-weight: 600;
-  padding: 6px 12px; border-radius: 6px; margin-bottom: .75rem;
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
-
-  &--success {
-    background: rgba(16,185,129,.1); color: #065f46;
-    border: 1px solid rgba(16,185,129,.25);
-    mat-icon { color: $success; }
-  }
-  &--error {
-    background: rgba(239,68,68,.08); color: #991b1b;
-    border: 1px solid rgba(239,68,68,.2);
-    mat-icon { color: $danger; }
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// BANDEAU LECTURE SEULE
-// ─────────────────────────────────────────────────────────────────────────────
-.mk-readonly-banner {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 16px; margin-bottom: 1.25rem;
-  background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25);
-  border-radius: $radius; font-size: 13px; color: #92400e; font-weight: 500;
-  mat-icon { font-size: 17px; width: 17px; height: 17px; color: #d97706; }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// BOUTONS (réutilise les classes tp-btn du parent)
-// ─────────────────────────────────────────────────────────────────────────────
-.tp-btn {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 8px 18px; border-radius: 6px;
-  font-size: 13px; font-weight: 700;
-  cursor: pointer; border: none;
-  transition: $transition; white-space: nowrap; font-family: $font-main;
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
-  &:disabled { opacity: .55; cursor: not-allowed; }
-
-  &--primary {
-    background: $blue-accent; color: $white;
-    &:hover:not(:disabled) {
-      background: darken($blue-accent, 10%);
-      box-shadow: 0 3px 12px rgba(56,159,255,.3);
-    }
-  }
-  &--outline-dark {
-    background: $white; color: $gray-800; border: 1.5px solid $gray-200;
-    &:hover:not(:disabled) { border-color: $blue-accent; color: $blue-accent; background: rgba(56,159,255,.04); }
-  }
-  &--ghost {
-    background: transparent; color: $gray-500; border: 1.5px solid $gray-200;
-    &:hover:not(:disabled) { background: $gray-100; color: $gray-800; }
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SECTIONS FORMULAIRE
-// ─────────────────────────────────────────────────────────────────────────────
-.tp-section {
-  background: $white; padding: 1.5rem;
-  border-radius: $radius; border: 1px solid $gray-200;
-  box-shadow: 0 1px 3px rgba(0,0,0,.07); margin-bottom: 1.25rem;
-
-  &--rse { border-left: 5px solid $success; }
-
-  &__head {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 1.25rem; padding-bottom: .75rem;
-    border-bottom: 1px solid $gray-100;
-    mat-icon { font-size: 20px; width: 20px; height: 20px; color: $blue-accent; }
-    h3 { margin: 0; font-size: .95rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: $blue-accent; }
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// GRILLE & CHAMPS
-// ─────────────────────────────────────────────────────────────────────────────
-.tp-grid {
-  display: grid; gap: 1rem;
-  &.g2 { grid-template-columns: repeat(2, 1fr); }
-  &.g3 { grid-template-columns: repeat(3, 1fr); }
-  &.g4 { grid-template-columns: repeat(4, 1fr); }
-}
-
-.tp-field {
-  display: flex; flex-direction: column; gap: 5px;
-
-  label {
-    font-size: .72rem; font-weight: 700;
-    color: $gray-500; text-transform: uppercase; letter-spacing: .35px;
-    display: flex; align-items: center; gap: 4px;
-
-    .req { color: $blue-accent; font-weight: 900; }
-  }
-
-  // Labels SWOT colorés
-  &__success, .label--success { color: #059669 !important; }
-  &__warning, .label--warning { color: #d97706 !important; }
-  &__info,    .label--info    { color: #2563eb !important; }
-  &__danger,  .label--danger  { color: #dc2626 !important; }
-
-  input, textarea, select {
-    padding: .6rem .8rem;
-    border: 1.5px solid $gray-200; border-radius: 6px;
-    font-size: .875rem; font-family: $font-main;
-    color: $gray-800; background: $white;
-    transition: $transition; resize: vertical;
-
-    &:focus {
-      outline: none; border-color: $blue-accent;
-      box-shadow: 0 0 0 3px rgba(56,159,255,.1);
-    }
-    &:disabled {
-      background: $gray-100; border-color: transparent;
-      cursor: not-allowed; color: $gray-500;
-    }
-  }
-
-  // Select : curseur pointer + apparence native propre
-  select {
-    cursor: pointer;
-    appearance: auto; // conserve la flèche native
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// BADGE RSE
-// ─────────────────────────────────────────────────────────────────────────────
-.rse-badge {
-  background: #dcfce7; color: #166534;
-  font-size: .6rem; font-weight: 700;
-  padding: 2px 8px; border-radius: 4px;
-  letter-spacing: .5px; text-transform: uppercase;
-  margin-left: auto;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // RESPONSIVE
-// ─────────────────────────────────────────────────────────────────────────────
-@media (max-width: 900px) {
-  .tp-grid.g4 { grid-template-columns: repeat(2, 1fr); }
-  .tp-grid.g3 { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 1024px) {
+  .mk-grid-top,
+  .grid-eco,
+  .swot-matrix { grid-template-columns: 1fr; }
+  .field-grid-3 { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 600px) {
-  .tp-grid.g4,
-  .tp-grid.g3,
-  .tp-grid.g2          { grid-template-columns: 1fr; }
-  .mk-action-bar       { flex-direction: column; align-items: stretch; }
-  .mk-action-bar__btns { justify-content: flex-end; }
+@media (max-width: 640px) {
+  .mk-container { padding: 1rem; }
+  .field-grid-3,
+  .field-grid-2 { grid-template-columns: 1fr; }
+  .action-buttons { flex-direction: column; width: 100%; .tp-btn { width: 100%; justify-content: center; } }
 }

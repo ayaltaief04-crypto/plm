@@ -1,10 +1,10 @@
 <div class="qc-wrap">
-  <div class="qc-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+  <div class="qc-header-flex">
     <h2 class="qc-title">Analyse Qualité & Conformité</h2>
     <div class="header-actions" *ngIf="!isLoading">
       <ng-container *ngIf="canEdit">
         <button *ngIf="!isEditing" class="tp-btn tp-btn--primary" (click)="activerEdition()">
-          <mat-icon>{{ hasData ? 'edit' : 'add_chart' }}</mat-icon> 
+          <mat-icon>{{ hasData ? 'edit' : 'add_chart' }}</mat-icon>
           {{ hasData ? 'Modifier le rapport' : "Remplir l'analyse" }}
         </button>
       </ng-container>
@@ -27,47 +27,47 @@
       <div formGroupName="matierePremiere" class="tp-grid g4">
         <div class="tp-field">
           <label>Qualité du tissu <span class="req">*</span></label>
-          <input formControlName="qualiteTissu" placeholder="Ex: Sergé...">
+          <input formControlName="qualiteTissu" placeholder="Ex : Sergé 100% coton">
           <div class="field-error" *ngIf="qualiteForm.get('matierePremiere.qualiteTissu')?.invalid && qualiteForm.get('matierePremiere.qualiteTissu')?.touched">
             {{ getFieldError('matierePremiere', 'qualiteTissu') }}
           </div>
         </div>
         <div class="tp-field">
           <label>Poids (g/m²)</label>
-          <input type="number" formControlName="poidsEstime">
+          <input type="number" formControlName="poidsEstime" placeholder="Ex : 200">
           <div class="field-error" *ngIf="qualiteForm.get('matierePremiere.poidsEstime')?.invalid && qualiteForm.get('matierePremiere.poidsEstime')?.touched">
             {{ getFieldError('matierePremiere', 'poidsEstime') }}
           </div>
         </div>
         <div class="tp-field">
           <label>Solidité Couleurs (1-5)</label>
-          <input type="number" formControlName="soliditeCouleurs" min="1" max="5">
+          <input type="number" formControlName="soliditeCouleurs" min="1" max="5" placeholder="Ex : 4">
           <div class="field-error" *ngIf="qualiteForm.get('matierePremiere.soliditeCouleurs')?.invalid && qualiteForm.get('matierePremiere.soliditeCouleurs')?.touched">
             {{ getFieldError('matierePremiere', 'soliditeCouleurs') }}
           </div>
         </div>
         <div class="tp-field">
           <label>Boulochage (1-5)</label>
-          <input type="number" formControlName="boulochage" min="1" max="5">
+          <input type="number" formControlName="boulochage" min="1" max="5" placeholder="Ex : 3">
           <div class="field-error" *ngIf="qualiteForm.get('matierePremiere.boulochage')?.invalid && qualiteForm.get('matierePremiere.boulochage')?.touched">
             {{ getFieldError('matierePremiere', 'boulochage') }}
           </div>
         </div>
         <div class="tp-field">
           <label>Résistance Traction</label>
-          <input type="number" formControlName="resistanceTraction">
+          <input type="number" formControlName="resistanceTraction" placeholder="Ex : 350 N">
         </div>
         <div class="tp-field">
           <label>Élasticité (%)</label>
-          <input type="number" formControlName="elasticite">
+          <input type="number" formControlName="elasticite" placeholder="Ex : 15">
         </div>
         <div class="tp-field">
           <label>Stabilité Dim.</label>
-          <input type="number" formControlName="stabiliteDimensionnelle">
+          <input type="number" formControlName="stabiliteDimensionnelle" placeholder="Ex : ±3%">
         </div>
         <div class="tp-field">
           <label>Dégorgement</label>
-          <input type="number" formControlName="degorgement">
+          <input type="number" formControlName="degorgement" placeholder="Ex : 2">
         </div>
       </div>
     </div>
@@ -77,16 +77,31 @@
       <div class="tp-section">
         <div class="tp-section__head"><mat-icon>architecture</mat-icon><h3>Montage</h3></div>
         <div formGroupName="montage">
-          <div class="tp-field"><label>Type de coutures</label><input formControlName="typeCoutures"></div>
-          <div class="tp-field"><label>Compatibilité fil</label><input formControlName="compatibiliteFil"></div>
+          <div class="tp-field">
+            <label>Type de coutures</label>
+            <input formControlName="typeCoutures" placeholder="Ex : Surjet 3 fils">
+          </div>
+          <div class="tp-field">
+            <label>Compatibilité fil</label>
+            <input formControlName="compatibiliteFil" placeholder="Ex : Fil polyester 40/2">
+          </div>
         </div>
       </div>
       <div class="tp-section">
         <div class="tp-section__head"><mat-icon>settings_input_component</mat-icon><h3>Accessoires</h3></div>
         <div formGroupName="accessoires">
-          <div class="tp-field"><label>Zips / Fermetures</label><input formControlName="fermeturesZip"></div>
-          <div class="tp-field"><label>Boutons</label><input formControlName="boutons"></div>
-          <div class="tp-field"><label>Normes ISO</label><input formControlName="respectNormesIso"></div>
+          <div class="tp-field">
+            <label>Zips / Fermetures</label>
+            <input formControlName="fermeturesZip" placeholder="Ex : YKK n°5 métal">
+          </div>
+          <div class="tp-field">
+            <label>Boutons</label>
+            <input formControlName="boutons" placeholder="Ex : Boutons résine 18mm">
+          </div>
+          <div class="tp-field">
+            <label>Normes ISO</label>
+            <input formControlName="respectNormesIso" placeholder="Ex : ISO 105-C06">
+          </div>
         </div>
       </div>
     </div>
@@ -98,24 +113,24 @@
         <div class="tp-grid g3">
           <div class="tp-field">
             <label>Certifications</label>
-            <input formControlName="certifications">
+            <input formControlName="certifications" placeholder="Ex : OEKO-TEX, GOTS">
           </div>
           <div class="tp-field">
             <label>Réparabilité (1-10)</label>
-            <input type="number" formControlName="reparabilite" min="1" max="10">
+            <input type="number" formControlName="reparabilite" min="1" max="10" placeholder="Ex : 7">
             <div class="field-error" *ngIf="qualiteForm.get('securiteRse.reparabilite')?.invalid && qualiteForm.get('securiteRse.reparabilite')?.touched">
               {{ getFieldError('securiteRse', 'reparabilite') }}
             </div>
           </div>
           <div class="tp-field">
             <label>Cycle de vie (ans)</label>
-            <input type="number" formControlName="cycleVie" min="0">
+            <input type="number" formControlName="cycleVie" min="0" placeholder="Ex : 3">
             <div class="field-error" *ngIf="qualiteForm.get('securiteRse.cycleVie')?.invalid && qualiteForm.get('securiteRse.cycleVie')?.touched">
               {{ getFieldError('securiteRse', 'cycleVie') }}
             </div>
           </div>
         </div>
-        <div class="toggle-group" style="margin-top: 1.5rem; display: flex; gap: 2rem;">
+        <div class="toggle-group">
           <mat-slide-toggle formControlName="inflammabilite">Inflammabilité conforme</mat-slide-toggle>
           <mat-slide-toggle formControlName="securiteEnfant">Sécurité Enfant validée</mat-slide-toggle>
         </div>
@@ -123,11 +138,11 @@
     </div>
 
     <!-- Messages -->
-    <div *ngIf="saveSuccess" class="alert alert-success"> Rapport qualité enregistré ! </div>
-    <div *ngIf="saveError" class="alert alert-error"> {{ saveError }} </div>
+    <div *ngIf="saveSuccess" class="alert alert-success">Rapport qualité enregistré !</div>
+    <div *ngIf="saveError" class="alert alert-error">{{ saveError }}</div>
 
     <!-- Bouton d'enregistrement -->
-    <div class="tp-actions" *ngIf="isEditing" style="margin-top: 2rem; text-align: right;">
+    <div class="tp-actions" *ngIf="isEditing">
       <button class="tp-btn tp-btn--primary" type="submit" [disabled]="!canSubmit">
         <mat-icon>{{ isSaving ? 'sync' : 'save' }}</mat-icon>
         {{ isSaving ? 'Enregistrement...' : 'Enregistrer le rapport' }}

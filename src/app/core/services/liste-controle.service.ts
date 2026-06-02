@@ -1,72 +1,127 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { ModeleListeControle } from '../models/liste-controle.model';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
+import {
+  ChecklistAffichageDto,
+  EnregistrerReponseResponseDto,
+  ModeleListeControle,
+  ElementCreationDto
+} from '../models/liste-controle.model';
+import { environment } from '../../../environments/environment';
 
-export const ROLE_TO_LISTE: { [key: string]: string } = {
-  'Styliste': 'Design',
+export const ROLE_TO_SERVICE: Record<string, string> = {
+  'Styliste':             'Design',
   'ResponsableMarketing': 'Marketing',
-  'Ingenieurtextile': 'Ingénierie',
-  'ResponsableAchat': 'Achat',
-  'ResponsableQualite': 'Qualité'
+  'Ingenieurtextile':     'Textile',
+  'ResponsableAchat':     'Achat',
+  'ResponsableQualite':   'Qualite',
 };
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class ListeControleService {
-  private apiUrl = 'http://localhost:5027/api/ListeControle';
-  private _refreshNeeded$ = new BehaviorSubject<void>(undefined);
+
+  private base = `${environment.apiUrl}/ListeControle`;
 
   constructor(private http: HttpClient) {}
 
-  get refreshNeeded$() {
-    return this._refreshNeeded$;
+  // ── ACTEUR ──────────────────────────────────────────────────
+
+  ouvrirChecklist(produitId: number, serviceNom: string): Observable<ChecklistAffichageDto> {
+    return this.http.get<any>(
+      `${this.base}/ouvrir/${produitId}/${serviceNom}`
+    ).pipe(
+      map(res => ({
+        idListeControle: res.idListeControle ?? res.IdListeControle ?? 0,
+        estFinalisee:    res.estFinalisee    ?? res.EstFinalisee    ?? false,
+        noteFinale:      res.noteFinale      ?? res.NoteFinale      ?? 0,
+        elements: (res.elements ?? res.Elements ?? []).map((el: any) => ({
+          idElement:   el.idElement   ?? el.IdElement   ?? 0,
+          question:    el.question    ?? el.Question    ?? '',
+          estCoche:    el.estCoche    ?? el.EstCoche    ?? false,
+          commentaire: el.commentaire ?? el.Commentaire ?? null,
+        }))
+      }))
+    );
   }
 
-  // --- GESTION DES MODÈLES (ADMIN) ---
+  enregistrerReponse(
+    produitId: number,
+    idElement: number,
+    payload: { estCoche: boolean; commentaire: string | null }
+  ): Observable<EnregistrerReponseResponseDto> {
+    return this.http.post<any>(
+      `${this.base}/enregistrer-reponse/${produitId}/${idElement}`,
+      { EstCoche: payload.estCoche, Commentaire: payload.commentaire }
+    ).pipe(
+      map(res => ({
+        message:         res.message         ?? res.Message         ?? '',
+        note:            res.note            ?? res.Note            ?? 0,
+        idListeControle: res.idListeControle ?? res.IdListeControle ?? 0,
+      }))
+    );
+  }
+
+  terminerListe(
+    produitId: number,
+    idListeControle: number
+  ): Observable<{ message: string; note: number; idListeControle: number }> {
+    return this.http.post<any>(
+      `${this.base}/terminer/${produitId}/${idListeControle}`,
+      {}
+    ).pipe(
+      map(res => ({
+        message:         res.message         ?? res.Message         ?? '',
+        note:            res.note            ?? res.Note            ?? 0,
+        idListeControle: res.idListeControle ?? res.IdListeControle ?? idListeControle,
+      }))
+    );
+  }
+
+  // ── ADMIN ───────────────────────────────────────────────────
 
   getAllModeles(): Observable<ModeleListeControle[]> {
-    return this.http.get<ModeleListeControle[]>(this.apiUrl);
-  }
+    const services = ['Design', 'Marketing', 'Textile', 'Achat', 'Qualite'];
 
-  getModeleByRole(role: string): Observable<ModeleListeControle> {
-    return this.http.get<ModeleListeControle>(`${this.apiUrl}/role/${role}`);
-  }
-
-  saveModele(modele: ModeleListeControle): Observable<any> {
-    return this.http.post(this.apiUrl, modele).pipe(
-      tap(() => this._refreshNeeded$.next())
+    return forkJoin(
+      services.map(serviceNom =>
+        this.http.get<any[]>(`${this.base}/tous-les-elements/${serviceNom}`).pipe(
+          map(elements => ({
+            idModeleListe:      0,
+            nomListe:           serviceNom,
+            serviceResponsable: serviceNom,
+            elements: (elements || []).map((el: any) => ({
+              idElement:      el.idElement      ?? el.IdElement      ?? 0,
+              contenu:        el.contenu        ?? el.Contenu        ?? '',
+              ordreAffichage: el.ordreAffichage ?? el.OrdreAffichage ?? 0,
+              enEdition:      false
+            }))
+          }))
+        )
+      )
     );
   }
 
-  // --- GESTION DES VERSIONS (ACTEURS) ---
-
-  /**
-   * AJUSTÉ : Reçoit maintenant les 4 arguments envoyés par le composant
-   */
-  getChecklistVersion(productId: number, versionId: number, versionName: string, nomListe: string): Observable<any> {
-    // On construit l'URL avec les paramètres attendus par ton Backend
-    return this.http.get<any>(`${this.apiUrl}/version/${productId}/${versionId}`, {
-      params: {
-        versionName: versionName,
-        nomListe: nomListe
-      }
-    });
+  ajouterElement(serviceNom: string, dto: ElementCreationDto): Observable<any> {
+    return this.http.post(
+      `${this.base}/ajouter-element/${serviceNom}`,
+      { Contenu: dto.contenu, OrdreAffichage: dto.ordreAffichage }
+    );
   }
 
-  /**
-   * Sauvegarde les réponses d'un acteur
-   */
-  saveChecklistVersion(checklist: any, role: string): Observable<any> {
-    const payload = {
-      ...checklist,
-      roleCible: role,
-      dateDerniereModif: new Date()
-    };
-
-    return this.http.post(`${this.apiUrl}/version`, payload).pipe(
-      tap(() => this._refreshNeeded$.next())
+  modifierElement(id: number, dto: ElementCreationDto): Observable<any> {
+    return this.http.put(
+      `${this.base}/modifier-element/${id}`,
+      { Contenu: dto.contenu, OrdreAffichage: dto.ordreAffichage }
     );
+  }
+
+  supprimerElement(id: number): Observable<any> {
+    return this.http.delete(`${this.base}/supprimer-element/${id}`);
+  }
+
+  elementADesReponses(idElement: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.base}/element/${idElement}/has-reponses`);
   }
 }

@@ -39,7 +39,10 @@
           </div>
         </div>
       </div>
+
       <div class="bom-header__right">
+
+        <!-- Badge rôle -->
         <span class="role-badge"
           [class.role-badge--ingenieur]="isIngenieur"
           [class.role-badge--achat]="isAchat">
@@ -47,30 +50,76 @@
           {{ isIngenieur ? 'Ingénieur Textile' : isAchat ? 'Responsable Achat' : 'Lecture seule' }}
         </span>
 
+        <!-- ── BOUTONS INGÉNIEUR ── -->
         <ng-container *ngIf="isIngenieur">
+
+          <!-- Mode lecture : bouton Modifier -->
+          <button class="btn btn--secondary" type="button"
+            *ngIf="!isEditMode && nomenclatureId && !isLocked"
+            (click)="enterEditMode()">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </button>
+
+          <!-- Mode édition : bouton Enregistrer -->
           <button class="btn btn--primary" type="button"
+            *ngIf="(isEditMode || !nomenclatureId) && !isLocked"
             [disabled]="isSaving || nomForm.invalid"
             (click)="saveIngenieur()">
             <mat-spinner *ngIf="isSaving" diameter="16" class="btn-spinner"></mat-spinner>
             <mat-icon *ngIf="!isSaving">save</mat-icon>
             {{ isSaving ? 'Enregistrement…' : 'Enregistrer' }}
           </button>
+
+          <!-- Mode édition : bouton Annuler -->
+          <button class="btn btn--ghost" type="button"
+            *ngIf="isEditMode && nomenclatureId"
+            [disabled]="isSaving"
+            (click)="exitEditMode()">
+            <mat-icon>close</mat-icon>
+            Annuler
+          </button>
+
         </ng-container>
 
+        <!-- ── BOUTONS ACHAT ── -->
         <ng-container *ngIf="isAchat">
+
+          <!-- Mode lecture : bouton Modifier -->
+          <button class="btn btn--secondary" type="button"
+            *ngIf="!isEditMode && !isLocked"
+            (click)="enterEditMode()">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </button>
+
+          <!-- Mode édition : bouton Enregistrer -->
           <button class="btn btn--achat" type="button"
+            *ngIf="isEditMode"
             [disabled]="isSaving"
             (click)="saveAchat()">
             <mat-spinner *ngIf="isSaving" diameter="16" class="btn-spinner"></mat-spinner>
             <mat-icon *ngIf="!isSaving">save</mat-icon>
-            {{ isSaving ? 'Enregistrement…' : 'Enregistrer (Achat)' }}
+            {{ isSaving ? 'Enregistrement…' : 'Enregistrer' }}
           </button>
+
+          <!-- Mode édition : bouton Annuler -->
+          <button class="btn btn--ghost" type="button"
+            *ngIf="isEditMode"
+            [disabled]="isSaving"
+            (click)="exitEditMode()">
+            <mat-icon>close</mat-icon>
+            Annuler
+          </button>
+
         </ng-container>
 
+        <!-- Coût total -->
         <div class="cost-chip">
           <span class="cost-chip__label">COÛT TOTAL</span>
           <span class="cost-chip__value">{{ calculateTotal() | number:'1.2-2' }} <em>TND</em></span>
         </div>
+
       </div>
     </header>
 
@@ -106,14 +155,31 @@
           Composants & Fournitures
           <span class="count-badge">{{ items.length }}</span>
         </h2>
-        <button class="btn btn--add" type="button" *ngIf="isIngenieur" (click)="addItem()">
+        <!-- Bouton ajouter composant : visible seulement en mode édition ingénieur -->
+        <button class="btn btn--add" type="button"
+          *ngIf="isIngenieur && isEditMode"
+          (click)="addItem()">
           <mat-icon>add_circle</mat-icon> Ajouter Composant
         </button>
       </div>
 
-      <div class="achat-banner" *ngIf="isAchat">
+      <!-- Bannière info achat en mode édition -->
+      <div class="achat-banner" *ngIf="isAchat && isEditMode">
         <mat-icon>info</mat-icon>
-        <span>Vous pouvez modifier les colonnes <strong>Fournisseur</strong> et <strong>Prix unitaire</strong> (cliquez sur "Modifier" par ligne).</span>
+        <span>Cliquez sur <strong>Modifier</strong> sur une ligne pour renseigner
+          le fournisseur et le prix unitaire.</span>
+      </div>
+
+      <!-- Bannière version verrouillée (clôturée / validée) -->
+      <div class="achat-banner achat-banner--readonly" *ngIf="(isIngenieur || isAchat) && isLocked">
+        <mat-icon>lock</mat-icon>
+        <span>Version verrouillée — nomenclature en consultation uniquement.</span>
+      </div>
+
+      <!-- Bannière lecture seule -->
+      <div class="achat-banner achat-banner--readonly" *ngIf="(isIngenieur || isAchat) && !isEditMode && !isLocked">
+        <mat-icon>lock</mat-icon>
+        <span>Mode lecture. Cliquez sur <strong>Modifier</strong> pour éditer.</span>
       </div>
 
       <div class="table-wrap">
@@ -121,7 +187,7 @@
           <thead>
             <tr>
               <th class="col-img">Image</th>
-              <th class="col-designation">Désignation<span class="req" *ngIf="isIngenieur">*</span></th>
+              <th class="col-designation">Désignation<span class="req" *ngIf="isIngenieur && isEditMode">*</span></th>
               <th class="col-ref">Réf.</th>
               <th class="col-taille">Taille</th>
               <th class="col-couleur">Couleur</th>
@@ -132,13 +198,14 @@
               <th class="col-rempl">Remplacement</th>
               <th class="col-pu col-achat-header">P.U (TND)</th>
               <th class="col-total">Total</th>
-              <th class="col-action">Actions</th>
+              <th class="col-action" *ngIf="isEditMode">Actions</th>
             </tr>
           </thead>
           <tbody formArrayName="items">
             <tr *ngFor="let item of items.controls; let i = index"
               [formGroupName]="i"
               class="bom-row"
+              [class.bom-row--editing]="editingRowIndex === i || achatEditingRowIndex === i"
               [class.bom-row--achat]="isAchat">
 
               <!-- Image -->
@@ -150,12 +217,14 @@
                   <div *ngIf="!item.get('imgUrl')?.value" class="no-image-placeholder">
                     <mat-icon>image_not_supported</mat-icon>
                   </div>
-                  <label class="img-upload-btn" *ngIf="isIngenieur"
+                  <label class="img-upload-btn"
+                    *ngIf="isIngenieur && isEditMode && editingRowIndex === i"
                     [for]="'img-' + i" title="Changer l'image">
                     <mat-icon>photo_camera</mat-icon>
                   </label>
                   <input [id]="'img-' + i" type="file" accept="image/*"
-                    class="img-file-input" *ngIf="isIngenieur"
+                    class="img-file-input"
+                    *ngIf="isIngenieur && isEditMode && editingRowIndex === i"
                     (change)="onImageUpload($event, i)">
                 </div>
               </td>
@@ -186,14 +255,10 @@
 
               <!-- Fournisseur -->
               <td class="col-fourn" [class.achat-cell]="isAchat">
-                <!-- Mode achat -->
                 <ng-container *ngIf="isAchat">
-                  <div class="fournisseur-cell-display" *ngIf="achatEditingRowIndex !== i">
-                    <!-- ✅ getRawValue() pour lire la valeur même si le contrôle est disabled -->
-                    <span class="cell-readonly-val">
-                      {{ item.getRawValue().fournisseur || '—' }}
-                    </span>
-                  </div>
+                  <span class="cell-readonly-val" *ngIf="achatEditingRowIndex !== i">
+                    {{ item.getRawValue().fournisseur || '—' }}
+                  </span>
                   <div class="fournisseur-selector" *ngIf="achatEditingRowIndex === i">
                     <input class="cell-input achat-input" formControlName="fournisseur"
                       placeholder="Fournisseur" readonly>
@@ -204,7 +269,6 @@
                     </button>
                   </div>
                 </ng-container>
-                <!-- Autres rôles -->
                 <ng-container *ngIf="!isAchat">
                   <input class="cell-input" formControlName="fournisseur" placeholder="Fournisseur">
                 </ng-container>
@@ -216,9 +280,7 @@
 
               <!-- Prix unitaire -->
               <td class="col-pu" [class.achat-cell]="isAchat">
-                <!-- Mode achat -->
                 <ng-container *ngIf="isAchat">
-                  <!-- ✅ getRawValue() pour afficher la valeur même si le contrôle est disabled -->
                   <span class="cell-readonly-val" *ngIf="achatEditingRowIndex !== i">
                     {{ item.getRawValue().prixUnitaire | number:'1.2-2' }}
                   </span>
@@ -227,30 +289,29 @@
                     type="number" min="0" step="0.01"
                     formControlName="prixUnitaire">
                 </ng-container>
-                <!-- Autres rôles -->
                 <ng-container *ngIf="!isAchat">
                   <input class="cell-input right-input" type="number" min="0" step="0.01"
                     formControlName="prixUnitaire">
                 </ng-container>
               </td>
 
-              <!-- Total ligne : toujours via getRawValue() -->
               <td class="col-total total-val">
                 {{ (item.getRawValue().quantite * item.getRawValue().prixUnitaire) | number:'1.2-2' }}
               </td>
 
-              <!-- Actions -->
-              <td class="col-action">
+              <!-- Actions : visibles seulement en mode édition -->
+              <td class="col-action" *ngIf="isEditMode">
+
                 <!-- INGÉNIEUR -->
                 <ng-container *ngIf="isIngenieur">
                   <button *ngIf="editingRowIndex !== i"
                     class="btn-icon btn-icon--edit"
-                    (click)="editRow(i)" title="Modifier">
+                    (click)="editRow(i)" title="Modifier cette ligne">
                     <mat-icon>edit</mat-icon>
                   </button>
                   <button *ngIf="editingRowIndex === i"
                     class="btn-icon btn-icon--cancel"
-                    (click)="cancelEditRow()" title="Annuler">
+                    (click)="cancelEditRow()" title="Annuler cette ligne">
                     <mat-icon>close</mat-icon>
                   </button>
                   <button class="btn-icon btn-icon--danger"
@@ -264,7 +325,7 @@
                 <ng-container *ngIf="isAchat">
                   <button *ngIf="achatEditingRowIndex !== i"
                     class="btn-icon btn-icon--edit"
-                    (click)="editAchatRow(i)" title="Modifier les infos achat">
+                    (click)="editAchatRow(i)" title="Modifier fournisseur / prix">
                     <mat-icon>edit</mat-icon>
                   </button>
                   <button *ngIf="achatEditingRowIndex === i"
@@ -273,14 +334,15 @@
                     <mat-icon>close</mat-icon>
                   </button>
                 </ng-container>
+
               </td>
             </tr>
 
             <tr *ngIf="items.length === 0">
-              <td [attr.colspan]="13" class="empty-row">
+              <td [attr.colspan]="isEditMode ? 13 : 12" class="empty-row">
                 <mat-icon>inbox</mat-icon>
                 <span>Aucun composant.
-                  <ng-container *ngIf="isIngenieur">
+                  <ng-container *ngIf="isIngenieur && isEditMode">
                     Cliquez sur <strong>Ajouter Composant</strong> pour commencer.
                   </ng-container>
                 </span>
@@ -293,15 +355,115 @@
   </ng-container>
 </div>
 
-<!-- MODALE FOURNISSEURS -->
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     MODALE CATALOGUE COMPOSANTS
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showComposantModal" (click)="closeComposantModal()">
+  <div class="modal modal-composant" (click)="$event.stopPropagation()">
+
+    <div class="modal__header">
+      <div class="modal__header-left">
+        <mat-icon>inventory_2</mat-icon>
+        <h3>Catalogue des composants</h3>
+      </div>
+      <button class="modal__close" (click)="closeComposantModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="composant-search">
+      <div class="search-input-wrapper">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Rechercher par désignation, référence, couleur…"
+          [(ngModel)]="composantSearchTerm"
+          (input)="filterComposants()"
+          autofocus>
+        <button *ngIf="composantSearchTerm" class="search-clear"
+          (click)="composantSearchTerm = ''; filterComposants()">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+      <span class="result-count">{{ filteredComposants.length }} composant(s)</span>
+    </div>
+
+    <div class="modal__body">
+      <div class="modal-loading" *ngIf="isLoadingComposants">
+        <mat-spinner diameter="36"></mat-spinner>
+        <span>Chargement du catalogue…</span>
+      </div>
+
+      <div class="composant-grid" *ngIf="!isLoadingComposants">
+        <div class="composant-card"
+          *ngFor="let c of filteredComposants"
+          (click)="selectComposantFromCatalogue(c)"
+          title="Ajouter {{ c.Designation ?? c.designation }}">
+
+          <div class="composant-card__img">
+            <img *ngIf="c.Image ?? c.image ?? c.imgUrl"
+              [src]="c.Image ?? c.image ?? c.imgUrl"
+              [alt]="c.Designation ?? c.designation">
+            <mat-icon *ngIf="!(c.Image ?? c.image ?? c.imgUrl)">texture</mat-icon>
+          </div>
+
+          <div class="composant-card__body">
+            <div class="composant-card__name">{{ c.Designation ?? c.designation }}</div>
+            <div class="composant-card__ref" *ngIf="c.Reference ?? c.reference">
+              Réf. {{ c.Reference ?? c.reference }}
+            </div>
+            <div class="composant-card__meta">
+              <span *ngIf="c.Couleur ?? c.couleur">
+                <mat-icon>palette</mat-icon>{{ c.Couleur ?? c.couleur }}
+              </span>
+              <span *ngIf="c.Unite ?? c.unite">
+                <mat-icon>straighten</mat-icon>{{ c.Unite ?? c.unite }}
+              </span>
+            </div>
+            <div class="composant-card__prix" *ngIf="(c.PrixUnitaire ?? c.prixUnitaire) > 0">
+              {{ (c.PrixUnitaire ?? c.prixUnitaire) | number:'1.2-2' }} TND / {{ c.Unite ?? c.unite ?? 'u.' }}
+            </div>
+          </div>
+
+          <div class="composant-card__select-badge">
+            <mat-icon>add_circle</mat-icon>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="filteredComposants.length === 0">
+          <mat-icon>search_off</mat-icon>
+          <p>Aucun composant trouvé pour "<strong>{{ composantSearchTerm }}</strong>".</p>
+          <span>Essayez un autre terme ou vérifiez le catalogue.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal__footer">
+      <span class="modal__footer-hint">
+        <mat-icon>info_outline</mat-icon>
+        Cliquez sur un composant pour l'ajouter à la nomenclature.
+      </span>
+      <button class="btn btn--ghost" (click)="closeComposantModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     MODALE FOURNISSEURS
+════════════════════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showFournisseurModal" (click)="closeFournisseurModal()">
   <div class="modal modal-fournisseur" (click)="$event.stopPropagation()">
+
     <div class="modal__header">
-      <h3>Choisir un fournisseur</h3>
+      <div class="modal__header-left">
+        <mat-icon>store</mat-icon>
+        <h3>Listes des Fournisseurs</h3>
+      </div>
       <button class="modal__close" (click)="closeFournisseurModal()">
         <mat-icon>close</mat-icon>
       </button>
     </div>
+
     <div class="fournisseur-search">
       <div class="search-input-wrapper">
         <mat-icon>search</mat-icon>
@@ -310,14 +472,18 @@
           (input)="filterFournisseurs()">
       </div>
     </div>
+
     <div class="modal__body">
       <div class="fournisseur-list">
         <div class="fournisseur-item"
           *ngFor="let f of filteredFournisseurs"
           (click)="selectFournisseur(f)">
-          <div class="fournisseur-item__name">{{ f.nomSociete }}</div>
-          <div class="fournisseur-item__contact">{{ f.prenomContact }} {{ f.nomContact }}</div>
-          <div class="fournisseur-item__email">{{ f.email }}</div>
+         <div class="fournisseur-item__name">{{ f.nomSociete }}</div>
+<div class="fournisseur-item__contact">{{ f.prenomContact }} {{ f.nomContact }}</div>
+<div class="fournisseur-item__email">{{ f.email }}</div>
+<div class="fournisseur-item__phone">{{ f.telephone }}</div>
+<div class="fournisseur-item__address">{{ f.adresse }}</div>
+<div class="fournisseur-item__type">{{ f.typeProduit }}</div>
         </div>
         <div *ngIf="filteredFournisseurs.length === 0" class="empty-state">
           <mat-icon>store_mall_directory</mat-icon>

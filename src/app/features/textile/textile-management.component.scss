@@ -1,0 +1,886 @@
+// ─── VARIABLES ───────────────────────────────────────────────────────────────
+
+$brand:           #0057ff;
+$brand-hover:     #0046cc;
+$brand-mid:       #2970ff;
+$brand-light:     #eff4ff;
+$brand-muted:     #b2ccff;
+$brand-ring:      rgba(0, 87, 255, .12);
+
+$green:           #059669;
+$green-hover:     #047857;
+$green-bg:        #ecfdf5;
+$green-border:    #a7f3d0;
+$green-text:      #065f46;
+
+$red:             #dc2626;
+$red-hover:       #b91c1c;
+$red-bg:          rgba(145, 12, 12, .08);
+$red-bg-solid:    #fee2e2;
+$red-border:      #fca5a5;
+$red-text:        #991b1b;
+
+$info-bg:         $brand-light;
+$info-border:     $brand-muted;
+$info-text:       $brand;
+
+$gray-50:         #fafaf9;
+$gray-100:        #f4f4f3;
+$gray-150:        #ebebea;
+$gray-200:        #e2e2e0;
+$gray-300:        #d1d1cf;
+$gray-400:        #a3a3a0;
+$gray-500:        #737370;
+$gray-600:        #52524f;
+$gray-700:        #3a3a37;
+$gray-800:        #1c1c1a;
+$white:           #ffffff;
+
+$radius:          10px;
+$radius-sm:       7px;
+$radius-md:       8px;
+$radius-lg:       12px;
+$radius-xl:       14px;
+
+// ─── RESET ───────────────────────────────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; }
+
+// ─── PAGE ────────────────────────────────────────────────────────────────────
+.textile-page {
+  padding: 36px 40px;
+  background: $gray-50;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: $gray-800;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+// ─── ALERTS ──────────────────────────────────────────────────────────────────
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: $radius;
+  font-size: 13px;
+  margin-bottom: 16px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+}
+.alert-success {
+  @extend .alert;
+  background: $green-bg;
+  color: $green-text;
+  border: 1px solid $green-border;
+}
+.alert-error {
+  @extend .alert;
+  background: $red-bg-solid;
+  color: $red-text;
+  border: 1px solid $red-border;
+}
+.alert-info {
+  @extend .alert;
+  background: $info-bg;
+  color: $info-text;
+  border: 1px solid $info-border;
+}
+
+// ─── HEADER ──────────────────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid $gray-200;
+
+  .header-titles {
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: $gray-800;
+      letter-spacing: -.2px;
+    }
+    p {
+      margin: 4px 0 0;
+      color: $gray-400;
+      font-size: 13px;
+    }
+  }
+}
+
+// ─── SEARCH BAR ──────────────────────────────────────────────────────────────
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: $white;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius;
+  padding: 10px 16px;
+  margin-bottom: 24px;
+  transition: border-color .2s, box-shadow .2s;
+
+  mat-icon {
+    color: $gray-400;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    transition: color .2s;
+  }
+
+  &:focus-within {
+    border-color: $brand-mid;
+    box-shadow: 0 0 0 3px $brand-ring;
+
+    mat-icon:first-child { color: $brand; }
+  }
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: $gray-800;
+  background: transparent;
+
+  &::placeholder { color: $gray-400; }
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $gray-400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color .15s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover { color: $red; }
+}
+
+// ─── BOUTONS ─────────────────────────────────────────────────────────────────
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: $brand;
+  color: $white;
+  border: none;
+  padding: 9px 18px;
+  border-radius: $radius-md;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s;
+  white-space: nowrap;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &:hover { background: $brand-hover; }
+
+  &:disabled { opacity: .5; cursor: not-allowed; }
+
+  &--green {
+    background: $green;
+    &:hover { background: $green-hover; }
+  }
+
+  &--outline {
+    background: transparent;
+    color: $brand;
+    border: 1.5px solid $brand-muted;
+    &:hover { background: $brand-light; border-color: $brand-mid; }
+  }
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: $white;
+  color: $gray-600;
+  border: 1px solid $gray-200;
+  padding: 9px 18px;
+  border-radius: $radius-md;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+  white-space: nowrap;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &:hover { background: $gray-100; color: $gray-800; border-color: $gray-300; }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+// ─── LOADING / EMPTY ─────────────────────────────────────────────────────────
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px;
+  color: $gray-400;
+  font-size: 14px;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 60px;
+  color: $gray-400;
+  font-size: 14px;
+
+  mat-icon { font-size: 32px; width: 32px; height: 32px; opacity: .4; }
+}
+
+// ─── GRILLE ──────────────────────────────────────────────────────────────────
+.textile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+// ─── CARTE ───────────────────────────────────────────────────────────────────
+.textile-card {
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: $brand-muted;
+    box-shadow: 0 4px 16px rgba(0, 87, 255, .08);
+  }
+
+  // ── Image
+  .card-img {
+    height: 160px;
+    background: $gray-100;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  // ── Body
+  .card-body {
+    padding: 12px 14px 10px;
+  }
+
+  .card-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: $gray-800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-ref {
+    display: block;
+    font-size: 11px;
+    color: $gray-400;
+    font-family: monospace;
+    margin-top: 2px;
+  }
+
+  // ── Actions — TOUJOURS VISIBLES, colorées
+  .card-actions {
+    display: flex;
+    gap: 6px;
+    padding: 0 10px 10px;
+  }
+
+  .action-btn {
+    flex: 1;
+    height: 32px;
+    border-radius: $radius-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    transition: opacity .15s, transform .1s;
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    .action-label {
+      font-size: 11px;
+    }
+
+    &:active { transform: scale(.97); }
+
+    // ── Bouton Modifier — BLEU
+    &.edit {
+      background: $brand-light;
+      color: $brand;
+      border: 1px solid $brand-muted;
+
+      &:hover {
+        background: darken(#eff4ff, 4%);
+        border-color: $brand-mid;
+      }
+    }
+
+    // ── Bouton Supprimer — ROUGE
+    &.delete {
+      background: $red-bg-solid;
+      color: $red-text;
+      border: 1px solid $red-border;
+
+      &:hover {
+        background: darken(#fee2e2, 3%);
+        border-color: #f87171;
+      }
+    }
+  }
+}
+
+// ─── OVERLAY ─────────────────────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 10, 30, .5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  padding: 20px;
+}
+
+// ─── MODAL BOX ───────────────────────────────────────────────────────────────
+.modal-box {
+  background: $white;
+  border-radius: $radius-xl;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid $gray-200;
+  animation: zoomIn .2s ease;
+  overflow: hidden;
+
+  &--sm { max-width: 440px; }
+}
+
+// ─── MODAL HEAD ──────────────────────────────────────────────────────────────
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid $gray-150;
+  flex-shrink: 0;
+  gap: 12px;
+
+  &-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  &-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: $radius-md;
+    background: $brand-light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: $brand;
+    }
+
+    &--green {
+      background: $green-bg;
+      mat-icon { color: $green; }
+    }
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray-800;
+  }
+
+  p {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: $gray-400;
+  }
+
+  .ref-code {
+    font-family: monospace;
+    color: $brand-mid;
+    font-weight: 600;
+    font-size: 12px;
+  }
+}
+
+.modal-close {
+  background: $gray-100;
+  border: none;
+  border-radius: $radius-sm;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $gray-600;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &:hover { background: $gray-200; color: $gray-800; }
+}
+
+// ─── FORM STEPS ──────────────────────────────────────────────────────────────
+.form-steps {
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+  background: $gray-50;
+  border-bottom: 1px solid $gray-150;
+  flex-shrink: 0;
+  gap: 0;
+}
+
+.form-step {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 0;
+  font-size: 12px;
+  color: $gray-400;
+  transition: color .2s;
+
+  .step-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    background: $gray-200;
+    color: $gray-500;
+    border: 1.5px solid $gray-300;
+    transition: all .2s;
+    flex-shrink: 0;
+  }
+
+  &.active {
+    color: $brand;
+    font-weight: 500;
+
+    .step-num {
+      background: $brand-light;
+      color: $brand;
+      border-color: $brand-mid;
+    }
+  }
+
+  &.done {
+    color: $green;
+
+    .step-num {
+      background: $green-bg;
+      color: $green;
+      border-color: $green-border;
+    }
+  }
+}
+
+.step-sep {
+  flex: 1;
+  height: 1px;
+  background: $gray-200;
+  margin: 0 10px;
+}
+
+// ─── MODAL BODY ──────────────────────────────────────────────────────────────
+.modal-body {
+  padding: 22px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+// ─── MODAL FOOT ──────────────────────────────────────────────────────────────
+.modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  border-top: 1px solid $gray-150;
+  background: $gray-50;
+  flex-shrink: 0;
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+}
+
+.foot-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: $gray-400;
+
+  mat-icon { font-size: 13px; width: 13px; height: 13px; }
+}
+
+// ─── SECTION DIVIDER ─────────────────────────────────────────────────────────
+.form-section {
+  margin-bottom: 4px;
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: $gray-400;
+  margin: 18px 0 14px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $gray-150;
+  }
+}
+
+// ─── IMAGE UPLOAD ─────────────────────────────────────────────────────────────
+.upload-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.img-upload-zone {
+  width: 80px;
+  height: 80px;
+  border: 1.5px dashed $gray-300;
+  border-radius: $radius;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  background: $gray-100;
+  color: $gray-400;
+  transition: border-color .15s, background .15s;
+  flex-shrink: 0;
+
+  mat-icon { font-size: 24px; width: 24px; height: 24px; }
+
+  &:hover {
+    border-color: $brand-mid;
+    background: $brand-light;
+    color: $brand;
+  }
+
+  .img-preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .img-upload-change {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 10, 30, .5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $white;
+    opacity: 0;
+    transition: opacity .15s;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+
+  &:hover .img-upload-change { opacity: 1; }
+}
+
+.upload-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 4px;
+
+  .upload-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: $gray-700;
+  }
+
+  .upload-hint {
+    margin: 0;
+    font-size: 11px;
+    color: $gray-400;
+  }
+}
+
+.btn-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid $gray-200;
+  border-radius: $radius-sm;
+  background: $white;
+  color: $gray-600;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  margin-top: 4px;
+  width: fit-content;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+  &:hover { background: $gray-100; border-color: $gray-300; }
+}
+
+// ─── FORM FIELDS ─────────────────────────────────────────────────────────────
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  .field.full { grid-column: 1 / -1; }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: $gray-600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .req { color: $red; }
+
+  input,
+  select,
+  textarea {
+    border: 1px solid $gray-200;
+    padding: 9px 12px;
+    border-radius: $radius-md;
+    font-size: 13px;
+    font-family: inherit;
+    background: $white;
+    color: $gray-800;
+    transition: border-color .15s, box-shadow .15s;
+    outline: none;
+
+    &::placeholder { color: $gray-400; }
+
+    &:focus {
+      border-color: $brand-mid;
+      box-shadow: 0 0 0 3px $brand-ring;
+    }
+
+    &:disabled {
+      background: $gray-100;
+      color: $gray-400;
+      cursor: not-allowed;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+  }
+
+  select {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+}
+
+// ─── DETAIL MODAL ────────────────────────────────────────────────────────────
+.detail-img {
+  width: 100%;
+  height: 180px;
+  border-radius: $radius;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid $gray-200;
+  background: $gray-100;
+
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.detail-item {
+  background: $gray-50;
+  border: 1px solid $gray-150;
+  border-radius: $radius-md;
+  padding: 10px 12px;
+
+  label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: $gray-400;
+    margin-bottom: 3px;
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: 600;
+    color: $gray-800;
+  }
+}
+
+.detail-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+// ─── SAVING INDICATOR ────────────────────────────────────────────────────────
+.saving-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: $brand-mid;
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    animation: spin 1s linear infinite;
+  }
+}
+
+// ─── BADGES ──────────────────────────────────────────────────────────────────
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+
+  &--brand       { background: $brand-light; color: $brand; }
+  &--brand-solid { background: $brand; color: $white; }
+  &--green       { background: $green-bg; color: $green-text; }
+  &--red         { background: $red-bg-solid; color: $red-text; }
+  &--gray        { background: $gray-150; color: $gray-600; }
+}
+
+// ─── ANIMATIONS ──────────────────────────────────────────────────────────────
+@keyframes zoomIn {
+  from { transform: scale(.95); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+.spin     { animation: spin     1s linear infinite; }
+.fade-in  { animation: fadeIn   .2s ease; }
+.slide-up { animation: slideUp  .2s ease; }

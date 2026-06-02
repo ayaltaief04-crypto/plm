@@ -2,10 +2,12 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { GestionListesComponent } from './gestion-listes/gestion-listes.component';
+import { authGuard } from '../../core/guards/auth.guard';
 
 const routes: Routes = [
   {
-    path: '', // Chemin vide car le préfixe 'admin' sera défini dans le app-routing
+    path: '',
+    canActivate: [authGuard], // ← ajoute ici
     children: [
       { 
         path: 'users', 

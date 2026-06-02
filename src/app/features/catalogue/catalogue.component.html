@@ -1,7 +1,7 @@
 <div class="catalogue">
 
   <div class="topbar">
-    <span class="top-title">Mes Modèles Textile</span>
+    <span class="top-title">Mes Modèles Textiles </span>
 
     <div class="top-search" *ngIf="!selectedProduct">
       <mat-icon>search</mat-icon>
@@ -82,7 +82,19 @@
           <div class="product-grid" *ngIf="filteredProducts.length > 0; else emptyActif">
             <div class="pcard" *ngFor="let product of filteredProducts" (click)="onSelectProduct(product)">
               <div class="pcard__img">
-                <img [src]="getProductImageUrl(product)" (error)="handleImageError($event)" [alt]="product.designation">
+                <img *ngIf="getProductImageUrl(product)"
+                  [src]="getProductImageUrl(product)"
+                  (error)="handleImageError($event)"
+                  [alt]="product.designation">
+                <div class="pcard__no-img" *ngIf="!getProductImageUrl(product)"
+                  style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f1f5f9;">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="4" width="18" height="16" rx="2" stroke="#389fff" stroke-width="1.6"/>
+                    <circle cx="7" cy="9" r="1.5" stroke="#389fff" stroke-width="1.6"/>
+                    <path d="M2 16l5-5 4 4 3-3 6 4" stroke="#389fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="1" y1="23" x2="23" y2="1" stroke="#389fff" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </div>
                 <span class="pcard__cat">{{ product.categorie || 'Modèle' }}</span>
               </div>
               <div class="pcard__body">
@@ -121,7 +133,18 @@
           <div class="product-grid" *ngIf="filteredArchives.length > 0; else emptyArch">
             <div class="pcard pcard--archived" *ngFor="let product of filteredArchives">
               <div class="pcard__img">
-                <img [src]="getProductImageUrl(product)" (error)="handleImageError($event)">
+                <img *ngIf="getProductImageUrl(product)"
+                  [src]="getProductImageUrl(product)"
+                  (error)="handleImageError($event)">
+                <div class="pcard__no-img" *ngIf="!getProductImageUrl(product)"
+                  style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f1f5f9;">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="4" width="18" height="16" rx="2" stroke="#389fff" stroke-width="1.6"/>
+                    <circle cx="7" cy="9" r="1.5" stroke="#389fff" stroke-width="1.6"/>
+                    <path d="M2 16l5-5 4 4 3-3 6 4" stroke="#389fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="1" y1="23" x2="23" y2="1" stroke="#389fff" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </div>
                 <button class="pcard__unarc" title="Désarchiver" (click)="onUnarchive(product.idProduct, $event)">
                   <mat-icon>unarchive</mat-icon>
                 </button>

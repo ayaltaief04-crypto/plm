@@ -18,6 +18,7 @@ import { SharedModule } from './shared/shared.module';
 
 // Intercepteurs
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { GlobalNotificationService } from './core/services/global-notification.service';
 import { MarketingFormComponent } from './features/marketing/marketing-form/marketing-form.component';
 import { MarketingModule } from './features/marketing/marketing.module';
 import { QualityModule } from './features/quality/quality.module';

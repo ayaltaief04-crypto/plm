@@ -1,37 +1,57 @@
 <div class="page-container" (click)="selectedUser = null">
-  
+
   <header class="header-section">
     <div class="title-group">
-      <h1>Utilisateurs</h1>
+      <h1>Gestion des utilisateurs</h1>
       <span class="count-badge">{{filteredUsers.length}} membres</span>
     </div>
 
     <div class="action-bar">
       <div class="search-wrapper">
         <mat-icon>search</mat-icon>
-        <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm" (input)="applyFilters()" (click)="$event.stopPropagation()">
+        <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm"
+               (input)="applyFilters()" (click)="$event.stopPropagation()">
       </div>
 
-      <select class="filter-select" [(ngModel)]="selectedRoleFilter" (change)="applyFilters()" (click)="$event.stopPropagation()">
+      <select class="filter-select" [(ngModel)]="selectedRoleFilter"
+              (change)="applyFilters()" (click)="$event.stopPropagation()">
         <option value="">Tous les rôles</option>
         <option *ngFor="let r of roleOptions" [value]="r.value">{{r.label}}</option>
       </select>
 
+      <!-- ✅ Filtre par date de création -->
+      <div class="date-filter-wrapper" (click)="$event.stopPropagation()">
+        <mat-icon>calendar_today</mat-icon>
+        <input type="date" [(ngModel)]="dateDebutFilter"
+               (change)="applyFilters()" title="Date début" class="date-input">
+        <span class="date-sep">→</span>
+        <input type="date" [(ngModel)]="dateFinFilter"
+               (change)="applyFilters()" title="Date fin" class="date-input">
+        <button *ngIf="dateDebutFilter || dateFinFilter" class="btn-clear-date"
+                (click)="clearDateFilter()" title="Effacer les dates">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
       <div class="divider"></div>
 
-      <button mat-icon-button class="btn-action edit" [disabled]="!selectedUser" (click)="openEdit(); $event.stopPropagation()" title="Modifier">
+      <button mat-icon-button class="btn-action edit" [disabled]="!selectedUser"
+              (click)="openEdit(); $event.stopPropagation()" title="Modifier ">
         <mat-icon>edit</mat-icon>
       </button>
-      
-      <button mat-icon-button class="btn-action password" [disabled]="!selectedUser" (click)="openPasswordModal(); $event.stopPropagation()" title="Sécurité">
+
+      <button mat-icon-button class="btn-action password" [disabled]="!selectedUser"
+              (click)="openPasswordModal(); $event.stopPropagation()" title="Sécurité">
         <mat-icon>lock_reset</mat-icon>
       </button>
 
-      <button mat-icon-button class="btn-action delete" [disabled]="!selectedUser" (click)="deleteUser(); $event.stopPropagation()" title="Supprimer">
+      <button mat-icon-button class="btn-action delete" [disabled]="!selectedUser"
+              (click)="openDeleteConfirm(); $event.stopPropagation()" title="Supprimer">
         <mat-icon>delete_outline</mat-icon>
       </button>
 
-      <button mat-raised-button color="primary" class="add-btn" (click)="openAdd(); $event.stopPropagation()">
+      <button mat-raised-button color="primary" class="add-btn"
+              (click)="openAdd(); $event.stopPropagation()">
         <mat-icon>add</mat-icon> Nouveau
       </button>
     </div>
@@ -39,7 +59,7 @@
 
   <main class="table-container">
     <table mat-table [dataSource]="filteredUsers">
-      
+
       <ng-container matColumnDef="Nom">
         <th mat-header-cell *matHeaderCellDef>Nom</th>
         <td mat-cell *matCellDef="let u">
@@ -70,43 +90,60 @@
       </ng-container>
 
       <ng-container matColumnDef="DateCreation">
-        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <th mat-header-cell *matHeaderCellDef>Date de creation</th>
         <td mat-cell *matCellDef="let u">{{ u?.DateCreation | date:'dd/MM/yyyy' }}</td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
           [class.selected-row]="selectedUser?.IdUtilisateur === row.IdUtilisateur"
           (click)="selectRow(row, $event)"></tr>
     </table>
   </main>
 
+  <!-- MODAL AJOUT / MODIFICATION -->
   <div class="modal-overlay" *ngIf="showUserModal" (click)="showUserModal = false">
     <div class="modern-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>{{ isEditMode ? 'Modifier' : 'Nouveau' }} Utilisateur</h2>
+        <h2>{{ isEditMode ? 'Modifier' : 'Nouvel' }} Utilisateur</h2>
       </div>
-      
+
       <div class="modal-body">
-        <div class="form-group">
-          <label>Nom complet</label>
-          <input type="text" [(ngModel)]="userForm.Nom" placeholder="Nom...">
+
+        <!-- Erreur backend -->
+        <div class="form-error-banner" *ngIf="backendError">
+          <mat-icon>error_outline</mat-icon>
+          {{ backendError }}
         </div>
 
+        <!-- Nom -->
         <div class="form-group">
-          <label>Email professionnel</label>
-          <input type="email" [(ngModel)]="userForm.Email" placeholder="Email...">
+          <label>Nom complet <span class="required">*</span></label>
+          <input type="text" [(ngModel)]="userForm.Nom"
+                 placeholder="Nom complet"
+                 [class.input-error]="formSubmitted && !userForm.Nom?.trim()">
         </div>
 
+        <!-- Email -->
+        <div class="form-group">
+          <label>Email professionnel <span class="required">*</span></label>
+          <input type="email" [(ngModel)]="userForm.Email"
+                 placeholder="exemple@domaine.com"
+                 [class.input-error]="formSubmitted && (!userForm.Email?.trim() || !isEmailValid(userForm.Email))">
+        </div>
+
+        <!-- Rôle + Statut -->
         <div class="form-grid">
           <div class="form-group">
-            <label>Rôle</label>
-            <select class="modern-select" [(ngModel)]="userForm.Role">
+            <label>Rôle <span class="required">*</span></label>
+            <select class="modern-select" [(ngModel)]="userForm.Role"
+                    [class.input-error]="formSubmitted && !userForm.Role">
+              <option value="" disabled>-- Choisir un rôle --</option>
               <option *ngFor="let r of roleOptions" [value]="r.value">{{r.label}}</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Statut</label>
+            <label>Statut <span class="required">*</span></label>
             <select class="modern-select" [(ngModel)]="userForm.Actif">
               <option [ngValue]="true">Actif</option>
               <option [ngValue]="false">Inactif</option>
@@ -114,44 +151,88 @@
           </div>
         </div>
 
+        <!-- Mot de passe (création uniquement) -->
         <ng-container *ngIf="!isEditMode">
           <div class="form-grid">
             <div class="form-group">
-              <label>Mot de passe</label>
-              <input type="password" [(ngModel)]="userForm.MotDePasse" placeholder="••••••••">
+              <label>Mot de passe <span class="required">*</span></label>
+              <input
+                [type]="showNewPass ? 'text' : 'password'"
+                [(ngModel)]="userForm.MotDePasse"
+                placeholder="Mot de passe"
+                autocomplete="new-password"
+                [class.input-error]="formSubmitted && !userForm.MotDePasse?.trim()">
             </div>
             <div class="form-group">
-              <label>Confirmer</label>
-              <input type="password" [(ngModel)]="confirmPassword" placeholder="••••••••">
+              <label>Confirmer le mot de passe <span class="required">*</span></label>
+              <input
+                [type]="showConfirmPass ? 'text' : 'password'"
+                [(ngModel)]="confirmPassword"
+                placeholder="Confirmer mot de passe"
+                [class.input-error]="formSubmitted && (!confirmPassword?.trim() || userForm.MotDePasse !== confirmPassword)">
             </div>
           </div>
-          <p class="error-text" *ngIf="userForm.MotDePasse !== confirmPassword">Les mots de passe divergent.</p>
         </ng-container>
+
       </div>
 
       <div class="modal-footer">
         <button class="btn-secondary" (click)="showUserModal = false">Annuler</button>
-        <button class="btn-primary" [disabled]="!isEditMode && userForm.MotDePasse !== confirmPassword" (click)="saveUser()">Confirmer</button>
+        <button class="btn-primary" (click)="saveUser()">Confirmer</button>
       </div>
     </div>
   </div>
 
+  <!-- MODAL MOT DE PASSE -->
   <div class="modal-overlay" *ngIf="showPasswordModal" (click)="showPasswordModal = false">
     <div class="modern-modal mini" (click)="$event.stopPropagation()">
-      <div class="modal-header"><h2>Sécurité</h2></div>
+      <div class="modal-header"><h2>Changer le mot de passe</h2></div>
       <div class="modal-body">
         <div class="form-group">
           <label>Nouveau mot de passe</label>
-          <input type="password" [(ngModel)]="passwordForm.newPass">
+          <input
+            [type]="passwordForm.newPass ? 'password' : 'text'"
+            [(ngModel)]="passwordForm.newPass"
+            placeholder="Nouveau mot de passe"
+            autocomplete="new-password">
         </div>
         <div class="form-group">
           <label>Confirmer</label>
-          <input type="password" [(ngModel)]="passwordForm.confirmPass">
+          <input
+            [type]="passwordForm.confirmPass ? 'password' : 'text'"
+            [(ngModel)]="passwordForm.confirmPass"
+            placeholder="Confirmer mot de passe"
+            autocomplete="new-password">
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="showPasswordModal = false">Annuler</button>
-        <button class="btn-primary" [disabled]="!passwordForm.newPass || passwordForm.newPass !== passwordForm.confirmPass" (click)="confirmUpdatePassword()">Mettre à jour</button>
+        <button class="btn-primary"
+                [disabled]="!passwordForm.newPass || passwordForm.newPass !== passwordForm.confirmPass"
+                (click)="confirmUpdatePassword()">
+          Mettre à jour
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMATION SUPPRESSION -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="showDeleteModal = false">
+    <div class="modern-modal mini" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Supprimer l'utilisateur</h2>
+      </div>
+      <div class="modal-body">
+        <p style="color: #1b2559; font-size: 14px; margin: 0; line-height: 1.6;">
+          Voulez-vous vraiment supprimer <strong>{{ selectedUser?.Nom }}</strong> ?
+          <br>Cette action est irréversible.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="showDeleteModal = false">Annuler</button>
+        <button class="btn-primary" style="background: #ee5d50;" (click)="deleteUser()">
+          Supprimer
+        </button>
       </div>
     </div>
   </div>

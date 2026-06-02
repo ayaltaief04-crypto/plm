@@ -1,0 +1,411 @@
+<div class="no-print actions-bar">
+  <button (click)="printReport()" class="btn-print">
+    <mat-icon>print</mat-icon>
+    <span>Générer le Dossier PDF</span>
+  </button>
+</div>
+
+<div class="report-container" *ngIf="!loading && rapport">
+
+  <!-- ═══════════════════════════════════════
+       PAGE 1 : IDENTITÉ & DONNÉES STYLISTE
+  ═══════════════════════════════════════ -->
+  <section class="page">
+    <header class="rh">
+      <div class="rh__brand">
+        <div class="rh__logo">TF</div>
+        <span class="rh__name">TEXTILEFLOW <strong>PLM</strong></span>
+      </div>
+      <div class="rh__right">
+        <span class="rh__ref">{{ rapport.Styliste?.Formulaire?.Reference || '—' }}</span>
+        <span class="rh__ver">{{ rapport.Styliste?.Formulaire?.NumVersion || '—' }}</span>
+      </div>
+    </header>
+
+    <div class="page1-title">
+      <div class="pt-bar"></div>
+      <div class="pt-text">
+        <div class="pt-label">DOSSIER TECHNIQUE</div>
+        <div class="pt-product">{{ rapport.NomProduit | uppercase }}</div>
+      </div>
+    </div>
+
+    <div class="page1-body">
+
+      <!-- COLONNE GAUCHE -->
+      <div class="col-left">
+        <div class="main-image">
+          <img *ngIf="rapport.Styliste?.Formulaire?.ImagePaths?.length"
+               [src]="baseUrl + '/' + rapport.Styliste.Formulaire.ImagePaths[0]"
+               alt="Visuel principal">
+          <div class="no-img" *ngIf="!rapport.Styliste?.Formulaire?.ImagePaths?.length">
+            Aucun visuel disponible
+          </div>
+        </div>
+
+        <!-- Statut -->
+        <div class="status-block">
+          <div class="sb-label">STATUT</div>
+          <span class="status-pill" [attr.data-s]="rapport.Styliste?.Formulaire?.Statut">
+            {{ rapport.Styliste?.Formulaire?.Statut || '—' }}
+          </span>
+        </div>
+
+        <!-- Palette couleurs -->
+        <div class="palette-section">
+          <div class="section-label">PALETTE DE COULEURS</div>
+          <div class="palette-row" *ngIf="getPalette().length">
+            <div *ngFor="let c of getPalette()" class="swatch" [style.background]="c.hex">
+              <span>{{ c.hex }}</span>
+            </div>
+          </div>
+          <div class="empty-val" *ngIf="!getPalette().length">Aucune couleur définie</div>
+        </div>
+      </div>
+
+      <!-- COLONNE DROITE -->
+      <div class="col-right">
+
+        <div class="data-group">
+          <div class="dg-title">CLASSIFICATION</div>
+          <table class="dt">
+            <tr><td class="dt-k">Catégorie</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Categorie || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Collection</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Collection || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Saison</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Saison || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Section</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Section || 'Vide' }}</td></tr>
+          </table>
+        </div>
+
+        <div class="data-group">
+          <div class="dg-title">DESIGN & FINITIONS</div>
+          <table class="dt">
+            <tr><td class="dt-k">Silhouette</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Silhouette || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Type de Fermeture</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.TypeFermeture || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Finitions</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Finitions || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Accessoires</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Accessoires || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Détails Étiquette</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.DetailsEtiquette || 'Vide' }}</td></tr>
+          </table>
+        </div>
+
+        <div class="data-group">
+          <div class="dg-title">MATIÈRES & TECHNIQUE</div>
+          <table class="dt">
+            <tr><td class="dt-k">Matière Principale</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.MatieresPrincipale || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Matière Secondaire</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.MatiereSecondaire || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Composition</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Composition || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Type de Fil</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.TypeDeFil || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Complexité Montage</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.ComplexiteMontage ?? 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Grille de Tailles</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.GrilleTailles || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Type de Coupage</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.TypeCoupage || 'Vide' }}</td></tr>
+          </table>
+        </div>
+
+        <div class="data-group">
+          <div class="dg-title">CONCEPT</div>
+          <table class="dt">
+            <tr><td class="dt-k">Thème</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Theme || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Inspirations</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Inspiration || 'Vide' }}</td></tr>
+            <tr><td class="dt-k">Description</td><td class="dt-v">{{ rapport.Styliste?.Formulaire?.Description || 'Vide' }}</td></tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CHECKLIST STYLISTE -->
+    <div class="cl-section">
+      <div class="cl-header">
+        <div class="cl-header__title">LISTE DE CONTRÔLE — STYLISTE</div>
+        <div class="cl-header__note">
+          Note : <strong>{{ rapport.Styliste?.Checklist?.NoteFinale | number:'1.1-1' }} / 10</strong>
+        </div>
+      </div>
+      <div class="cl-list" *ngIf="rapport.Styliste?.Checklist?.Elements?.length; else noCheckStyliste">
+        <div class="cl-row" *ngFor="let el of rapport.Styliste.Checklist.Elements; let i = index">
+          <span class="cl-num">{{ i + 1 }}</span>
+          <span class="cl-check" [class.ok]="el.EstCoche">{{ el.EstCoche ? '✓' : '' }}</span>
+          <span class="cl-q" [class.done]="el.EstCoche">{{ el.Question }}</span>
+          <span class="cl-cmt" *ngIf="el.Commentaire">{{ el.Commentaire }}</span>
+        </div>
+      </div>
+      <ng-template #noCheckStyliste>
+        <div class="empty-msg">Aucun élément de contrôle styliste défini.</div>
+      </ng-template>
+    </div>
+
+    <footer class="pf">
+      <span>Généré le {{ rapport.DateGeneration | date:'dd/MM/yyyy à HH:mm' }}</span>
+      <span>PAGE 1 / 4 — CONFIDENTIEL</span>
+    </footer>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       PAGE 2 : MARKETING
+  ═══════════════════════════════════════ -->
+  <section class="page">
+    <header class="rh">
+      <div class="rh__brand">
+        <div class="rh__logo">TF</div>
+        <span class="rh__name">TEXTILEFLOW <strong>PLM</strong></span>
+      </div>
+      <div class="rh__right">
+        <span class="rh__ref">{{ rapport.Styliste?.Formulaire?.Reference || '—' }}</span>
+        <span class="rh__ver">PAGE 2 / 4</span>
+      </div>
+    </header>
+
+    <div class="sec-title">
+      <span class="sec-title__num">02</span>
+      <div>
+        <div class="sec-title__sub">ANALYSE</div>
+        <div class="sec-title__main">MARKETING & POSITIONNEMENT</div>
+      </div>
+    </div>
+
+    <!-- Formulaire marketing -->
+    <div class="data-group" *ngIf="rapport.Marketing?.Formulaire">
+      <div class="dg-title">DONNÉES MARKETING</div>
+      <table class="dt">
+        <tr><td class="dt-k">Public Cible</td><td class="dt-v">{{ rapport.Marketing.Formulaire.PublicCible || 'Vide' }}</td></tr>
+        <tr><td class="dt-k">Prix de Vente Estimé</td><td class="dt-v">{{ rapport.Marketing.Formulaire.PrixVenteEstime ? (rapport.Marketing.Formulaire.PrixVenteEstime + ' DT') : 'Vide' }}</td></tr>
+        <tr *ngIf="rapport.Marketing.Formulaire.Positionnement"><td class="dt-k">Positionnement</td><td class="dt-v">{{ rapport.Marketing.Formulaire.Positionnement || 'Vide' }}</td></tr>
+        <tr *ngIf="rapport.Marketing.Formulaire.CanauxDistribution"><td class="dt-k">Canaux Distribution</td><td class="dt-v">{{ rapport.Marketing.Formulaire.CanauxDistribution || 'Vide' }}</td></tr>
+        <tr *ngIf="rapport.Marketing.Formulaire.Concurrents"><td class="dt-k">Concurrents</td><td class="dt-v">{{ rapport.Marketing.Formulaire.Concurrents || 'Vide' }}</td></tr>
+      </table>
+    </div>
+    <div class="empty-msg" *ngIf="!rapport.Marketing?.Formulaire">
+      Aucune donnée marketing saisie pour ce produit.
+    </div>
+
+    <!-- Checklist Marketing -->
+    <div class="cl-section">
+      <div class="cl-header">
+        <div class="cl-header__title">LISTE DE CONTRÔLE — MARKETING</div>
+        <div class="cl-header__note">
+          Note : <strong>{{ rapport.Marketing?.Checklist?.NoteFinale | number:'1.1-1' }} / 10</strong>
+        </div>
+      </div>
+      <div class="cl-list" *ngIf="rapport.Marketing?.Checklist?.Elements?.length; else noCheckMkt">
+        <div class="cl-row" *ngFor="let el of rapport.Marketing.Checklist.Elements; let i = index">
+          <span class="cl-num">{{ i + 1 }}</span>
+          <span class="cl-check" [class.ok]="el.EstCoche">{{ el.EstCoche ? '✓' : '' }}</span>
+          <span class="cl-q" [class.done]="el.EstCoche">{{ el.Question }}</span>
+          <span class="cl-cmt" *ngIf="el.Commentaire">{{ el.Commentaire }}</span>
+        </div>
+      </div>
+      <ng-template #noCheckMkt>
+        <div class="empty-msg">Aucun élément de contrôle marketing défini.</div>
+      </ng-template>
+    </div>
+
+    <footer class="pf">
+      <span>{{ rapport.NomProduit | uppercase }} — {{ rapport.Styliste?.Formulaire?.NumVersion }}</span>
+      <span>PAGE 2 / 4 — CONFIDENTIEL</span>
+    </footer>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       PAGE 3 : QUALITÉ
+  ═══════════════════════════════════════ -->
+  <section class="page">
+    <header class="rh">
+      <div class="rh__brand">
+        <div class="rh__logo">TF</div>
+        <span class="rh__name">TEXTILEFLOW <strong>PLM</strong></span>
+      </div>
+      <div class="rh__right">
+        <span class="rh__ref">{{ rapport.Styliste?.Formulaire?.Reference || '—' }}</span>
+        <span class="rh__ver">PAGE 3 / 4</span>
+      </div>
+    </header>
+
+    <div class="sec-title">
+      <span class="sec-title__num">03</span>
+      <div>
+        <div class="sec-title__sub">CONTRÔLE</div>
+        <div class="sec-title__main">QUALITÉ & TESTS</div>
+      </div>
+    </div>
+
+    <!-- Formulaire qualité -->
+    <div class="data-group" *ngIf="rapport.Qualite?.Formulaire">
+      <div class="dg-title">DONNÉES QUALITÉ</div>
+      <table class="dt">
+        <tr><td class="dt-k">Tests Requis</td><td class="dt-v">{{ rapport.Qualite.Formulaire.TestsRequis || 'Vide' }}</td></tr>
+        <tr><td class="dt-k">Tolérances Dimensionnelles</td><td class="dt-v">{{ rapport.Qualite.Formulaire.TolerancesDim || 'Vide' }}</td></tr>
+        <tr *ngIf="rapport.Qualite.Formulaire.NormesCertifications"><td class="dt-k">Normes / Certifications</td><td class="dt-v">{{ rapport.Qualite.Formulaire.NormesCertifications || 'Vide' }}</td></tr>
+        <tr *ngIf="rapport.Qualite.Formulaire.FrequenceControle"><td class="dt-k">Fréquence Contrôle</td><td class="dt-v">{{ rapport.Qualite.Formulaire.FrequenceControle || 'Vide' }}</td></tr>
+      </table>
+    </div>
+    <div class="empty-msg" *ngIf="!rapport.Qualite?.Formulaire">
+      Aucune donnée qualité saisie pour ce produit.
+    </div>
+
+    <!-- Checklist Qualité -->
+    <div class="cl-section">
+      <div class="cl-header">
+        <div class="cl-header__title">LISTE DE CONTRÔLE — QUALITÉ</div>
+        <div class="cl-header__note">
+          Note : <strong>{{ rapport.Qualite?.Checklist?.NoteFinale | number:'1.1-1' }} / 10</strong>
+        </div>
+      </div>
+      <div class="cl-list" *ngIf="rapport.Qualite?.Checklist?.Elements?.length; else noCheckQual">
+        <div class="cl-row" *ngFor="let el of rapport.Qualite.Checklist.Elements; let i = index">
+          <span class="cl-num">{{ i + 1 }}</span>
+          <span class="cl-check" [class.ok]="el.EstCoche">{{ el.EstCoche ? '✓' : '' }}</span>
+          <span class="cl-q" [class.done]="el.EstCoche">{{ el.Question }}</span>
+          <span class="cl-cmt" *ngIf="el.Commentaire">{{ el.Commentaire }}</span>
+        </div>
+      </div>
+      <ng-template #noCheckQual>
+        <div class="empty-msg">Aucun élément de contrôle qualité défini.</div>
+      </ng-template>
+    </div>
+
+    <!-- Signatures -->
+    <div class="sigs">
+      <div class="sig">
+        <div class="sig__box"></div>
+        <div class="sig__lbl">Visa Bureau d'Études</div>
+      </div>
+      <div class="sig">
+        <div class="sig__box"></div>
+        <div class="sig__lbl">Visa Qualité</div>
+      </div>
+      <div class="sig">
+        <div class="sig__box"></div>
+        <div class="sig__lbl">Visa Direction</div>
+      </div>
+    </div>
+
+    <footer class="pf">
+      <span>{{ rapport.NomProduit | uppercase }} — {{ rapport.Styliste?.Formulaire?.NumVersion }}</span>
+      <span>PAGE 3 / 4 — CONFIDENTIEL</span>
+    </footer>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       PAGE 4 : NOMENCLATURE (BOM)
+  ═══════════════════════════════════════ -->
+  <section class="page">
+    <header class="rh">
+      <div class="rh__brand">
+        <div class="rh__logo">TF</div>
+        <span class="rh__name">TEXTILEFLOW <strong>PLM</strong></span>
+      </div>
+      <div class="rh__right">
+        <span class="rh__ref">{{ rapport.Styliste?.Formulaire?.Reference || '—' }}</span>
+        <span class="rh__ver">PAGE 4 / 4</span>
+      </div>
+    </header>
+
+    <div class="sec-title">
+      <span class="sec-title__num">04</span>
+      <div>
+        <div class="sec-title__sub">BOM</div>
+        <div class="sec-title__main">NOMENCLATURE — BILL OF MATERIALS</div>
+      </div>
+    </div>
+
+    <!-- Données nomenclature -->
+    <div class="data-group">
+      <div class="dg-title">DONNÉES NOMENCLATURE</div>
+      <table class="dt">
+        <tr><td class="dt-k">Matières Principales</td><td class="dt-v">{{ rapport.Nomenclature?.MatieresPrincipales || 'Vide' }}</td></tr>
+        <tr><td class="dt-k">Composition</td><td class="dt-v">{{ rapport.Nomenclature?.Composition || 'Vide' }}</td></tr>
+        <tr><td class="dt-k">Procédés de Fabrication</td><td class="dt-v">{{ rapport.Nomenclature?.ProcedesFab || 'Vide' }}</td></tr>
+        <tr><td class="dt-k">Techniques Spécifiques</td><td class="dt-v">{{ rapport.Nomenclature?.TechniquesSpecifiques || 'Vide' }}</td></tr>
+        <tr><td class="dt-k">Tolérances Dimensionnelles</td><td class="dt-v">{{ rapport.Nomenclature?.TolerancesDim || 'Vide' }}</td></tr>
+        <tr><td class="dt-k">Tests Requis</td><td class="dt-v">{{ rapport.Nomenclature?.TestsRequis || 'Vide' }}</td></tr>
+      </table>
+    </div>
+
+    <!-- Table BOM -->
+    <div class="bom-section">
+      <div class="dg-title">COMPOSANTS</div>
+      <table class="bom" *ngIf="rapport.Nomenclature?.Composants?.length; else noBom">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Désignation</th>
+            <th>Fournisseur</th>
+            <th>Qté</th>
+            <th>Unité</th>
+            <th>P.U (DT)</th>
+            <th>Total (DT)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of rapport.Nomenclature.Composants; let i = index">
+            <td class="c">{{ i + 1 }}</td>
+            <td>{{ item.Designation || '—' }}</td>
+            <td>{{ item.NomFournisseur || '—' }}</td>
+            <td class="c">{{ item.Quantite }}</td>
+            <td class="c">{{ item.Unite }}</td>
+            <td class="r">{{ item.PrixUnitaire | number:'1.2-2' }}</td>
+            <td class="r b">{{ item.CoutTotal | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="6" class="r b">TOTAL MATIÈRES</td>
+            <td class="r b total">{{ getTotalBom() | number:'1.2-2' }} DT</td>
+          </tr>
+        </tfoot>
+      </table>
+      <ng-template #noBom>
+        <div class="empty-msg">Aucun composant enregistré dans la nomenclature.</div>
+      </ng-template>
+    </div>
+
+    <!-- Checklist Ingénieur + Achat -->
+    <div class="cl-section" *ngIf="rapport.ChecklistIngenieur?.Elements?.length">
+      <div class="cl-header">
+        <div class="cl-header__title">LISTE DE CONTRÔLE — INGÉNIEUR TEXTILE</div>
+        <div class="cl-header__note">
+          Note : <strong>{{ rapport.ChecklistIngenieur?.NoteFinale | number:'1.1-1' }} / 10</strong>
+        </div>
+      </div>
+      <div class="cl-list">
+        <div class="cl-row" *ngFor="let el of rapport.ChecklistIngenieur.Elements; let i = index">
+          <span class="cl-num">{{ i + 1 }}</span>
+          <span class="cl-check" [class.ok]="el.EstCoche">{{ el.EstCoche ? '✓' : '' }}</span>
+          <span class="cl-q" [class.done]="el.EstCoche">{{ el.Question }}</span>
+          <span class="cl-cmt" *ngIf="el.Commentaire">{{ el.Commentaire }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cl-section" *ngIf="rapport.ChecklistAchat?.Elements?.length">
+      <div class="cl-header">
+        <div class="cl-header__title">LISTE DE CONTRÔLE — ACHATS</div>
+        <div class="cl-header__note">
+          Note : <strong>{{ rapport.ChecklistAchat?.NoteFinale | number:'1.1-1' }} / 10</strong>
+        </div>
+      </div>
+      <div class="cl-list">
+        <div class="cl-row" *ngFor="let el of rapport.ChecklistAchat.Elements; let i = index">
+          <span class="cl-num">{{ i + 1 }}</span>
+          <span class="cl-check" [class.ok]="el.EstCoche">{{ el.EstCoche ? '✓' : '' }}</span>
+          <span class="cl-q" [class.done]="el.EstCoche">{{ el.Question }}</span>
+          <span class="cl-cmt" *ngIf="el.Commentaire">{{ el.Commentaire }}</span>
+        </div>
+      </div>
+    </div>
+
+    <footer class="pf">
+      <span>{{ rapport.NomProduit | uppercase }} — {{ rapport.Styliste?.Formulaire?.NumVersion }}</span>
+      <span>PAGE 4 / 4 — CONFIDENTIEL</span>
+    </footer>
+  </section>
+
+</div>
+
+<div class="loading-state" *ngIf="loading">
+  <div class="spin"></div>
+  <p>Génération du rapport…</p>
+</div>
+
+<div class="error-state" *ngIf="!loading && errorMessage">
+  <p>{{ errorMessage }}</p>
+</div>

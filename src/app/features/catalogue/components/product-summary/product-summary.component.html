@@ -18,10 +18,12 @@
         </span>
 
         <ng-container *ngIf="productImages.length > 1">
-          <button class="img-arrow img-arrow--prev" (click)="prevImage($event)" [disabled]="activeImageIndex === 0">
+          <button class="img-arrow img-arrow--prev" (click)="prevImage($event)"
+            [disabled]="activeImageIndex === 0">
             <mat-icon>chevron_left</mat-icon>
           </button>
-          <button class="img-arrow img-arrow--next" (click)="nextImage($event)" [disabled]="activeImageIndex === productImages.length - 1">
+          <button class="img-arrow img-arrow--next" (click)="nextImage($event)"
+            [disabled]="activeImageIndex === productImages.length - 1">
             <mat-icon>chevron_right</mat-icon>
           </button>
           <div class="img-dots">
@@ -37,7 +39,8 @@
           *ngFor="let url of productImages; let i = index"
           [class.active]="i === activeImageIndex"
           (click)="setActiveImage(i)">
-          <img [src]="url" (error)="$any($event.target).src = 'assets/placeholder.png'" [alt]="'Vue ' + (i+1)"/>
+          <img [src]="url" (error)="$any($event.target).src = 'assets/placeholder.png'"
+            [alt]="'Vue ' + (i+1)"/>
         </button>
       </div>
 
@@ -79,20 +82,22 @@
             <span class="ps-chip__value">{{ product.categorie || 'N/A' }}</span>
           </div>
         </div>
-        <!-- Statut (badge) -->
+        <!-- Statut -->
         <div class="ps-chip">
           <span class="ps-chip__icon"><mat-icon>tune</mat-icon></span>
           <div class="ps-chip__text">
             <span class="ps-chip__label">Statut</span>
-            <span class="ps-chip__status status-badge small" [ngClass]="effectiveStatusClass">{{ effectiveStatus }}</span>
+            <span class="ps-chip__status status-badge small" [ngClass]="effectiveStatusClass">
+              {{ effectiveStatus }}
+            </span>
           </div>
         </div>
-        <!-- Nombre de versions -->
-        <div class="ps-chip" *ngIf="product.versions?.length">
+        <!-- Total versions -->
+        <div class="ps-chip" *ngIf="allVersions.length > 0">
           <span class="ps-chip__icon"><mat-icon>history</mat-icon></span>
           <div class="ps-chip__text">
             <span class="ps-chip__label">Versions</span>
-            <span class="ps-chip__value">{{ product.versions.length }} version(s)</span>
+            <span class="ps-chip__value">{{ allVersions.length }} version(s)</span>
           </div>
         </div>
       </div>
@@ -102,16 +107,23 @@
       <!-- ── ACTIONS ROW ────────────────────────────────────────────────── -->
       <div class="ps-actions-row">
 
-        <!-- Historique des versions (toujours visible) -->
+        <!-- Consulter dernière version -->
+        <button class="ps-btn ps-btn--v1" (click)="onConsulterLatest()">
+          <mat-icon>rocket_launch</mat-icon>
+          <span>Consulter {{ latestVersionName }}</span>
+          <span class="ps-btn__badge" [ngClass]="effectiveStatusClass">{{ effectiveStatus }}</span>
+        </button>
+
+        <!-- Historique des versions -->
         <button class="ps-btn ps-btn--outline"
           (click)="onViewHistory()"
           [class.active]="showVersions">
           <mat-icon>{{ showVersions ? 'expand_less' : 'manage_history' }}</mat-icon>
-          <span>Historique versions</span>
-          <span class="ps-btn__badge">{{ versionsWithV1.length }}</span>
+          <span>Historique des versions</span>
+          <span class="ps-btn__badge">{{ versionsHistorique.length }}</span>
         </button>
 
-        <!-- Archiver (conservé) -->
+        <!-- Archiver -->
         <button *ngIf="isStyliste"
           class="ps-btn ps-btn--archive"
           (click)="onArchiveClick()"
@@ -124,13 +136,13 @@
     </div>
   </div>
 
-  <!-- ── HISTORIQUE PANEL (liste des versions) ─────────────────────────── -->
-  <div class="ps-history-panel" *ngIf="showVersions">
+  <!-- ── HISTORIQUE PANEL ── -->
+  <div class="ps-history-panel" *ngIf="showVersions && allVersions.length > 0">
 
     <div class="php-header">
       <mat-icon>manage_history</mat-icon>
-      <span>Versions du produit</span>
-      <span class="php-count">{{ versionsWithV1.length }}</span>
+      <span>Historique des versions</span>
+      <span class="php-count">{{ allVersions.length }}</span>
     </div>
 
     <div class="php-table">
@@ -138,39 +150,64 @@
       <div class="php-table-head">
         <span>Version</span>
         <span>Statut</span>
+        <span>Date création</span>
         <span>Dernière modif.</span>
         <span></span>
       </div>
 
       <div class="php-row"
-        *ngFor="let v of versionsWithV1; let i = index; let last = last"
+        *ngFor="let v of allVersions; let i = index; let last = last"
         [class.last]="last"
+        [class.php-row--v1]="isV1(v)"
         (click)="onSelectVersion(v)"
         style="cursor: pointer">
 
         <div class="php-row__version">
           <span class="php-row__num">{{ getVersionNumber(v, i) }}</span>
-          <span class="php-row__tag" *ngIf="last">Dernière</span>
-          <span class="php-row__tag" *ngIf="i === 0 && versionsWithV1.length > 1" style="background:#e0e7ff;color:#4f46e5">Origine</span>
+          <span class="php-row__tag php-row__tag--v1" *ngIf="isV1(v)">Origine</span>
+          <span class="php-row__tag" *ngIf="last && !isV1(v)">Dernière</span>
         </div>
 
         <div class="php-row__status">
-          <span class="status-badge small" [ngClass]="getVersionStatusClass(v.statut)">{{ v.statut || 'Publié' }}</span>
+          <span class="status-badge small" [ngClass]="getVersionStatusClass(v.statut)">
+            {{ v.statut || 'Publié' }}
+          </span>
         </div>
 
+        <!-- Date création -->
+        <div class="php-row__date">
+          <mat-icon class="php-row__date-icon">add_circle_outline</mat-icon>
+          <span>
+            {{ v.dateCreationRef ? (v.dateCreationRef | date:'dd/MM/yyyy') : '--/--/----' }}
+          </span>
+        </div>
+
+        <!-- Dernière modif -->
         <div class="php-row__date">
           <mat-icon class="php-row__date-icon">event</mat-icon>
-          <span>{{ (v.dateModification || v.updatedAt) ? ((v.dateModification || v.updatedAt) | date:'dd/MM/yyyy') : '--/--/----' }}</span>
+          <span>
+            {{ v.dateVersion ? (v.dateVersion | date:'dd/MM/yyyy') : '--/--/----' }}
+          </span>
         </div>
 
         <div class="php-row__action">
-          <button class="php-row__btn">
+          <button class="php-row__btn" title="Ouvrir cette version">
             <mat-icon>open_in_new</mat-icon>
           </button>
         </div>
-      </div>
 
+      </div>
     </div>
+  </div>
+
+  <!-- Message si aucune version -->
+  <div class="ps-no-history" *ngIf="showVersions && allVersions.length === 0">
+    <mat-icon>info_outline</mat-icon>
+    <span>
+      Aucune version générée pour l'instant.
+      Ouvrez <strong>V1.0</strong> et cliquez sur
+      <strong>Générer nouvelle version</strong> pour créer une V1.1.
+    </span>
   </div>
 
 </div>

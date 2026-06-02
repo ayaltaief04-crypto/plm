@@ -3,11 +3,10 @@
   <!-- Left panel: branding -->
   <div class="login-panel login-panel--brand">
     <div class="brand-hero">
-      <div class="brand-hero__logo">TF</div>
       <h1 class="brand-hero__title">Textile<strong>PLM</strong></h1>
       <p class="brand-hero__subtitle">Product Lifecycle Management</p>
       <div class="brand-hero__pills">
-        <span class="pill"><mat-icon>check_circle</mat-icon>Gestion des idees produits</span>
+        <span class="pill"><mat-icon>check_circle</mat-icon>Gestion des idées produits</span>
           <span class="pill"><mat-icon>check_circle</mat-icon>Versionning Intelligent</span>
         <span class="pill"><mat-icon>check_circle</mat-icon> Gestion du BOM Bill of Materials</span>
         <span class="pill"><mat-icon>check_circle</mat-icon>Contrôle qualité</span>
@@ -30,7 +29,7 @@
           {{ isSupportMode ? 'Assistance Technique' : 'Connexion' }}
         </h2>
         <p class="form-header__subtitle">
-          {{ isSupportMode ? 'Décrivez votre problème, notre équipe vous répond.' : 'Bienvenue sur votre espace textile.' }}
+          {{ isSupportMode ? 'Décrivez votre problème, notre équipe vous répond.' : 'Bienvenue sur votre espace.' }}
         </p>
       </div>
 
@@ -80,38 +79,3 @@
 
       </form>
 
-      <!-- Support form -->
-      <form *ngIf="isSupportMode" class="auth-form">
-
-        <div class="field-group">
-          <label class="field-label">Description du problème</label>
-          <textarea
-            class="field-textarea"
-            rows="5"
-            placeholder="Expliquez l'erreur rencontrée..."
-            [(ngModel)]="supportMessage"
-            name="supportMessage"
-            required></textarea>
-        </div>
-
-        <button type="button" class="btn-submit" (click)="envoyerSupport()">
-          <mat-icon>send</mat-icon>
-          Envoyer à l'administrateur
-        </button>
-
-        <button type="button" class="btn-cancel" (click)="toggleMode()">
-          Annuler et retourner
-        </button>
-
-      </form>
-
-      <!-- Footer -->
-      <p class="form-footer" *ngIf="!isSupportMode">
-        Un problème ?
-        <a (click)="toggleMode()"> Aide technique</a>
-      </p>
-
-    </div>
-  </div>
-
-</div>

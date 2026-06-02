@@ -1,4 +1,4 @@
-// ─── REUNIONS PANEL — Style industriel pro ──────────────────────────────────
+// ─── REUNIONS PANEL ──────────────────────────────────────────────────────────
 
 $navy:      #0B3D6E;
 $navy-dk:   #071F3A;
@@ -60,8 +60,40 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     color: $muted;
   }
 }
+.rp-planifier-bar {
+  display: flex;
+  justify-content: flex-end;
+}
 
-// ── LAYOUT (calendrier + form côte à côte) ────────────────────────────────────
+// ── BOUTON PLANIFIER ─────────────────────────────────────────────────────────
+.rp-btn-planifier {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  padding: 9px 16px;
+  background: linear-gradient(135deg, $navy, #1A65B5);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: $t;
+  box-shadow: 0 4px 14px rgba(11, 61, 110, 0.25);
+
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(11, 61, 110, 0.32);
+  }
+
+  &:active { transform: translateY(0); }
+}
+
+// ── LAYOUT ───────────────────────────────────────────────────────────────────
 .rp-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -71,6 +103,14 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
   }
+
+  &--locked {
+  pointer-events: none;
+
+  .rp-btn-planifier {
+    pointer-events: all;
+  }
+}
 }
 
 // ── CALENDRIER ───────────────────────────────────────────────────────────────
@@ -79,7 +119,12 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid $border;
   border-radius: 14px;
   padding: 16px;
-  box-shadow: 0 2px 10px rgba(11,61,110,0.06);
+  box-shadow: 0 2px 10px rgba(11, 61, 110, 0.06);
+
+  &--locked {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }
 
 .cal-nav {
@@ -111,10 +156,15 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
     mat-icon { font-size: 16px; width: 16px; height: 16px; }
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: $navy;
       border-color: $navy;
       color: #fff;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
   }
 }
@@ -150,17 +200,17 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   transition: $t;
   user-select: none;
 
-  &.empty { cursor: default; pointer-events: none; }
+  &.empty    { cursor: default; pointer-events: none; }
+  &.past     { color: #C0CEDD; }
+  &.disabled { cursor: not-allowed; opacity: 0.4; }
 
-  &.past { color: #C0CEDD; }
-
-  &:not(.empty):not(.past):hover {
+  &:not(.empty):not(.past):not(.disabled):hover {
     background: #E8F0FA;
     color: $navy;
   }
 
   &.today {
-    background: rgba(0,184,154,0.1);
+    background: rgba(0, 184, 154, 0.1);
     color: $accent;
     font-weight: 700;
     border: 1.5px solid $accent;
@@ -170,8 +220,7 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     background: $navy;
     color: #fff;
     font-weight: 700;
-
-    .cal-cell__dot { background: rgba(255,255,255,0.6); }
+    .cal-cell__dot { background: rgba(255, 255, 255, 0.6); }
   }
 
   &.has-event .cal-cell__dot { display: block; }
@@ -205,6 +254,18 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     margin-bottom: 2px;
 
     mat-icon { font-size: 16px; width: 16px; height: 16px; color: $accent; }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 4px;
+
+    .rp-btn-save   { margin-top: 0; flex: 1; }
+    .rp-btn-cancel { flex-shrink: 0; }
+    .rp-btn-planifier { margin-left: 0; width: 100%; justify-content: center; }
   }
 }
 
@@ -240,12 +301,19 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:focus {
       border-color: $navy;
-      box-shadow: 0 0 0 3px rgba(11,61,110,0.08);
+      box-shadow: 0 0 0 3px rgba(11, 61, 110, 0.08);
+    }
+
+    &:disabled {
+      background: $bg;
+      color: $muted;
+      cursor: not-allowed;
+      border-color: $border;
     }
 
     &--error {
       border-color: $danger;
-      box-shadow: 0 0 0 3px rgba(220,38,38,0.07);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.07);
     }
   }
 
@@ -305,18 +373,22 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: $navy;
     background: #E8F0FA;
     color: $navy;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   &--active {
     background: $navy;
     border-color: $navy;
     color: #fff;
-
-    mat-icon { color: rgba(255,255,255,0.75); }
+    mat-icon { color: rgba(255, 255, 255, 0.75); }
   }
 
   &__check {
@@ -328,7 +400,7 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-// ── BOUTON ENREGISTRER ────────────────────────────────────────────────────────
+// ── BOUTONS ───────────────────────────────────────────────────────────────────
 .rp-btn-save {
   display: flex;
   align-items: center;
@@ -344,43 +416,83 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 700;
   cursor: pointer;
   transition: $t;
-  box-shadow: 0 4px 16px rgba(11,61,110,0.25);
+  box-shadow: 0 4px 16px rgba(11, 61, 110, 0.25);
   margin-top: 6px;
 
   mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 6px 22px rgba(11,61,110,0.32);
+    box-shadow: 0 6px 22px rgba(11, 61, 110, 0.32);
   }
 
-  &:active { transform: translateY(0); }
-
+  &:active   { transform: translateY(0); }
   &:disabled { opacity: 0.7; cursor: not-allowed; }
-
-  &--loading {
-    background: rgba(11,61,110,0.75);
-  }
-
+  &--loading { background: rgba(11, 61, 110, 0.75); }
   &--done {
     background: linear-gradient(135deg, #059669, #047857);
-    box-shadow: 0 4px 16px rgba(5,150,105,0.25);
+    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.25);
+  }
+}
+
+.rp-btn-cancel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: $bg;
+  border: 1.5px solid $border;
+  border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: $muted;
+  cursor: pointer;
+  transition: $t;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+
+  &:hover {
+    border-color: $navy;
+    color: $navy;
+    background: #EFF6FF;
+  }
+}
+
+.rp-btn-delete {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: $danger;
+  border: none;
+  border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: $t;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+
+  &:hover {
+    background: darken($danger, 8%);
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
   }
 }
 
 .rp-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 // ── LISTE RÉUNIONS ───────────────────────────────────────────────────────────
 .rp-list-section {
@@ -420,10 +532,13 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     margin-left: 4px;
   }
 
-  &--past .rp-list-group__title { color: $muted; mat-icon { color: $muted; } }
-  &--past .rp-list-group__count { background: $muted; }
+  &--past {
+    .rp-list-group__title { color: $muted; mat-icon { color: $muted; } }
+    .rp-list-group__count { background: $muted; }
+  }
 }
 
+// ── CARTE RÉUNION ─────────────────────────────────────────────────────────────
 .rp-reunion-card {
   display: flex;
   align-items: flex-start;
@@ -433,18 +548,13 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 12px;
   padding: 12px 14px;
   transition: $t;
-  position: relative;
 
   &:hover {
     border-color: darken($border, 8%);
-    box-shadow: 0 2px 10px rgba(11,61,110,0.07);
+    box-shadow: 0 2px 10px rgba(11, 61, 110, 0.07);
   }
 
-  &--past {
-    opacity: 0.65;
-    background: $bg;
-  }
-
+  &--past { opacity: 0.65; background: $bg; }
   &__left { flex-shrink: 0; }
 
   &__date-badge {
@@ -457,25 +567,16 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     align-items: center;
     justify-content: center;
     color: #fff;
-    box-shadow: 0 3px 10px rgba(11,61,110,0.22);
+    box-shadow: 0 3px 10px rgba(11, 61, 110, 0.22);
 
-    &--past { background: linear-gradient(135deg, $muted, #94A3B8); box-shadow: none; }
+    &--past {
+      background: linear-gradient(135deg, $muted, #94A3B8);
+      box-shadow: none;
+    }
   }
 
-  &__day {
-    font-size: 17px;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  &__mon {
-    font-size: 9px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    opacity: 0.85;
-  }
-
+  &__day  { font-size: 17px; font-weight: 800; line-height: 1; }
+  &__mon  { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; opacity: 0.85; }
   &__body { flex: 1; min-width: 0; }
 
   &__name {
@@ -498,12 +599,7 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
   }
 
-  &__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-  }
+  &__meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
   &__time, &__dest {
     display: flex;
@@ -512,40 +608,35 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 11px;
     color: $muted;
     font-weight: 500;
-
     mat-icon { font-size: 13px; width: 13px; height: 13px; }
   }
 
-  &__dest {
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  &__dest { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  &__edit {
+    background: transparent; border: none; cursor: pointer;
+    color: #C0CEDD; width: 28px; height: 28px;
+    border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; transition: $t;
+    mat-icon { font-size: 14px; width: 14px; height: 14px; }
+    &:hover { background: #EFF6FF; color: $navy; }
   }
 
   &__del {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: #C0CEDD;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: $t;
-    flex-shrink: 0;
-
+    background: transparent; border: none; cursor: pointer;
+    color: #C0CEDD; width: 28px; height: 28px;
+    border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; transition: $t;
     mat-icon { font-size: 14px; width: 14px; height: 14px; }
-
-    &:hover {
-      background: #FEE2E2;
-      color: $danger;
-    }
+    &:hover { background: #FEE2E2; color: $danger; }
   }
 }
 
@@ -562,6 +653,38 @@ $t:         all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 14px;
 
   mat-icon { font-size: 38px; width: 38px; height: 38px; opacity: 0.35; }
-  p { margin: 0; font-size: 14px; font-weight: 600; color: #94A3B8; }
-  span { font-size: 12px; }
+  p        { margin: 0; font-size: 14px; font-weight: 600; color: #94A3B8; }
+  span     { font-size: 12px; }
+}
+
+// ── MODAL CONFIRMATION SUPPRESSION ───────────────────────────────────────────
+.rp-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+
+.rp-modal {
+  background: $white;
+  border-radius: 14px;
+  padding: 32px 28px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+
+  &__icon {
+    margin-bottom: 12px;
+    mat-icon { font-size: 44px; width: 44px; height: 44px; color: #f59e0b; }
+  }
+
+  &__title { font-size: 17px; font-weight: 700; color: $navy; margin: 0 0 10px; }
+
+  &__msg {
+    font-size: 13px; color: $muted; margin-bottom: 24px; line-height: 1.6;
+    strong { color: $text; }
+  }
+
+  &__actions { display: flex; gap: 10px; justify-content: center; }
 }

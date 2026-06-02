@@ -39,7 +39,7 @@ $t:   .2s cubic-bezier(.4,0,.2,1);
   display: flex;
   align-items: center;
   padding: 0 28px;
-  height: 56px;
+  height: 80px;
   background: var(--bg-surface, #fff);
   border-bottom: 1px solid var(--border, #e5e7eb);
   gap: 16px;
@@ -48,45 +48,63 @@ $t:   .2s cubic-bezier(.4,0,.2,1);
 }
 
 .top-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 26px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #08084e, #1a38dd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   white-space: nowrap;
+  letter-spacing: -0.3px;
 }
-
 .top-search {
   flex: 1;
-  max-width: 380px;
+  max-width: 700px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--bg-body, #f5f6f7);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: $r;
-  padding: 0 12px;
-  height: 34px;
+  gap: 10px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 0 16px;
+  height: 46px;
   margin: 0 auto;
-  transition: border-color .15s;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
 
-  &:focus-within { border-color: $pri; }
+  &:focus-within {
+    border-color: $pri;
+    box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.08);
+    background: #fff;
+  }
 
   mat-icon {
-    font-size: 17px;
-    width: 17px;
-    height: 17px;
-    color: var(--text-placeholder, #9ca3af);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #94a3b8;
     flex-shrink: 0;
+    transition: color 0.2s;
+  }
+
+  &:focus-within mat-icon {
+    color: $pri;
   }
 
   input {
     border: none;
     background: transparent;
     outline: none;
-    font-size: 13px;
+    font-size: 14px;
     font-family: 'DM Sans', sans-serif;
-    color: var(--text-primary);
+    color: #0f172a;
     width: 100%;
-    &::placeholder { color: var(--text-placeholder, #9ca3af); }
+    font-weight: 400;
+    letter-spacing: 0.1px;
+    &::placeholder {
+      color: #b0bac9;
+      font-weight: 400;
+    }
   }
 }
 
@@ -502,7 +520,7 @@ $t:   .2s cubic-bezier(.4,0,.2,1);
 
 // ─── OVERRIDES : cartes plus grandes ──────────────────────────────────────────
 .product-grid {
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 18px;
 }
 
@@ -510,7 +528,7 @@ $t:   .2s cubic-bezier(.4,0,.2,1);
   border-radius: 16px;
 
   &__img {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 4 / 4;
   }
 
   &__body {

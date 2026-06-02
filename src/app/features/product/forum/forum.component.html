@@ -1,0 +1,351 @@
+<div class="forum-shell">
+
+  <!-- HEADER -->
+  <header class="forum-header">
+    <div class="forum-header__left">
+      <span class="material-icons forum-header__icon">forum</span>
+      <div class="forum-header__meta">
+        <h2 class="forum-header__title">{{ productName }}</h2>
+        <span class="forum-header__version" *ngIf="versionLabel">{{ versionLabel }}</span>
+      </div>
+    </div>
+    <div class="forum-header__right">
+      <span class="status-dot"
+        [class.status-dot--online]="isConnected"
+        [class.status-dot--offline]="!isConnected">
+        <span class="status-dot__pulse"></span>
+      </span>
+      <span class="status-label">{{ isConnected ? 'Connecté' : 'Hors ligne' }}</span>
+    </div>
+  </header>
+
+  <!-- ERROR BANNER -->
+  <div class="forum-error" *ngIf="errorMsg" role="alert">
+    <span class="material-icons forum-error__icon">error_outline</span>
+    <span class="forum-error__text">{{ errorMsg }}</span>
+    <button class="forum-error__close" (click)="dismissError()" aria-label="Fermer">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <!-- MESSAGES AREA -->
+  <div class="forum-messages" #scrollContainer (click)="closeEmojiPicker()">
+
+    <!-- Loading skeleton -->
+    <ng-container *ngIf="isLoading">
+      <div class="skeleton-wrap" *ngFor="let i of [1,2,3,4]">
+        <div class="skeleton skeleton--avatar"></div>
+        <div class="skeleton-lines">
+          <div class="skeleton skeleton--line skeleton--line-sm"></div>
+          <div class="skeleton skeleton--line"></div>
+          <div class="skeleton skeleton--line skeleton--line-lg"></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Empty state -->
+    <div class="forum-empty" *ngIf="!isLoading && messages.length === 0">
+      <span class="material-icons forum-empty__icon">chat_bubble_outline</span>
+      <p class="forum-empty__text">Aucun message pour l'instant.</p>
+      <p class="forum-empty__sub">Lancez la conversation !</p>
+    </div>
+
+    <!-- Messages list -->
+    <ng-container *ngIf="!isLoading">
+      <div
+        class="msg-row"
+        *ngFor="let msg of messages; trackBy: trackById"
+        [class.msg-row--own]="isOwnMessage(msg)"
+        [class.msg-row--other]="!isOwnMessage(msg)"
+        [class.msg-row--pending]="msg['isPending']"
+        [attr.data-msg-id]="msg.id"
+      >
+
+        <!-- ══ MESSAGE D'UN AUTRE (gauche) ══ -->
+        <ng-container *ngIf="!isOwnMessage(msg)">
+
+          <!-- Avatar -->
+          <div class="msg-avatar">
+            <span class="msg-avatar__initials">{{ getAvatarInitials(msg.auteurNom) }}</span>
+          </div>
+
+          <!-- Corps -->
+          <div class="msg-body msg-body--other">
+
+            <!-- Meta auteur -->
+            <div class="msg-meta">
+              <span class="msg-meta__name">{{ msg.auteurNom }}</span>
+              <span class="msg-meta__badge" [ngClass]="getRoleClass(msg.auteurRole)">
+                <span class="material-icons">{{ getRoleIcon(msg.auteurRole) }}</span>
+                {{ getRoleLabel(msg.auteurRole) }}
+              </span>
+            </div>
+
+            <!-- Citation (reply) -->
+            <div class="msg-reply-preview" *ngIf="getReplyTarget(msg)">
+              <span class="msg-reply-preview__bar"></span>
+              <div class="msg-reply-preview__content">
+                <span class="msg-reply-preview__author">{{ getReplyTarget(msg)?.auteurNom }}</span>
+                <span class="msg-reply-preview__text">{{ getReplyTarget(msg)?.contenu | slice:0:80 }}{{ (getReplyTarget(msg)?.contenu?.length ?? 0) > 80 ? '…' : '' }}</span>
+              </div>
+            </div>
+
+            <!-- Bulle normale -->
+            <div class="msg-bubble msg-bubble--other" *ngIf="!isEditing(msg)">
+              <p class="msg-bubble__content">{{ msg.contenu }}</p>
+
+              <!-- Réactions -->
+              <div class="msg-reactions" *ngIf="getReactions(msg).length > 0">
+                <button
+                  class="reaction-chip"
+                  *ngFor="let r of getReactions(msg)"
+                  [class.reaction-chip--mine]="hasReacted(msg, r.emoji)"
+                  (click)="toggleReaction(msg, r.emoji); $event.stopPropagation()"
+                  [title]="r.users.join(', ')"
+                >{{ r.emoji }} <span class="reaction-chip__count">{{ r.count }}</span></button>
+              </div>
+
+              <div class="msg-bubble__footer">
+                <span class="msg-bubble__time">{{ formatDate(msg.dateEnvoi) }}</span>
+                <span class="msg-bubble__edited" *ngIf="msg.estModifie">(modifié)</span>
+              </div>
+            </div>
+
+            <!-- Bulle édition -->
+            <div class="msg-edit" *ngIf="isEditing(msg)">
+              <textarea
+                class="msg-edit__textarea"
+                [(ngModel)]="editContent"
+                (keydown)="onEditKeyDown($event, msg.id)"
+                rows="2"
+                placeholder="Modifier votre message…"
+              ></textarea>
+              <div class="msg-edit__actions">
+                <button class="btn btn--ghost btn--sm" (click)="cancelEdit()">
+                  <span class="material-icons">close</span> Annuler
+                </button>
+                <button class="btn btn--primary btn--sm" (click)="confirmEdit(msg.id)">
+                  <span class="material-icons">check</span> Valider
+                </button>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="msg-actions" *ngIf="!isEditing(msg) && !msg['isPending']">
+              <button class="msg-actions__btn msg-actions__btn--reply" (click)="startReply(msg); $event.stopPropagation()" title="Répondre">
+                <span class="material-icons">reply</span>
+              </button>
+
+              <div class="emoji-picker-wrap" (click)="$event.stopPropagation()">
+                <button class="msg-actions__btn" (click)="toggleEmojiPicker(msg)" title="Réagir">
+                  <span class="material-icons">add_reaction</span>
+                </button>
+                <div class="emoji-picker" *ngIf="emojiPickerMsgId === msg.id">
+                  <button
+                    class="emoji-picker__item"
+                    *ngFor="let e of availableEmojis"
+                    (click)="toggleReaction(msg, e); closeEmojiPicker()"
+                    [class.emoji-picker__item--active]="hasReacted(msg, e)"
+                  >{{ e }}</button>
+                </div>
+              </div>
+
+              <ng-container *ngIf="canModify(msg)">
+                <button class="msg-actions__btn" (click)="startEdit(msg)" title="Modifier">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button class="msg-actions__btn msg-actions__btn--danger" (click)="deleteMessage(msg)" title="Supprimer">
+                  <span class="material-icons">delete_outline</span>
+                </button>
+              </ng-container>
+            </div>
+
+          </div>
+        </ng-container>
+
+        <!-- ══ MON MESSAGE (droite) ══ -->
+        <ng-container *ngIf="isOwnMessage(msg)">
+
+          <!-- Corps -->
+          <div class="msg-body msg-body--own">
+
+            <!-- Meta auteur (own) -->
+            <div class="msg-meta msg-meta--own">
+              <span class="msg-meta__badge" [ngClass]="getRoleClass(msg.auteurRole)">
+                <span class="material-icons">{{ getRoleIcon(msg.auteurRole) }}</span>
+                {{ getRoleLabel(msg.auteurRole) }}
+              </span>
+              <span class="msg-meta__name">Moi</span>
+            </div>
+
+            <!-- Citation (reply) -->
+            <div class="msg-reply-preview msg-reply-preview--own" *ngIf="getReplyTarget(msg)">
+              <span class="msg-reply-preview__bar"></span>
+              <div class="msg-reply-preview__content">
+                <span class="msg-reply-preview__author">{{ getReplyTarget(msg)?.auteurNom }}</span>
+                <span class="msg-reply-preview__text">{{ getReplyTarget(msg)?.contenu | slice:0:80 }}{{ (getReplyTarget(msg)?.contenu?.length ?? 0) > 80 ? '…' : '' }}</span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="msg-actions msg-actions--own" *ngIf="!isEditing(msg) && !msg['isPending']">
+              <button class="msg-actions__btn msg-actions__btn--reply" (click)="startReply(msg); $event.stopPropagation()" title="Répondre">
+                <span class="material-icons">reply</span>
+              </button>
+
+              <div class="emoji-picker-wrap" (click)="$event.stopPropagation()">
+                <button class="msg-actions__btn" (click)="toggleEmojiPicker(msg)" title="Réagir">
+                  <span class="material-icons">add_reaction</span>
+                </button>
+                <div class="emoji-picker emoji-picker--right" *ngIf="emojiPickerMsgId === msg.id">
+                  <button
+                    class="emoji-picker__item"
+                    *ngFor="let e of availableEmojis"
+                    (click)="toggleReaction(msg, e); closeEmojiPicker()"
+                    [class.emoji-picker__item--active]="hasReacted(msg, e)"
+                  >{{ e }}</button>
+                </div>
+              </div>
+
+              <button class="msg-actions__btn" (click)="startEdit(msg)" title="Modifier">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="msg-actions__btn msg-actions__btn--danger" (click)="deleteMessage(msg)" title="Supprimer">
+                <span class="material-icons">delete_outline</span>
+              </button>
+            </div>
+
+            <!-- Bulle normale -->
+            <div class="msg-bubble msg-bubble--own" *ngIf="!isEditing(msg)">
+              <p class="msg-bubble__content">{{ msg.contenu }}</p>
+
+              <!-- Réactions -->
+              <div class="msg-reactions" *ngIf="getReactions(msg).length > 0">
+                <button
+                  class="reaction-chip"
+                  *ngFor="let r of getReactions(msg)"
+                  [class.reaction-chip--mine]="hasReacted(msg, r.emoji)"
+                  (click)="toggleReaction(msg, r.emoji); $event.stopPropagation()"
+                  [title]="r.users.join(', ')"
+                >{{ r.emoji }} <span class="reaction-chip__count">{{ r.count }}</span></button>
+              </div>
+
+              <div class="msg-bubble__footer msg-bubble__footer--own">
+                <span class="msg-bubble__time">{{ formatDate(msg.dateEnvoi) }}</span>
+                <span class="msg-bubble__edited" *ngIf="msg.estModifie">(modifié)</span>
+                <span class="msg-bubble__pending" *ngIf="msg['isPending']">
+                  <span class="material-icons" style="font-size:14px">schedule</span> Envoi…
+                </span>
+              </div>
+            </div>
+
+            <!-- Bulle édition -->
+            <div class="msg-edit" *ngIf="isEditing(msg)">
+              <textarea
+                class="msg-edit__textarea"
+                [(ngModel)]="editContent"
+                (keydown)="onEditKeyDown($event, msg.id)"
+                rows="2"
+                placeholder="Modifier votre message…"
+              ></textarea>
+              <div class="msg-edit__actions">
+                <button class="btn btn--ghost btn--sm" (click)="cancelEdit()">
+                  <span class="material-icons">close</span> Annuler
+                </button>
+                <button class="btn btn--primary btn--sm" (click)="confirmEdit(msg.id)">
+                  <span class="material-icons">check</span> Valider
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Avatar propre (droite) -->
+          <div class="msg-avatar msg-avatar--own">
+            <span class="msg-avatar__initials">{{ getAvatarInitials(currentUserName) }}</span>
+          </div>
+
+        </ng-container>
+
+      </div>
+    </ng-container>
+
+  </div>
+
+  <!-- REPLY PREVIEW BANNER -->
+  <div class="reply-banner" *ngIf="replyingTo">
+    <span class="reply-banner__bar"></span>
+    <div class="reply-banner__content">
+      <span class="reply-banner__label">Réponse à <strong>{{ replyingTo.auteurNom }}</strong></span>
+      <span class="reply-banner__text">{{ replyingTo.contenu | slice:0:100 }}{{ replyingTo.contenu.length > 100 ? '…' : '' }}</span>
+    </div>
+    <button class="reply-banner__close" (click)="cancelReply()" aria-label="Annuler la réponse">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <!-- INPUT AREA -->
+  <footer class="forum-composer">
+    <div class="forum-composer__inner" [class.forum-composer__inner--sending]="isSending">
+      <textarea
+        #messageInput
+        class="forum-composer__textarea"
+        [(ngModel)]="newMessage"
+        (keydown)="onKeyDown($event)"
+        (input)="autoResize($event)"
+        placeholder="Écrire un message… (Entrée pour envoyer)"
+        rows="1"
+        [disabled]="isSending"
+        aria-label="Nouveau message"
+      ></textarea>
+
+      <button
+        class="forum-composer__send"
+        [class.forum-composer__send--active]="newMessage.trim().length > 0"
+        (click)="sendMessage()"
+        [disabled]="!newMessage.trim() || isSending"
+        aria-label="Envoyer"
+      >
+        <span class="material-icons" *ngIf="!isSending">send</span>
+        <span class="spinner" *ngIf="isSending"></span>
+      </button>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ══ MODAL SUPPRESSION ══ -->
+<div class="dcm-overlay" *ngIf="showDeleteModal" (click)="onDeleteCancelled()">
+
+  <div class="dcm-modal" (click)="$event.stopPropagation()">
+
+    <div class="dcm-icon-wrap">
+      <div class="dcm-icon-ring">
+        <span class="material-icons dcm-icon">delete_forever</span>
+      </div>
+    </div>
+
+    <div class="dcm-body">
+      <h3 class="dcm-title">Supprimer ce message ?</h3>
+      <p class="dcm-desc">Cette action est <strong>irréversible</strong>. Le message sera définitivement supprimé.</p>
+
+      <div class="dcm-preview" *ngIf="deleteModalPreview">
+        <span class="dcm-preview__author">{{ deleteModalAuthor }}</span>
+        <span class="dcm-preview__text">{{ deleteModalPreview }}</span>
+      </div>
+    </div>
+
+    <div class="dcm-actions">
+      <button class="dcm-btn dcm-btn--cancel" (click)="onDeleteCancelled()" type="button">
+        <span class="material-icons">close</span>
+        Annuler
+      </button>
+      <button class="dcm-btn dcm-btn--delete" (click)="onDeleteConfirmed()" type="button">
+        <span class="material-icons">delete_forever</span>
+        Supprimer
+      </button>
+    </div>
+
+  </div>
+
+</div>

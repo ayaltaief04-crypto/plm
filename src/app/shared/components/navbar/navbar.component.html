@@ -17,13 +17,84 @@
     </div>
   </div>
 
-  <!-- Right: notifications + user -->
+  <!-- Right: notifications forum + user -->
   <div class="navbar__right">
 
-    <button class="notif-btn icon-btn" matTooltip="Notifications">
-      <mat-icon [matBadge]="notificationCount" matBadgeColor="warn">notifications_none</mat-icon>
+    <!-- Bouton notifications forum — caché pour Admin -->
+    <button
+      *ngIf="userRole !== 'Administrateur'"
+      class="notif-btn icon-btn"
+      matTooltip="Messages du forum"
+      [matMenuTriggerFor]="forumMenu"
+      (menuOpened)="onNotifMenuOpen()">
+      <mat-icon
+        [matBadge]="unreadCount > 0 ? unreadCount : null"
+        matBadgeColor="warn">
+        forum
+      </mat-icon>
     </button>
 
+    <!-- Menu des notifications — caché pour Admin -->
+    <mat-menu #forumMenu="matMenu" class="plm-notif-menu" xPosition="before">
+
+      <div class="notif-panel" (click)="$event.stopPropagation()">
+
+        <!-- Entête -->
+        <div class="notif-header">
+          <span class="notif-title">
+            <mat-icon>notifications_active</mat-icon>
+            Nouveaux messages
+          </span>
+          <button
+            *ngIf="notifications.length > 0"
+            class="notif-clear-btn"
+            (click)="clearAllNotifications()">
+            Tout effacer
+          </button>
+        </div>
+
+        <!-- Liste vide -->
+        <div class="notif-empty" *ngIf="notifications.length === 0">
+          <mat-icon>mark_chat_read</mat-icon>
+          <span>Aucune nouvelle notification</span>
+        </div>
+
+        <!-- Items -->
+        <div class="notif-list" *ngIf="notifications.length > 0">
+          <div
+            class="notif-item"
+            *ngFor="let n of notifications"
+            [class.notif-item--unread]="!n.isRead"
+            (click)="onNotifClick(n)">
+
+            <div class="notif-dot" *ngIf="!n.isRead"></div>
+
+            <div class="notif-item__content">
+              <div class="notif-item__top">
+                <span class="notif-product">{{ n.productName }}</span>
+                <span class="notif-time">{{ formatNotifDate(n.createdAt) }}</span>
+              </div>
+              <div class="notif-author">
+                <mat-icon>person</mat-icon>
+                {{ n.authorName }}
+              </div>
+              <p class="notif-preview">{{ n.preview }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="notif-footer" *ngIf="notifications.length > 0">
+          <button class="notif-mark-btn" (click)="markAllRead()">
+            <mat-icon>done_all</mat-icon>
+            Tout marquer comme lu
+          </button>
+        </div>
+      </div>
+
+    </mat-menu>
+
+    <!-- User chip -->
     <div class="user-chip" [matMenuTriggerFor]="profileMenu">
       <div class="user-avatar">
         <mat-icon class="role-icon">{{ roleIcon }}</mat-icon>
@@ -43,6 +114,11 @@
           <div class="menu-role">{{ userRole }}</div>
         </div>
       </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="onProfile()">
+        <mat-icon>manage_accounts</mat-icon>
+        <span>Gérer le profil</span>
+      </button>
       <mat-divider></mat-divider>
       <button mat-menu-item class="danger" (click)="onLogout()">
         <mat-icon>logout</mat-icon>

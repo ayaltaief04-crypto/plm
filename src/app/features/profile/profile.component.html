@@ -1,0 +1,194 @@
+<div class="profile-page">
+
+  <!-- Loading -->
+  <div class="profile-loader" *ngIf="loading">
+    <mat-icon class="spin">autorenew</mat-icon>
+    <span>Chargement du profil…</span>
+  </div>
+
+  <!-- Error -->
+  <div class="profile-error" *ngIf="!loading && error">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Content -->
+  <ng-container *ngIf="!loading && !error && user">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header__left">
+        <mat-icon class="page-header__icon">manage_accounts</mat-icon>
+        <div>
+          <h1 class="page-header__title">Mon Profil</h1>
+          <p class="page-header__sub">Informations personnelles et sécurité du compte</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-layout">
+
+      <!-- ── CARTE IDENTITÉ ─────────────────────────────────── -->
+      <div class="profile-card identity-card">
+
+        <!-- Avatar + badge rôle -->
+        <div class="identity-hero">
+          <div class="identity-avatar">
+            <span class="identity-initials">{{ initials }}</span>
+            <div class="identity-status" [class.identity-status--active]="user.Actif"
+                 [matTooltip]="user.Actif ? 'Compte actif' : 'Compte inactif'">
+            </div>
+          </div>
+          <div class="identity-meta">
+            <h2 class="identity-name">{{ user.Nom }}</h2>
+            <div class="identity-role-badge">
+              <mat-icon class="role-badge__icon">{{ roleIcon }}</mat-icon>
+              <span>{{ roleLabel }}</span>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Infos détaillées -->
+        <div class="identity-details">
+
+          <div class="detail-row">
+            <div class="detail-row__label">
+              <mat-icon>email</mat-icon>
+              <span>Adresse e-mail</span>
+            </div>
+            <div class="detail-row__value">{{ user.Email }}</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-row__label">
+              <mat-icon>badge</mat-icon>
+              <span>Rôle</span>
+            </div>
+            <div class="detail-row__value">{{ roleLabel }}</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-row__label">
+              <mat-icon>calendar_today</mat-icon>
+              <span>Membre depuis</span>
+            </div>
+            <div class="detail-row__value">{{ formatDate(user.DateCreation) }}</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-row__label">
+              <mat-icon>verified_user</mat-icon>
+              <span>Statut du compte</span>
+            </div>
+            <div class="detail-row__value">
+              <span class="status-chip" [class.status-chip--active]="user.Actif">
+                <span class="status-chip__dot"></span>
+                {{ user.Actif ? 'Actif' : 'Inactif' }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── CARTE SÉCURITÉ ─────────────────────────────────── -->
+      <div class="profile-card security-card">
+
+        <div class="security-header">
+          <div class="security-header__left">
+            <div class="security-icon-wrap">
+              <mat-icon>lock</mat-icon>
+            </div>
+            <div>
+              <h3 class="security-title">Sécurité du compte</h3>
+              <p class="security-sub">Modifiez votre mot de passe de connexion</p>
+            </div>
+          </div>
+          <button
+            class="btn-toggle-pass"
+            [class.btn-toggle-pass--active]="showPasswordSection"
+            (click)="togglePasswordSection()">
+            <mat-icon>{{ showPasswordSection ? 'close' : 'edit' }}</mat-icon>
+            <span>{{ showPasswordSection ? 'Annuler' : 'Modifier' }}</span>
+          </button>
+        </div>
+
+        <!-- Formulaire changement mot de passe -->
+        <div class="password-form" *ngIf="showPasswordSection">
+
+          <div class="password-hint">
+            <mat-icon>info_outline</mat-icon>
+            <span>Le mot de passe doit contenir au moins 6 caractères.</span>
+          </div>
+
+          <!-- Nouveau mot de passe -->
+          <div class="form-field">
+            <label class="form-label">Nouveau mot de passe <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <mat-icon class="input-icon">lock_outline</mat-icon>
+              <input
+                [type]="showNewPass ? 'text' : 'password'"
+                class="form-input"
+                placeholder="Entrez votre nouveau mot de passe"
+                [(ngModel)]="passwordForm.newPass"
+                autocomplete="new-password" />
+              <button class="input-toggle" type="button" (click)="showNewPass = !showNewPass"
+                      [matTooltip]="showNewPass ? 'Masquer' : 'Afficher'">
+                <mat-icon>{{ showNewPass ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirmer mot de passe -->
+          <div class="form-field">
+            <label class="form-label">Confirmer le mot de passe <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <mat-icon class="input-icon">lock_outline</mat-icon>
+              <input
+                [type]="showConfirmPass ? 'text' : 'password'"
+                class="form-input"
+                placeholder="Confirmez le mot de passe"
+                [(ngModel)]="passwordForm.confirmPass"
+                autocomplete="new-password" />
+              <button class="input-toggle" type="button" (click)="showConfirmPass = !showConfirmPass"
+                      [matTooltip]="showConfirmPass ? 'Masquer' : 'Afficher'">
+                <mat-icon>{{ showConfirmPass ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Messages -->
+          <div class="form-error" *ngIf="passwordError">
+            <mat-icon>error</mat-icon>
+            <span>{{ passwordError }}</span>
+          </div>
+          <div class="form-success" *ngIf="passwordSuccess">
+            <mat-icon>check_circle</mat-icon>
+            <span>{{ passwordSuccess }}</span>
+          </div>
+
+          <!-- Submit -->
+          <button
+            class="btn-save-pass"
+            (click)="submitPassword()"
+            [disabled]="passwordSubmitting">
+            <mat-icon>{{ passwordSubmitting ? 'autorenew' : 'save' }}</mat-icon>
+            <span>{{ passwordSubmitting ? 'Enregistrement…' : 'Enregistrer le mot de passe' }}</span>
+          </button>
+
+        </div>
+
+        <!-- Placeholder quand fermé -->
+        <div class="security-placeholder" *ngIf="!showPasswordSection">
+          <mat-icon>shield</mat-icon>
+          <p>Votre mot de passe est sécurisé. Cliquez sur <strong>Modifier</strong> pour le changer.</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>

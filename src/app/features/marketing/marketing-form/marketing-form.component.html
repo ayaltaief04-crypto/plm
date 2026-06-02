@@ -1,108 +1,250 @@
-<div class="mk-wrap">
-  <div class="mk-loading" *ngIf="isLoading">
-    <mat-icon class="mk-loading__icon">hourglass_top</mat-icon>
-    <span>Chargement des données...</span>
+<div class="mk-container">
+  <!-- Loader -->
+  <div class="mk-loader-overlay" *ngIf="isLoading">
+    <mat-icon class="spin">refresh</mat-icon>
+    <span>Synchronisation PLM Marketing...</span>
   </div>
 
   <ng-container *ngIf="!isLoading">
-    <div class="mk-action-bar" *ngIf="canInteract">
-      <div class="mk-feedback mk-feedback--success" *ngIf="saveSuccess">
-        <mat-icon>check_circle</mat-icon><span>Enregistré !</span>
-      </div>
-      <div class="mk-feedback mk-feedback--error" *ngIf="saveError">
-        <mat-icon>error</mat-icon><span>{{ saveError }}</span>
-      </div>
 
-      <div class="mk-action-bar__btns">
-        <button *ngIf="!isEditing" class="tp-btn tp-btn--outline-dark" (click)="activerEdition()">
-          <mat-icon>edit</mat-icon> {{ hasData ? 'Modifier' : 'Remplir' }}
+    <div class="mk-header-flex">
+      <h2 class="mk-title">Analyse Marketing</h2>
+      <div class="header-actions" *ngIf="canInteract">
+        <button *ngIf="!isEditing" type="button" class="tp-btn tp-btn--primary" (click)="activerEdition()">
+          <mat-icon>{{ hasData ? 'edit' : 'add_chart' }}</mat-icon>
+          {{ hasData ? 'Modifier' : 'Remplir l\'analyse' }}
         </button>
-        <ng-container *ngIf="isEditing">
-          <button class="tp-btn tp-btn--ghost" (click)="annuler()" [disabled]="isSaving">Annuler</button>
-          <button class="tp-btn tp-btn--primary" type="submit" form="mkForm" [disabled]="isSaving || marketingForm.invalid">
-            {{ isSaving ? 'Envoi...' : 'Enregistrer' }}
-          </button>
-        </ng-container>
       </div>
     </div>
 
-    <form id="mkForm" [formGroup]="marketingForm" (ngSubmit)="onSubmit()">
-      
-      <div class="tp-section">
-        <div class="tp-section__head"><mat-icon>groups</mat-icon><h3>Cible & Style</h3></div>
-        <div class="tp-grid g3">
-          <div class="tp-field">
-            <label>Public Cible <span class="req">*</span></label>
-            <input type="text" formControlName="PublicCible">
+    <!-- MESSAGES DE SUCCÈS ET D'ERREUR DÉPLACÉS EN HAUT -->
+    <div style="margin-bottom: 20px;">
+      <div *ngIf="saveSuccess" class="alert alert-success">
+        <mat-icon>check_circle</mat-icon> Données marketing enregistrées avec succès.
+      </div>
+      <div *ngIf="saveError" class="alert alert-error">
+        <mat-icon>error</mat-icon> {{ saveError }}
+      </div>
+    </div>
+
+    <form id="mkForm" [formGroup]="marketingForm" (ngSubmit)="onSubmit()" class="mk-layout">
+
+      <!-- LIGNE 1 : CIBLE & (COMMERCIAL + POSITIONNEMENT) -->
+      <div class="mk-grid-top">
+
+        <!-- BLOC GAUCHE : CIBLE -->
+        <div class="mk-panel">
+          <div class="panel-header">
+            <div class="icon-box active"><mat-icon>groups</mat-icon></div>
+            <div class="title-box">
+              <h2>Cible & Segmentation</h2>
+              <p>Profilage et persona du client idéal</p>
+            </div>
           </div>
-          <div class="tp-field"><label>Tranche d'âge</label><input type="text" formControlName="TrancheAge"></div>
-          <div class="tp-field"><label>Style de vie</label><input type="text" formControlName="StyleDeVie"></div>
-          <div class="tp-field"><label>Occasion de portée</label><input type="text" formControlName="OccasionPortee"></div>
-          <div class="tp-field">
-            <label>Niveau de Gamme</label>
-            <select formControlName="NiveauGamme">
-              <option [ngValue]="null">-- Choisir --</option>
-              <option *ngFor="let g of NIVEAUX_GAMME" [value]="g.value">{{ g.label }}</option>
-            </select>
+          <div class="panel-content">
+            <div class="mk-input-group">
+              <label>Public Cible <span class="req">*</span></label>
+              <input type="text" formControlName="PublicCible" placeholder="Ex : Professionnels urbains actifs 25-40 ans">
+            </div>
+            <div class="field-grid-2">
+              <div class="mk-input-group">
+                <label>Tranche d'âge <span class="req">*</span></label>
+                <input type="text" formControlName="TrancheAge" placeholder="Ex : 25 - 40 ans">
+              </div>
+              <div class="mk-input-group">
+                <label>Style de vie</label>
+                <input type="text" formControlName="StyleDeVie" placeholder="Ex : Sportif, citadin, éco-conscient">
+              </div>
+            </div>
+            <div class="mk-input-group">
+              <label>Occasion de portée</label>
+              <input type="text" formControlName="OccasionPortee" placeholder="Ex : Bureau, sortie casual, sport urbain">
+            </div>
+            <div class="field-grid-2">
+              <div class="mk-input-group">
+                <label>Niveau de Gamme</label>
+                <select formControlName="NiveauGamme">
+                  <option [ngValue]="null">-- Sélectionner --</option>
+                  <option *ngFor="let g of NIVEAUX_GAMME" [value]="g.value">{{ g.label }}</option>
+                </select>
+              </div>
+              <div class="mk-input-group">
+                <label>Attractivité /10</label>
+                <input type="number" formControlName="NoteAttractiviteVisuelle" class="score-input" placeholder="Ex : 8">
+              </div>
+            </div>
           </div>
-          <div class="tp-field"><label>Attractivité /10</label><input type="number" formControlName="NoteAttractiviteVisuelle"></div>
+        </div>
+
+        <!-- BLOC DROITE : COMMERCIAL + STRATÉGIE -->
+        <div class="mk-stack">
+          <!-- Commercial -->
+          <div class="mk-panel">
+            <div class="panel-header">
+              <div class="icon-box"><mat-icon>payments</mat-icon></div>
+              <div class="title-box">
+                <h2>Commercial & Prix</h2>
+              </div>
+            </div>
+            <div class="panel-content">
+              <div class="field-grid-3">
+                <div class="mk-input-group">
+                  <label>Prix Vente (TND)</label>
+                  <input type="number" formControlName="PrixVenteEstime" class="highlight-input" placeholder="Ex : 89.900">
+                </div>
+                <div class="mk-input-group">
+                  <label>Prix Psychol.</label>
+                  <input type="number" formControlName="PrixPsychologique" placeholder="Ex : 99.900">
+                </div>
+                <div class="mk-input-group">
+                  <label>Marge Cible %</label>
+                  <input type="number" formControlName="MargeCible" placeholder="Ex : 35">
+                </div>
+              </div>
+              <div class="field-grid-3">
+                <div class="mk-input-group">
+                  <label>Quantité Est.</label>
+                  <input type="number" formControlName="QuantiteEstimee" placeholder="Ex : 500">
+                </div>
+                <div class="mk-input-group">
+                  <label>Indice Compét.</label>
+                  <input type="number" formControlName="IndiceCompetitivite" placeholder="Ex : 7">
+                </div>
+                <div class="mk-input-group">
+                  <label>Distribution</label>
+                  <select formControlName="CanalDistribution">
+                    <option value="">-- Canal --</option>
+                    <option *ngFor="let c of CANAUX_DISTRIBUTION" [value]="c.value">{{ c.label }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Positionnement -->
+          <div class="mk-panel">
+            <div class="panel-header">
+              <div class="icon-box"><mat-icon>auto_awesome</mat-icon></div>
+              <div class="title-box">
+                <h2>Positionnement Stratégique</h2>
+              </div>
+            </div>
+            <div class="panel-content">
+              <div class="mk-input-group">
+                <label>Nom Commercial du Modèle</label>
+                <input type="text" formControlName="NomCommercial" class="large-input" placeholder="Ex : Urban Flex Pro">
+              </div>
+              <div class="mk-input-group">
+                <label>USP (Argument Unique de Vente)</label>
+                <textarea formControlName="USP_ArgumentUnique" rows="2" placeholder="Ex : Seul modèle alliant confort ergonomique et matières recyclées certifiées OEKO-TEX"></textarea>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="tp-section">
-        <div class="tp-section__head"><mat-icon>payments</mat-icon><h3>Commercial & Prix</h3></div>
-        <div class="tp-grid g4">
-          <div class="tp-field">
-            <label>Prix Vente (TND) <span class="req">*</span></label>
-            <input type="number" formControlName="PrixVenteEstime" step="0.01">
+      <!-- LIGNE 2 : ÉCO-MARKETING & BENCHMARK -->
+      <div class="mk-panel eco-panel">
+        <div class="panel-header">
+          <div class="icon-box"><mat-icon>eco</mat-icon></div>
+          <div class="title-box">
+            <h2>Éco-Marketing & Benchmark</h2>
+            <p>Durabilité et positionnement marché</p>
           </div>
-          <div class="tp-field"><label>Prix Psychologique</label><input type="number" formControlName="PrixPsychologique"></div>
-          <div class="tp-field"><label>Quantité Estimée</label><input type="number" formControlName="QuantiteEstimee"></div>
-          <div class="tp-field"><label>Indice Compétitivité</label><input type="number" formControlName="IndiceCompetitivite"></div>
-          <div class="tp-field"><label>Marge Cible (%)</label><input type="number" formControlName="MargeCible"></div>
         </div>
-      </div>
-
-      <div class="tp-section">
-        <div class="tp-section__head"><mat-icon>trending_up</mat-icon><h3>Stratégie</h3></div>
-        <div class="tp-grid g2">
-          <div class="tp-field">
-            <label>USP (Argument Unique) <span class="req">*</span></label>
-            <textarea formControlName="USP_ArgumentUnique" rows="2"></textarea>
+        <div class="panel-content grid-eco">
+          <div class="mk-input-group">
+            <label>Score Éco-Conception</label>
+            <input type="text" formControlName="ScoreEcoConception" placeholder="Ex : Grade B+">
           </div>
-          <div class="tp-field"><label>Référence Best-seller</label><textarea formControlName="ReferenceBestSeller" rows="2"></textarea></div>
-          <div class="tp-field">
-            <label>Nom Commercial <span class="req">*</span></label>
-            <input type="text" formControlName="NomCommercial">
+          <div class="mk-input-group">
+            <label>Argument "Seconde Vie"</label>
+            <input type="text" formControlName="ArgumentSecondeVie" placeholder="Ex : Tissus recyclables, programme reprise en magasin">
           </div>
-          <div class="tp-field">
-            <label>Canal Distribution</label>
-            <select formControlName="CanalDistribution">
-              <option value="">-- Choisir --</option>
-              <option *ngFor="let c of CANAUX_DISTRIBUTION" [value]="c.value">{{ c.label }}</option>
-            </select>
+          <div class="mk-input-group">
+            <label>Référence Best-Seller</label>
+            <input type="text" formControlName="ReferenceBestSeller" placeholder="Ex : REF-2024-BS-042">
           </div>
         </div>
       </div>
 
-      <div class="tp-section tp-section--rse">
-        <div class="tp-section__head"><mat-icon>eco</mat-icon><h3>Éco-Marketing</h3></div>
-        <div class="tp-grid g2">
-          <div class="tp-field"><label>Argument "Seconde Vie"</label><textarea formControlName="ArgumentSecondeVie" rows="2"></textarea></div>
-          <div class="tp-field"><label>Score Éco-Conception</label><input type="text" formControlName="ScoreEcoConception"></div>
+      <!-- LIGNE 3 : SWOT + ACTIONS -->
+      <div class="mk-panel" *ngIf="isEditing">
+        <div class="panel-header">
+          <div class="icon-box"><mat-icon>analytics</mat-icon></div>
+          <div class="title-box">
+            <h2>Analyse SWOT</h2>
+            <p>Diagnostic stratégique interne et externe</p>
+          </div>
+        </div>
+        <div class="panel-content">
+          <div class="swot-matrix">
+            <div class="swot-item s">
+              <label><mat-icon>add_circle</mat-icon> Forces</label>
+              <textarea formControlName="Forces" placeholder="Ex : Qualité matières supérieure, fabrication locale"></textarea>
+            </div>
+            <div class="swot-item w">
+              <label><mat-icon>remove_circle</mat-icon> Faiblesses</label>
+              <textarea formControlName="Faiblesses" placeholder="Ex : Prix élevé, délais de production longs"></textarea>
+            </div>
+            <div class="swot-item o">
+              <label><mat-icon>trending_up</mat-icon> Opportunités</label>
+              <textarea formControlName="Opportunites" placeholder="Ex : Croissance du marché éco-responsable, export Europe"></textarea>
+            </div>
+            <div class="swot-item t">
+              <label><mat-icon>warning</mat-icon> Menaces</label>
+              <textarea formControlName="Menaces" placeholder="Ex : Concurrence asiatique low-cost"></textarea>
+            </div>
+          </div>
+
+          <!-- ACTIONS INTÉGRÉES AU BAS DU FORMULAIRE -->
+          <div class="mk-form-actions">
+            <div class="action-buttons">
+              <button type="button" class="tp-btn tp-btn--neutral" (click)="annuler()">
+                <mat-icon>cancel</mat-icon> Annuler
+              </button>
+              <button type="submit" form="mkForm" class="tp-btn tp-btn--primary" [disabled]="marketingForm.invalid || isSaving">
+                <mat-icon>{{ isSaving ? 'sync' : 'save' }}</mat-icon>
+                {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div class="tp-section">
-        <div class="tp-section__head"><mat-icon>insights</mat-icon><h3>SWOT</h3></div>
-        <div class="tp-grid g2">
-          <div class="tp-field"><label class="label--success">Forces</label><textarea formControlName="Forces" rows="2"></textarea></div>
-          <div class="tp-field"><label class="label--warning">Faiblesses</label><textarea formControlName="Faiblesses" rows="2"></textarea></div>
-          <div class="tp-field"><label class="label--info">Opportunités</label><textarea formControlName="Opportunites" rows="2"></textarea></div>
-          <div class="tp-field"><label class="label--danger">Menaces</label><textarea formControlName="Menaces" rows="2"></textarea></div>
+      <!-- SWOT EN MODE LECTURE (sans boutons) -->
+      <div class="mk-panel" *ngIf="!isEditing">
+        <div class="panel-header">
+          <div class="icon-box"><mat-icon>analytics</mat-icon></div>
+          <div class="title-box">
+            <h2>Analyse SWOT</h2>
+            <p>Diagnostic stratégique interne et externe</p>
+          </div>
+        </div>
+        <div class="panel-content">
+          <div class="swot-matrix">
+            <div class="swot-item s">
+              <label><mat-icon>add_circle</mat-icon> Forces</label>
+              <textarea formControlName="Forces" placeholder="Ex : Qualité matières supérieure, fabrication locale"></textarea>
+            </div>
+            <div class="swot-item w">
+              <label><mat-icon>remove_circle</mat-icon> Faiblesses</label>
+              <textarea formControlName="Faiblesses" placeholder="Ex : Prix élevé, délais de production longs"></textarea>
+            </div>
+            <div class="swot-item o">
+              <label><mat-icon>trending_up</mat-icon> Opportunités</label>
+              <textarea formControlName="Opportunites" placeholder="Ex : Croissance du marché éco-responsable, export Europe"></textarea>
+            </div>
+            <div class="swot-item t">
+              <label><mat-icon>warning</mat-icon> Menaces</label>
+              <textarea formControlName="Menaces" placeholder="Ex : Concurrence asiatique low-cost"></textarea>
+            </div>
+          </div>
         </div>
       </div>
 
     </form>
+
   </ng-container>
 </div>

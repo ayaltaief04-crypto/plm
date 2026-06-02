@@ -8,7 +8,7 @@ $blue-bg-viewer: #1e2433;
 $blue-light:     #eff6ff;
 $success:        #10b981;
 $danger:         #ef4444;
-$warning:        #f59e0b;
+$warning:        #e6a720;
 $gray-50:        #f8fafc;
 $gray-100:       #f1f5f9;
 $gray-200:       #e2e8f0;
@@ -75,6 +75,44 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// VERSION BANNER (mode génération nouvelle version)
+// ─────────────────────────────────────────────────────────────────────────────
+.tp-version-banner {
+  background: darken($blue-dark, 3%);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: .75rem 1.5rem;
+  position: sticky;
+  top: 64px;
+  z-index: 997;
+
+  &--light {
+    background: #f0f6ff;
+    border-bottom: 2px solid $blue-accent;
+    border-top: none;
+    box-shadow: 0 2px 8px rgba($blue-accent, .12);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+
+    &--left {
+      justify-content: flex-start;
+    }
+  }
+}
+
+.tp-btn--lg {
+  padding: .65rem 1.4rem !important;
+  font-size: .9rem !important;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // VERSION SELECTOR
 // ─────────────────────────────────────────────────────────────────────────────
 .tp-version-selector {
@@ -119,6 +157,12 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       &.is-active { opacity: 1; color: #e8c97e; &::after { background: #e8c97e; } }
       &:hover { opacity: 1; }
     }
+
+    &.tp-tab-btn--forum {
+      color: #74c0fc; opacity: .75;
+      &.is-active { opacity: 1; color: #74c0fc; &::after { background: #74c0fc; } }
+      &:hover { opacity: 1; }
+    }
   }
 }
 
@@ -128,8 +172,6 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 .tp-workflow-bar {
   background: $blue-dark;
   padding: .625rem 1.5rem;
-  // NE PAS mettre sticky ici pour ne pas cacher le contenu du formulaire
-  // La barre reste en flux normal pour éviter de masquer le formulaire
   border-bottom: 1px solid rgba(255,255,255,.06);
   position: relative;
   z-index: 998;
@@ -166,7 +208,9 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       mat-icon { color: $gray-500; }
     }
   }
-  &--creation { background: darken($blue-dark, 3%); }
+&--creation { 
+  background: #3b82f6; // Un beau bleu roi / bleu tech (style Tailwind)
+}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -219,12 +263,24 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   max-width: 1600px;
   margin: 0 auto;
   padding: 1.5rem;
+  padding-bottom: 4rem;
 }
 
 .tp-tab-content {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+
+  &--forum {
+    padding: 1.5rem;
+    height: calc(100vh - 260px);
+    min-height: 520px;
+
+    app-forum {
+      display: block;
+      height: 100%;
+    }
+  }
 }
 
 .tp-body-inner {
@@ -255,7 +311,7 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GALERIE IMAGES — galerie principale avec hover zoom
+// GALERIE IMAGES
 // ─────────────────────────────────────────────────────────────────────────────
 .tp-gallery-main {
   position: relative;
@@ -264,7 +320,6 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
 
-  // Curseur zoom si image présente
   &--clickable { cursor: zoom-in; }
 
   &__img {
@@ -281,16 +336,14 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     mat-icon { font-size: 36px; width: 36px; height: 36px; opacity: .4; }
   }
 
-  // Overlay boutons (zoom + delete) → visible au hover
   &__overlay {
     position: absolute; top: 8px; right: 8px;
     display: flex; gap: 6px;
-    opacity: 0; transition: opacity 0.2s ease;
+    opacity: 1;
   }
-  &:hover &__overlay { opacity: 1; }
+
 }
 
-// Miniatures
 .tp-gallery-thumbs {
   display: flex; gap: 6px; padding: 8px; overflow-x: auto;
   background: $gray-50; border-top: 1px solid $gray-200; min-height: 64px;
@@ -305,9 +358,9 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
   img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 
-  &.active  { border-color: $blue-accent; box-shadow: 0 0 0 2px rgba(56,159,255,.3); }
+  &.active   { border-color: $blue-accent; box-shadow: 0 0 0 2px rgba(56,159,255,.3); }
   &.dragging { opacity: .4; }
-  &:hover   { border-color: $gray-500; }
+  &:hover    { border-color: $gray-500; }
 }
 
 .tp-thumb-drag {
@@ -387,9 +440,9 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   &:hover { background: $blue-light; border-color: $blue-accent; }
 }
 
-.tp-fichier-icon { color: $blue-accent; font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
-.tp-fichier-info { flex: 1; min-width: 0; }
-.tp-fichier-nom  { display: block; font-size: .8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: $gray-800; }
+.tp-fichier-icon   { color: $blue-accent; font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+.tp-fichier-info   { flex: 1; min-width: 0; }
+.tp-fichier-nom    { display: block; font-size: .8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: $gray-800; }
 .tp-fichier-taille { display: block; font-size: .7rem; color: $gray-500; }
 .tp-fichier-actions { display: flex; gap: 4px; }
 
@@ -507,8 +560,15 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
   &--primary { background: $blue-accent; color: $white;
     &:hover { background: darken($blue-accent, 10%); } }
-  &--outline  { background: transparent; color: $white; border: 1px solid rgba(255,255,255,.3);
-    &:hover { background: rgba(255,255,255,.1); } }
+  // ✅ APRÈS
+&--outline  { background: transparent; color: $white; border: 1px solid rgba(255,255,255,.3);
+    &:hover { background: rgba(255,255,255,.1); }
+    .tp-version-banner--light & {
+      color: $blue-primary;
+      border-color: $gray-200;
+      &:hover { background: $gray-100; color: $blue-primary; }
+    }
+}
   &--success  { background: $success; color: $white; &:hover { background: darken($success, 8%); } }
   &--danger   { background: $danger;  color: $white; &:hover { background: darken($danger,  8%); } }
   &--warning  { background: $warning; color: $white; &:hover { background: darken($warning, 8%); } }
@@ -521,13 +581,12 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: $transition; color: $gray-500; text-decoration: none;
   mat-icon { font-size: 16px; width: 16px; height: 16px; }
-  &:hover       { background: $gray-200; color: $gray-800; }
-  &--danger:hover { background: $danger;  color: $white; }
-  // Bouton zoom sur la photo
+  &:hover         { background: $gray-200; color: $gray-800; }
+  &--danger { background: $danger; color: $white;
+    &:hover { background: darken($danger, 8%); } }
   &--zoom {
-    background: rgba(0,0,0,.5);
-    color: $white;
-    &:hover { background: $blue-accent; }
+    background: $blue-accent; color: $white;
+    &:hover { background: darken($blue-accent, 10%); }
   }
 }
 
@@ -597,3 +656,114 @@ $transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   .tp-aside { display: none; }
   .tp-section { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VALIDATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+.tp-field.is-invalid {
+  input:not([type="color"]),
+  textarea,
+  select {
+    border-color: $danger !important;
+    background-color: rgba($danger, .04) !important;
+    box-shadow: 0 0 0 3px rgba($danger, .10) !important;
+  }
+  label { color: $danger; }
+}
+
+.tp-validation-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba($danger, .06);
+  border: 1px solid rgba($danger, .22);
+  border-radius: $radius;
+  margin-bottom: 1.5rem;
+  font-size: .85rem;
+  color: darken($danger, 6%);
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 18px; width: 18px; height: 18px;
+    color: $danger; flex-shrink: 0; margin-top: 1px;
+  }
+
+  strong { display: block; margin-bottom: 4px; }
+
+  ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    li { margin-bottom: 2px; }
+  }
+}
+.tp-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+
+.tp-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 440px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.tp-modal__icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.8rem;
+}
+.tp-modal__icon[data-type="danger"] { background: #fff3e0; color: #e65100; }
+.tp-modal__icon[data-type="success"] { background: #e8f5e9; color: #2e7d32; }
+.tp-modal__icon[data-type="accent"] { background: #e8eaf6; color: #3949ab; }
+
+.tp-modal__title {
+  font-size: 1.2rem; font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.tp-modal__message {
+  color: #666; margin-bottom: 1.5rem; line-height: 1.5;
+}
+
+.tp-modal__actions {
+  display: flex; gap: 1rem; justify-content: center;
+}
+
+// ✅ APRÈS — chacun à la racine
+.tp-modal__actions {
+  .tp-btn--outline {
+    color: $gray-800;
+    border-color: $gray-200;
+    &:hover { background: $gray-100; color: $gray-800; }
+  }
+}
+
+// ✅ APRÈS
+:host ::ng-deep .tp-panel.is-invalid {
+  border-color: $danger;
+  .tp-panel__head {
+    color: $danger;
+    mat-icon { color: $danger; }
+  }
+}
+
+:host ::ng-deep .tp-section.is-invalid {
+  border-color: $danger;
+  .tp-section__head {
+    color: $danger;
+    mat-icon { color: $danger; }
+    h3 { color: $danger; }
+  }
+}
+

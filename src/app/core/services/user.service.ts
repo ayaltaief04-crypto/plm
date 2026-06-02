@@ -14,12 +14,15 @@ export class UserService {
     return this.http.get<User[]>(this.apiUrl);
   }
 
+  getUserById(id: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${id}`);
+  }
+
   createUser(user: User): Observable<User> {
     return this.http.post<User>(this.apiUrl, user);
   }
 
   updateUser(user: User): Observable<User> {
-    
     return this.http.put<User>(`${this.apiUrl}/${user.IdUtilisateur}`, user);
   }
 
@@ -28,10 +31,7 @@ export class UserService {
   }
 
   updatePassword(idUtilisateur: number, nouveauMdp: string): Observable<any> {
-  
-  const url = `${this.apiUrl}/${idUtilisateur}/change-password`;
-  return this.http.patch(url, { 
-    NewPassword: nouveauMdp 
-  });
-}
+    const url = `${this.apiUrl}/${idUtilisateur}/change-password`;
+    return this.http.patch(url, { NewPassword: nouveauMdp });
+  }
 }

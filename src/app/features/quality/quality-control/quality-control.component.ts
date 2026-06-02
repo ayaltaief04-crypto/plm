@@ -37,7 +37,11 @@ export class QualityControlComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['product'] && !changes['product'].firstChange) {
-      this.loadFromBackend();
+      const prevId = changes['product'].previousValue?.idProduct ?? changes['product'].previousValue?.id;
+      const currId = this.product?.idProduct ?? this.product?.id;
+      if (currId && currId !== prevId) {
+        this.loadFromBackend();
+      }
     }
     if (this.qualiteForm) {
       this.syncLockState();

@@ -1,132 +1,698 @@
-// --- DESIGN TOKENS ---
-$bg-app:      #f8fafc;
-$bg-card:     #ffffff;
-$text-main:    #0f172a;
-$text-sub:    #64748b;
-$accent:      #2563eb;
-$border:      #e2e8f0;
-$radius:      12px;
-$shadow:      0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+// ============================================================
+//  gestion-listes.component.scss  –  v2 Pro
+// ============================================================
 
+// --- DESIGN TOKENS ---
+$bg-app:         #f0f2f8;
+$bg-card:        #ffffff;
+$bg-sidebar:     #ffffff;
+$text-main:      #1a1f36;
+$text-sub:       #6b7a99;
+$text-muted:     #8a9bbf;
+$accent:         #3b5bdb;
+$accent-mid:     #4f6ef7;
+$accent-light:   #edf2ff;
+$accent-hover:   #3451c7;
+$success:        #0ca678;
+$success-light:  #ecfdf5;
+$danger:         #c92a2a;
+$danger-light:   #fff5f5;
+$warning:        #d48806;
+$warning-light:  #fffbeb;
+$border:         #e8eaf0;
+$border-soft:    #eef0f6;
+$border-focus:   #b3c2f2;
+$radius-sm:      6px;
+$radius:         10px;
+$radius-lg:      16px;
+$shadow-sm:      0 2px 8px rgba(26,31,54,.06);
+$shadow:         0 4px 18px rgba(26,31,54,.07);
+$transition:     all .18s cubic-bezier(.4,0,.2,1);
+
+@mixin flex-center       { display:flex; align-items:center; }
+@mixin flex-center-gap($g){ @include flex-center; gap:$g; }
+@mixin icon-btn-base     { @include flex-center; justify-content:center; width:30px; height:30px; border-radius:$radius-sm; background:transparent; border:1px solid transparent; cursor:pointer; transition:$transition; mat-icon{ font-size:1rem; width:1rem; height:1rem; } }
+
+// ============================================================
+//  WRAP
+// ============================================================
 .gl-wrap {
-  padding: 2rem;
+  padding: 2rem 2.5rem;
   background: $bg-app;
   min-height: 100vh;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  color: $text-main;
 }
 
+// ============================================================
+//  HEADER
+// ============================================================
 .gl-header {
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  
-  &__icon { color: $accent; font-size: 2.5rem; width: 2.5rem; height: 2.5rem; }
-  &__title { font-size: 1.5rem; font-weight: 800; color: $text-main; margin: 0; }
-  &__sub { color: $text-sub; margin: 0; font-size: 0.9rem; }
+  @include flex-center-gap(1.25rem);
+  margin-bottom: 2.5rem;
+
+  &__icon-wrap {
+    @include flex-center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, $accent-mid, $accent);
+    box-shadow: 0 4px 16px rgba($accent, .35);
+    flex-shrink: 0;
+  }
+
+  &__icon {
+    color: #fff;
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  &__title {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: $text-main;
+    margin: 0 0 .2rem;
+    letter-spacing: -0.03em;
+  }
+
+  &__sub {
+    color: $text-sub;
+    margin: 0;
+    font-size: .82rem;
+    line-height: 1.6;
+    max-width: 520px;
+  }
 }
 
+// ============================================================
+//  LOADING
+// ============================================================
+.gl-loading {
+  @include flex-center-gap(.75rem);
+  justify-content: center;
+  padding: 4rem;
+  color: $text-sub;
+  font-size: .9rem;
+
+  &__spinner {
+    @include flex-center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: $accent-light;
+    mat-icon { color: $accent; }
+  }
+}
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.spin { animation: spin 1.2s linear infinite; }
+
+// ============================================================
+//  LAYOUT
+// ============================================================
 .gl-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 2rem;
+  grid-template-columns: 260px 1fr;
+  gap: 1.5rem;
+  align-items: start;
 }
 
-// SIDEBAR
+// ============================================================
+//  SIDEBAR
+// ============================================================
+.gl-sidebar {
+  background: $bg-sidebar;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  padding: 1rem;
+  position: sticky;
+  top: 1.5rem;
+
+  &__label {
+    @include flex-center-gap(.4rem);
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: $text-muted;
+    padding: .25rem .5rem .75rem;
+    margin: 0 0 .5rem;
+    border-bottom: 1px solid $border;
+    mat-icon { font-size: .85rem; width: .85rem; height: .85rem; }
+  }
+}
+
 .gl-svc-btn {
   width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  margin-bottom: 0.5rem;
+  @include flex-center-gap(.7rem);
+  padding: .65rem .85rem;
+  margin-bottom: .2rem;
   border-radius: $radius;
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: $transition;
   text-align: left;
 
-  &--active {
-    background: white;
-    border-color: $border;
-    box-shadow: $shadow;
-    color: var(--svc-color);
-    font-weight: 600;
+  &__icon-wrap {
+    @include flex-center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--svc-color, $accent);
+    flex-shrink: 0;
+    transition: $transition;
+    mat-icon { font-size: 1rem; width: 1rem; height: 1rem; color: #fff; }
   }
-  
-  &:hover:not(.gl-svc-btn--active) { background: #f1f5f9; }
-  
-  &__name { display: block; font-size: 0.95rem; color: $text-main; }
-  &__role { font-size: 0.75rem; color: $text-sub; font-weight: 400; }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: .08rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: .83rem;
+    font-weight: 600;
+    color: $text-main;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__key {
+    font-size: .64rem;
+    color: $text-muted;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__count {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 20px;
+    background: var(--svc-color, $accent);
+    color: #fff;
+    font-size: .62rem;
+    font-weight: 700;
+    @include flex-center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &--active {
+    background: $accent-light;
+    border-color: rgba($accent, .15);
+    .gl-svc-btn__name { color: $accent; }
+    .gl-svc-btn__key  { color: rgba($accent, .5); }
+  }
+
+  &:hover:not(.gl-svc-btn--active) {
+    background: #f8f9fc;
+    border-color: $border;
+  }
 }
 
-// MAIN CONTENT
+// ============================================================
+//  MAIN
+// ============================================================
 .gl-main {
   background: $bg-card;
-  border-radius: $radius;
+  border-radius: $radius-lg;
   border: 1px solid $border;
   box-shadow: $shadow;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .gl-service-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid $border;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  
-  h2 { margin: 0; font-size: 1.2rem; font-weight: 700; }
-  p { margin: 0.25rem 0 0; color: $text-sub; font-size: 0.85rem; }
-}
+  @include flex-center-gap(1rem);
+  padding: 1.4rem 1.6rem;
+  border-bottom: 1px solid $border-soft;
+  background: #fafbfc;
 
-.gl-elements {
-  padding: 1.5rem;
-  min-height: 200px;
-}
+  &__icon-wrap {
+    @include flex-center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--svc-color, $accent);
+    flex-shrink: 0;
+    box-shadow: 0 3px 12px rgba($accent, .28);
+    mat-icon { color: #fff; font-size: 1.25rem; width: 1.25rem; height: 1.25rem; }
+  }
 
-.gl-element {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f8fafc;
-  border: 1px solid $border;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
-  transition: transform 0.2s;
-
-  &:hover { transform: translateX(5px); background: #f1f5f9; }
-  &--bloquant { border-left: 4px solid #f59e0b; }
-  
-  &__input {
+  &__text {
     flex: 1;
-    padding: 0.5rem;
-    border: 1px solid $accent;
-    border-radius: 4px;
-    outline: none;
+    h2 {
+      margin: 0 0 .2rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: $text-main;
+      letter-spacing: -0.015em;
+    }
+    p {
+      @include flex-center-gap(.25rem);
+      margin: 0;
+      color: $text-sub;
+      font-size: .76rem;
+      strong { color: $text-main; font-weight: 600; }
+    }
+  }
+
+  &__badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: .55rem .9rem;
+    border-radius: $radius;
+    background: #f0f4ff;
+    border: 1px solid #dce4ff;
+    min-width: 62px;
+
+    strong {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--svc-color, $accent);
+      line-height: 1;
+    }
+    span {
+      font-size: .6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: $text-muted;
+      margin-top: .15rem;
+    }
   }
 }
 
-// BUTTONS
-.gl-btn {
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+.inline-icon {
+  font-size: .85rem !important;
+  width: .85rem !important;
+  height: .85rem !important;
+  vertical-align: middle;
+  color: $text-muted;
+}
+
+// ============================================================
+//  FEEDBACK
+// ============================================================
+.gl-feedback {
+  @include flex-center-gap(.6rem);
+  margin: 1.2rem 1.6rem 0;
+  padding: .65rem .9rem;
+  border-radius: $radius;
+  font-size: .82rem;
+  font-weight: 500;
+  animation: feedbackIn .22s ease;
+  mat-icon { font-size: 1rem; width: 1rem; height: 1rem; flex-shrink: 0; }
+
+  &--ok {
+    background: $success-light;
+    color: darken($success, 6%);
+    border: 1px solid rgba($success, .2);
+    mat-icon { color: $success; }
+  }
+  &--err {
+    background: $danger-light;
+    color: $danger;
+    border: 1px solid rgba($danger, .18);
+    mat-icon { color: $danger; }
+  }
+  // ✅ Warning champ vide
+  &--warn {
+    background: $warning-light;
+    color: darken($warning, 8%);
+    border: 1px solid rgba($warning, .25);
+    mat-icon { color: $warning; }
+  }
+}
+
+@keyframes feedbackIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ============================================================
+//  TOOLBAR
+// ============================================================
+.gl-elements-toolbar {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  border: 1px solid transparent;
+  justify-content: space-between;
+  padding: .9rem 1.6rem;
+  border-bottom: 1px solid $border-soft;
 
-  &--primary { background: $accent; color: white; &:hover { background: darken($accent, 10%); } }
-  &--ghost { background: transparent; color: $text-sub; border-color: $border; &:hover { background: #f1f5f9; } }
+  &__title {
+    @include flex-center-gap(.4rem);
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: $text-muted;
+    mat-icon { font-size: .95rem; width: .95rem; height: .95rem; }
+  }
+}
+
+// ============================================================
+//  ÉLÉMENTS
+// ============================================================
+.gl-elements {
+  padding: 1.25rem 1.6rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+}
+
+.gl-element-empty {
+  @include flex-center;
+  flex-direction: column;
+  gap: .75rem;
+  flex: 1;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: $text-muted;
+
+  &__icon {
+    @include flex-center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #f0f4ff;
+    border: 2px dashed $border;
+    mat-icon { font-size: 1.35rem; width: 1.35rem; height: 1.35rem; color: $text-muted; }
+  }
+
+  p {
+    margin: 0;
+    font-size: .82rem;
+    line-height: 1.65;
+    max-width: 260px;
+    color: $text-sub;
+    strong { color: $text-main; }
+  }
+}
+
+.gl-element {
+  @include flex-center-gap(.85rem);
+  padding: .8rem .95rem;
+  background: #f7f8fc;
+  border: 1px solid $border;
+  border-radius: $radius;
+  transition: $transition;
+
+  &:hover {
+    border-color: $border-focus;
+    background: $accent-light;
+    box-shadow: 0 2px 8px rgba($accent, .07);
+    transform: translateX(3px);
+  }
+
+  &--edit {
+    background: #fff;
+    border-color: $accent-mid;
+    box-shadow: 0 0 0 3px rgba($accent, .08);
+    transform: none !important;
+
+    .gl-element__num { background: $accent; color: #fff; }
+  }
+
+  &__num {
+    @include flex-center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    border-radius: $radius-sm;
+    background: $border;
+    color: $text-sub;
+    font-size: .68rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: $transition;
+  }
+
+  &__body { flex: 1; min-width: 0; }
+
+  &__text {
+    font-size: .83rem;
+    font-weight: 600;
+    color: $text-main;
+    line-height: 1.5;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__input {
+    width: 100%;
+    padding: .38rem .65rem;
+    font-size: .83rem;
+    font-family: inherit;
+    color: $text-main;
+    background: #fff;
+    border: 1.5px solid $accent-mid;
+    border-radius: 7px;
+    outline: none;
+    transition: $transition;
+    box-sizing: border-box;
+
+    &::placeholder { color: $text-muted; }
+    &:focus {
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba($accent, .12);
+    }
+  }
+
+  &__actions {
+    @include flex-center-gap(.2rem);
+    flex-shrink: 0;
+  }
+}
+
+// ============================================================
+//  BUTTONS
+// ============================================================
+.gl-btn {
+  @include flex-center-gap(.45rem);
+  padding: .5rem 1rem;
+  border-radius: $radius;
+  font-size: .8rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: $transition;
+  mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
+
+  &--primary, &--ghost {
+    background: $accent;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba($accent, .28);
+
+    &:hover {
+      background: $accent-hover;
+      box-shadow: 0 4px 14px rgba($accent, .36);
+      transform: translateY(-1px);
+    }
+    &:active { transform: translateY(0); }
+  }
 }
 
 .gl-icon-btn {
-  background: transparent; border: none; cursor: pointer; color: $text-sub;
-  &:hover { color: $accent; }
-  &--delete:hover { color: #ef4444; }
+  @include icon-btn-base;
+
+  &--edit    { background: $accent-light; border-color: rgba($accent, .18); color: $accent; &:hover { background:$accent; color:#fff; border-color:$accent; } }
+  &--delete  { background: $danger-light; border-color: rgba($danger, .18); color: $danger;  &:hover { background:$danger; color:#fff; border-color:$danger; } }
+  &--confirm { background: $success-light; border-color: rgba($success, .18); color: $success; &:hover { background:$success; color:#fff; border-color:$success; } }
+  &--cancel  { background: #fffbeb; border-color: rgba($warning, .22); color: $warning; &:hover { background:$warning; color:#fff; border-color:$warning; } }
+}
+
+// ============================================================
+//  FOOTER
+// ============================================================
+.gl-footer {
+  padding: 1rem 1.6rem 1.5rem;
+  border-top: 1px solid $border-soft;
+  display: flex;
+  align-items: center;
+}
+
+// ============================================================
+//  ✅ MODAL SUPPRESSION
+// ============================================================
+.gl-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 31, 54, 0.35);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: feedbackIn .2s ease;
+}
+
+.gl-modal {
+  background: #fff;
+  border-radius: $radius-lg;
+  padding: 2rem 2rem 1.6rem;
+  width: 380px;
+  max-width: 92vw;
+  box-shadow: 0 20px 60px rgba(26, 31, 54, .18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  text-align: center;
+
+  &__icon {
+    @include flex-center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    &--danger {
+      background: $danger-light;
+      border: 2px solid rgba($danger, .18);
+      mat-icon { color: $danger; }
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: $text-main;
+    letter-spacing: -0.015em;
+  }
+
+  &__text {
+    margin: 0;
+    font-size: .83rem;
+    color: $text-sub;
+    line-height: 1.65;
+    strong { color: $text-main; }
+  }
+
+  // ✅ Avertissement réponses existantes
+  &__warning {
+    @include flex-center-gap(.5rem);
+    background: $warning-light;
+    border: 1px solid rgba($warning, .28);
+    border-radius: $radius;
+    padding: .6rem .85rem;
+    font-size: .78rem;
+    font-weight: 600;
+    color: darken($warning, 10%);
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+
+    mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+      color: $warning;
+      flex-shrink: 0;
+    }
+  }
+
+  &__footer {
+    @include flex-center-gap(.65rem);
+    margin-top: .5rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  &__btn {
+    @include flex-center-gap(.35rem);
+    padding: .55rem 1.2rem;
+    border-radius: $radius;
+    font-size: .82rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: $transition;
+    mat-icon { font-size: .95rem; width: .95rem; height: .95rem; }
+
+    &--cancel {
+      background: $bg-app;
+      color: $text-sub;
+      border: 1px solid $border;
+      &:hover { background: darken($bg-app, 3%); color: $text-main; }
+    }
+
+    &--confirm {
+      background: $danger;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba($danger, .28);
+      &:hover {
+        background: darken($danger, 8%);
+        box-shadow: 0 4px 14px rgba($danger, .36);
+        transform: translateY(-1px);
+      }
+      &:active { transform: translateY(0); }
+    }
+  }
+}
+
+// ============================================================
+//  RESPONSIVE
+// ============================================================
+@media (max-width: 900px) {
+  .gl-wrap { padding: 1.25rem; }
+
+  .gl-layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .gl-sidebar {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding: .75rem;
+
+    &__label { width: 100%; padding-bottom: .5rem; }
+  }
+
+  .gl-svc-btn {
+    width: auto;
+    flex: 1 1 calc(50% - .25rem);
+    margin-bottom: 0;
+  }
+
+  .gl-service-header {
+    flex-wrap: wrap;
+    gap: .75rem;
+    &__badge { width: 100%; flex-direction: row; gap: .5rem; justify-content: center; }
+  }
+
+  .gl-header__sub { display: none; }
 }

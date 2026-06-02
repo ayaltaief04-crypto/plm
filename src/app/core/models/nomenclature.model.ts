@@ -1,28 +1,32 @@
+// src/app/core/models/nomenclature.model.ts
 
-
-// Payload pour les infos techniques (NomonclatureDto côté back)
 export interface TechniquePayload {
-  MatieresPrincipales: string;
-  Composition: string;
-  ProcedesFab: string;
-  TechniquesSpecifiques: string;
-  TolerancesDim: string;
-  TestsRequis: string;
+  MatieresPrincipales:   string | null;
+  Composition:           string | null;
+  ProcedesFab:           string | null;
+  TechniquesSpecifiques: string | null;
+  TolerancesDim:         string | null;
+  TestsRequis:           string | null;
 }
 
-// Payload pour un composant (ComposantDto côté back)
+/** POST /composants  et  PUT /composants/{id} */
 export interface ComposantPayload {
-  Designation: string;
-  Reference: string;
-  Couleur: string;
-  Position: string;
-  Quantite: number;
-  Unite: string;
+  Designation:   string;
+  Reference?:    string;
+  Couleur?:      string;
+  Position?:     string;
+  Unite?:        string;
+  Remplacement?: string;   // ← ajouté
 }
 
-// Payload pour la partie achat (ComposantAchatUpdateDto côté back)
+/** PATCH /composants/{id}/achat */
 export interface AchatPayload {
-  NomFournisseur: string;
-  PrixUnitaire: number;
-  Remplacement: string;
+  NomFournisseur?: string;
+  PrixUnitaire?:   number;   // ← optionnel (pas de Remplacement ici)
+}
+
+/** PATCH /{nomenclatureId}/composants/quantite */
+export interface QuantitePayload {   // ← ajouté
+  NomComposant: string;
+  Quantite:     number;
 }

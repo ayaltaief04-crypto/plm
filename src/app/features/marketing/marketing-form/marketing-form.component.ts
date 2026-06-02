@@ -2,6 +2,7 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/cor
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MarketingService } from '../../../core/services/marketing.service';
 import { MarketingPayload } from '@app/core/models/marketing.model';
+
 export const NIVEAUX_GAMME = [
   { value: 0, label: 'Entrée de gamme' },
   { value: 1, label: 'Milieu de gamme' },
@@ -46,7 +47,11 @@ export class MarketingFormComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['product'] && !changes['product'].firstChange) {
-      this.loadFromBackend();
+      const prevId = changes['product'].previousValue?.idProduct ?? changes['product'].previousValue?.id;
+      const currId = changes['product'].currentValue?.idProduct ?? changes['product'].currentValue?.id;
+      if (currId && currId !== prevId) {
+        this.loadFromBackend();
+      }
     }
     if (this.marketingForm) {
       this.syncLockState();
@@ -58,19 +63,19 @@ export class MarketingFormComponent implements OnInit, OnChanges {
   private buildForm(): void {
     this.marketingForm = this.fb.group({
       PublicCible: ['', Validators.required],
-      TrancheAge: [''],
+      TrancheAge: ['', Validators.required],
       StyleDeVie: [''],
       OccasionPortee: [''],
       NiveauGamme: [null],
       NoteAttractiviteVisuelle: [null, [Validators.min(0), Validators.max(10)]],
-      PrixVenteEstime: [null, [Validators.required, Validators.min(0)]],
+      PrixVenteEstime: [null, Validators.min(0)],
       PrixPsychologique: [null, Validators.min(0)],
       QuantiteEstimee: [null, Validators.min(0)],
       IndiceCompetitivite: [null, Validators.min(0)],
       MargeCible: [null, [Validators.min(0), Validators.max(100)]],
-      USP_ArgumentUnique: ['', Validators.required],
+      USP_ArgumentUnique: [''],
       ReferenceBestSeller: [''],
-      NomCommercial: ['', Validators.required],
+      NomCommercial: [''],
       CanalDistribution: [''],
       ArgumentSecondeVie: [''],
       ScoreEcoConception: [''],
@@ -129,6 +134,7 @@ export class MarketingFormComponent implements OnInit, OnChanges {
   activerEdition(): void {
     this.isEditing = true;
     this.saveError = '';
+    this.saveSuccess = false;
     this.marketingForm.enable({ emitEvent: false });
   }
 
@@ -146,6 +152,8 @@ export class MarketingFormComponent implements OnInit, OnChanges {
     if (!id) return;
 
     this.isSaving = true;
+    this.saveError = '';
+    this.saveSuccess = false;
     const raw = this.marketingForm.getRawValue();
     const payload = MarketingService.normalizePayload(raw);
 

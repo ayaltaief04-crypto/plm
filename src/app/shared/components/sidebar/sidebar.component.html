@@ -1,6 +1,7 @@
 <aside class="plm-sidebar" [class.collapsed]="isCollapsed">
   <nav class="sidebar__nav">
 
+    <!-- SECTION PRINCIPALE -->
     <div class="nav-section">
       <p class="nav-section__label" *ngIf="!isCollapsed">Principal</p>
 
@@ -13,6 +14,7 @@
       </a>
     </div>
 
+    <!-- SECTION ADMINISTRATION (ADMIN UNIQUEMENT) -->
     <ng-container *ngIf="userRole === 'admin'">
       <div class="nav-section">
         <p class="nav-section__label" *ngIf="!isCollapsed">Administration</p>
@@ -22,7 +24,7 @@
           <div class="nav-item__icon">
             <mat-icon>people</mat-icon>
           </div>
-          <span class="nav-item__label" *ngIf="!isCollapsed">Utilisateurs</span>
+          <span class="nav-item__label" *ngIf="!isCollapsed"> Gestion des utilisateurs</span>
         </a>
 
         <a routerLink="/admin/listes" routerLinkActive="active" class="nav-item"
@@ -30,11 +32,12 @@
           <div class="nav-item__icon">
             <mat-icon>rule</mat-icon>
           </div>
-          <span class="nav-item__label" *ngIf="!isCollapsed">Listes de contrôle</span>
+          <span class="nav-item__label" *ngIf="!isCollapsed"> Gestion des listes de contrôle</span>
         </a>
       </div>
     </ng-container>
 
+    <!-- SECTION WORKFLOW (CACHE POUR ADMIN) -->
     <div class="nav-section" *ngIf="userRole !== 'admin'">
       <p class="nav-section__label" *ngIf="!isCollapsed">Workflow</p>
       
@@ -44,6 +47,19 @@
           <mat-icon>grid_view</mat-icon>
         </div>
         <span class="nav-item__label" *ngIf="!isCollapsed">Catalogue</span>
+      </a>
+
+      <!-- GESTION TEXTILE : RÉSERVÉ À L'INGÉNIEUR TEXTILE -->
+      <a *ngIf="userRole === 'ingenieurtextile'" 
+         routerLink="/textile" 
+         routerLinkActive="active" 
+         class="nav-item"
+         [matTooltip]="isCollapsed ? 'Gestion Textile' : ''" 
+         matTooltipPosition="right">
+        <div class="nav-item__icon">
+          <mat-icon>texture</mat-icon>
+        </div>
+        <span class="nav-item__label" *ngIf="!isCollapsed">Gestion des composants </span>
       </a>
 
       <a *ngIf="userRole === 'responsableachat'" 
@@ -59,6 +75,7 @@
       </a>
     </div>
 
+    <!-- SECTION CALENDRIER (CACHE POUR ADMIN) -->
     <div class="nav-section" *ngIf="userRole !== 'admin'">
       <p class="nav-section__label" *ngIf="!isCollapsed">Calendrier</p>
       <button
@@ -93,6 +110,7 @@
   </div>
 </aside>
 
+<!-- DRAWER POUR LES RÉUNIONS -->
 <ng-container *ngIf="userRole !== 'admin'">
   <div class="rp-overlay" [class.rp-overlay--open]="reunionsPanelOpen" (click)="closeReunionsPanel()"></div>
   <div class="rp-drawer" 
@@ -105,7 +123,10 @@
       </button>
     </div>
     <div class="rp-drawer__body">
-      <app-reunions-panel *ngIf="reunionsPanelOpen"></app-reunions-panel>
+      <app-reunions-panel 
+        *ngIf="reunionsPanelOpen"
+        [isInProductTab]="false">
+      </app-reunions-panel>
     </div>
   </div>
 </ng-container>

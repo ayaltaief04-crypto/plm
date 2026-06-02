@@ -1,13 +1,16 @@
 <app-navbar 
-  *ngIf="!(router.url === '/' || router.url.includes('auth') || router.url.includes('login'))"
+  *ngIf="!(router.url === '/' || router.url.includes('auth') || router.url.includes('login') || router.url.includes('rapport'))"
   (toggleSidebar)="sidebar.toggleSidebar()">
 </app-navbar>
 
-<div class="app-shell" [class.auth-layout]="router.url === '/' || router.url.includes('auth') || router.url.includes('login')">
- <app-sidebar
-  #sidebar
-  [style.display]="(router.url === '/' || router.url.includes('auth') || router.url.includes('login')) ? 'none' : ''">
-</app-sidebar>
+<div class="app-shell"
+  [class.auth-layout]="router.url === '/' || router.url.includes('auth') || router.url.includes('login')"
+  [class.rapport-layout]="router.url.includes('rapport')">
+
+  <app-sidebar
+    #sidebar
+    [style.display]="(router.url === '/' || router.url.includes('auth') || router.url.includes('login') || router.url.includes('rapport')) ? 'none' : ''">
+  </app-sidebar>
 
   <main class="app-content">
     <router-outlet></router-outlet>

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Fournisseur, FournisseurPayload } from '../models/fournisseur.model';
 
@@ -24,8 +24,15 @@ export class FournisseurService {
   }
 
   getAll(): Observable<Fournisseur[]> {
-    console.log('GET all fournisseurs →', this.base);
-    return this.http.get<any[]>(this.base).pipe(
+    // Anti-cache : empêche le navigateur de renvoyer une ancienne liste
+    // (sinon un fournisseur supprimé peut « réapparaître » après un re-fetch).
+    const headers = new HttpHeaders({
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    });
+    const url = `${this.base}?_=${Date.now()}`;
+    console.log('GET all fournisseurs →', url);
+    return this.http.get<any[]>(url, { headers }).pipe(
       map(data => data.map(item => this.mapFromApi(item)))
     );
   }
@@ -53,7 +60,21 @@ export class FournisseurService {
     const url = `${this.base}/${id}`;
     console.log('DELETE →', url);
     return this.http.delete(url).pipe(
-      tap(() => this.loadAll())
+      // Un 404 signifie que le fournisseur n'existe plus côté serveur :
+      // c'est exactement le résultat voulu, on le traite comme un succès.
+      catchError(err => {
+        if (err?.status === 404) return of(null);
+        return throwError(() => err);
+      }),
+      tap(() => {
+        // Source de vérité unique : on retire l'élément du flux directement,
+        // sans relancer un GET (qui pouvait renvoyer une liste encore en cache
+        // et faire « réapparaître » le fournisseur supprimé).
+        const current = this.fournisseursSubject.getValue();
+        this.fournisseursSubject.next(
+          current.filter(f => Number(f.id) !== Number(id))
+        );
+      })
     );
   }
 

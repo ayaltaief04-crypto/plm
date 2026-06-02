@@ -1,0 +1,318 @@
+// ─── VARIABLES LOCALES ────────────────────────────────────────────
+$white:    #ffffff;
+$green:    #059669;
+$gray-50:  #f9f9f8;
+$gray-100: #f2f2f0;
+$gray-200: #e4e4e0;
+$gray-400: #a0a09a;
+$gray-600: #6b6b65;
+$gray-800: #1c1c1a;
+
+// ─── MODAL COMPOSANT ──────────────────────────────────────────────
+.modal-composant {
+  width: min(1100px, 96vw);
+  max-height: 88vh;
+  background: $white;
+  border-radius: 14px;
+  border: 1px solid $gray-200;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: zoomIn .2s ease;
+}
+
+// ─── SEARCH ───────────────────────────────────────────────────────
+.composant-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid $gray-200;
+  background: $gray-50;
+  flex-shrink: 0;
+}
+
+.search-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $white;
+  border: 1.5px solid $gray-200;
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 38px;
+  transition: border-color .2s, box-shadow .2s;
+
+  &:focus-within {
+    border-color: #4658ff;
+    box-shadow: 0 0 0 3px rgba(70, 88, 255, .08);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: $gray-400;
+    flex-shrink: 0;
+    transition: color .2s;
+  }
+
+  &:focus-within mat-icon:first-child {
+    color: #4658ff;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    color: $gray-800;
+    outline: none;
+    font-family: inherit;
+    &::placeholder { color: $gray-400; }
+  }
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $gray-400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color .15s;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:hover { color: #dc2626; }
+}
+
+.result-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: $gray-400;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// ─── BODY ─────────────────────────────────────────────────────────
+.modal__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  background: $gray-50;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: $gray-200; border-radius: 4px; }
+}
+
+// ─── GRID ─────────────────────────────────────────────────────────
+.composant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+// ─── CARD ─────────────────────────────────────────────────────────
+.composant-card {
+  background: $white;
+  border: 1px solid $gray-200;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: transform .18s, border-color .18s;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: $gray-400;
+
+    .composant-card__overlay { opacity: 1; }
+    .composant-card__img img { transform: scale(1.04); }
+  }
+}
+
+.composant-card__img {
+  height: 150px;
+  background: $gray-100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .3s;
+  }
+
+  mat-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: $gray-400;
+    opacity: .5;
+  }
+}
+
+.composant-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .18s;
+  mat-icon { font-size: 24px; width: 24px; height: 24px; color: $white; }
+}
+
+.composant-card__body {
+  padding: 11px 13px 13px;
+}
+
+.composant-card__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: $gray-800;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.composant-card__ref {
+  font-size: 11px;
+  font-family: monospace;
+  color: $gray-400;
+  margin-top: 2px;
+}
+
+.composant-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: $gray-100;
+    color: $gray-600;
+    mat-icon { font-size: 12px; width: 12px; height: 12px; }
+  }
+}
+
+.composant-card__prix {
+  font-size: 13px;
+  font-weight: 600;
+  color: $green;
+  margin-top: 8px;
+}
+
+.composant-card__select-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, .9);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .18s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .15);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #4658ff;
+  }
+
+  .composant-card:hover & { opacity: 1; }
+}
+
+// ─── EMPTY ────────────────────────────────────────────────────────
+.composant-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 60px 20px;
+  color: $gray-400;
+  font-size: 13px;
+  mat-icon { font-size: 36px; width: 36px; height: 36px; opacity: .35; }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 60px 20px;
+  text-align: center;
+  color: $gray-400;
+  font-size: 13px;
+
+  mat-icon { font-size: 36px; width: 36px; height: 36px; opacity: .35; }
+
+  p {
+    margin: 0;
+    color: $gray-600;
+    font-size: 14px;
+  }
+
+  span {
+    font-size: 12px;
+    color: $gray-400;
+  }
+}
+
+// ─── MODAL LOADING ────────────────────────────────────────────────
+.modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 60px 20px;
+  color: $gray-400;
+  font-size: 13px;
+}
+
+// ─── RESPONSIVE ───────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .modal-composant {
+    width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .composant-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+
+  .composant-card__img { height: 120px; }
+}
+
+// ─── ANIMATIONS ───────────────────────────────────────────────────
+@keyframes zoomIn {
+  from { transform: scale(.95); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}

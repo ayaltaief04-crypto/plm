@@ -1,3 +1,4 @@
+// catalogue.component.ts
 import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -64,7 +65,6 @@ export class CatalogueComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.allProducts = data.map((p: any) => this.productService.mapFromApi(p));
 
-        // Si un produit était sélectionné, on recharge ses versions
         if (this.selectedProduct) {
           const fresh = this.allProducts.find(
             p => p.idProduct === this.selectedProduct?.idProduct
@@ -87,10 +87,6 @@ export class CatalogueComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Charge l'historique (versions) d'un produit.
-   * Retourne un Observable qui émet le tableau des versions.
-   */
   private loadVersionsForProduct(productId: number): Observable<any[]> {
     return this.productService.getHistorique(productId);
   }
@@ -113,8 +109,7 @@ export class CatalogueComponent implements OnInit, OnDestroy {
   applyFilters(): void {
     let actifs = this.allProducts.filter(p => !p.isArchived);
 
-    // Les autres acteurs (non Styliste/Admin) voient tous les produits
-    // sauf les brouillons (réservés au Styliste uniquement)
+    // Les non-Styliste/Admin ne voient pas les brouillons
     if (this.userRole !== 'Styliste' && this.userRole !== 'Admin') {
       actifs = actifs.filter(p => {
         const s = this.getEffectiveStatus(p).toLowerCase();
@@ -202,27 +197,74 @@ export class CatalogueComponent implements OnInit, OnDestroy {
     );
   }
 
+  // ─── STATUT EFFECTIF ──────────────────────────────────────────────────────
+
+  /**
+   * Statut effectif d'un produit dans le catalogue.
+   * - Si archivé → Archivé
+   * - Si statut propre = VALIDE → Validé
+   * - Si statut propre = CLOTURE → Clôturé
+   * - Sinon (PUBLIE, EN COURS, vide) → Publié
+   *   (V1.0 reste toujours PUBLIÉ dans le catalogue)
+   */
+  getEffectiveStatus(product: Product): string {
+  if (product.isArchived) return 'Archivé';
+
+  const normalize = (s: string) =>
+    (s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
+
+  const productStatut = normalize(product.statut ?? '');
+
+  if (productStatut === 'BROUILLON') return 'Brouillon'; // ✅ Ajout
+  if (productStatut === 'EN COURS')  return 'En cours';  // ✅ Ajout
+  if (productStatut === 'VALIDE')    return 'Validé';
+  if (productStatut === 'CLOTURE')   return 'Clôturé';
+
+  return 'Publié'; // uniquement PUBLIE reste ici
+}
+
+  getStatusClass(product: Product): string {
+  const s = this.getEffectiveStatus(product).toLowerCase();
+  if (s.includes('brouillon')) return 'brouillon';  // ✅ monter en premier
+  if (s.includes('en cours'))  return 'en-cours';   // ✅ monter en second
+  if (s.includes('publi'))     return 'publie';
+  if (s.includes('valid'))     return 'valide';
+  if (s.includes('clôtur') || s.includes('clotur')) return 'cloture';
+  return 'brouillon';
+}
+
+  getProductImageUrl(product: Product): string | null {
+  if (product.images && product.images.length > 0) {
+    const img = product.images[0];
+    const url = typeof img === 'string' ? img : (img as any).cheminImage;
+    return url || null; // retourne null si url est vide ou undefined
+  }
+  return null;
+}
+
+handleImageError(event: any): void {
+  event.target.style.display = 'none';
+  const noImg = event.target.nextElementSibling;
+  if (noImg) noImg.style.display = 'flex';
+}
   // ─── ACTIONS ──────────────────────────────────────────────────────────────
 
   /**
    * Clic sur une carte produit :
-   * - BROUILLON (Styliste)  → ouvre directement le formulaire product-form/:id
-   * - Tout autre statut     → ouvre le Summary dans la même page
-   *   → On charge d'abord l'historique (versions) du produit pour que le summary les affiche.
+   * - BROUILLON (Styliste) → formulaire product-form/:id
+   * - Tous les autres statuts → Summary avec historique des versions
    */
   onSelectProduct(p: Product): void {
     if (!p) return;
     const status = this.getEffectiveStatus(p).toLowerCase().trim();
 
     if (this.userRole === 'Styliste' && status.includes('brouillon')) {
-      // Brouillon → aller directement au formulaire d'édition
       this.router.navigate(['/products/product-form', p.idProduct]);
     } else {
-      // Pour les autres statuts, charger les versions avant d'ouvrir le summary
+      // Charger l'historique des versions avant d'ouvrir le summary
       this.productService.getHistorique(p.idProduct).subscribe({
         next: (versions) => {
-          const productWithVersions = { ...p, versions: versions };
-          this.selectedProduct = productWithVersions;
+          this.selectedProduct = { ...p, versions };
         },
         error: (err) => {
           console.warn('Erreur chargement historique, ouverture sans versions', err);
@@ -252,39 +294,6 @@ export class CatalogueComponent implements OnInit, OnDestroy {
     this.selectedProduct = null;
     this.loadProducts();
     this.switchTab('archives');
-  }
-
-  // ─── UTILITAIRES ──────────────────────────────────────────────────────────
-
-  getEffectiveStatus(product: Product): string {
-    if (product.isArchived) return 'Archivé';
-    // Toujours le statut de la DERNIÈRE version
-    if (product.versions && product.versions.length > 0) {
-      const last = product.versions[product.versions.length - 1];
-      return last.statut || product.statut || 'Brouillon';
-    }
-    return product.statut || 'Brouillon';
-  }
-
-  getStatusClass(product: Product): string {
-    const s = this.getEffectiveStatus(product).toLowerCase();
-    if (s.includes('publi'))                            return 'publie';
-    if (s.includes('valid'))                            return 'valide';
-    if (s.includes('clôtur') || s.includes('clotur'))  return 'cloture';
-    if (s.includes('en cours'))                         return 'en-cours';
-    return 'brouillon';
-  }
-
-  getProductImageUrl(product: Product): string {
-    if (product.images && product.images.length > 0) {
-      const img = product.images[0];
-      return typeof img === 'string' ? img : (img as any).cheminImage;
-    }
-    return 'assets/placeholder.png';
-  }
-
-  handleImageError(event: any): void {
-    event.target.src = 'assets/placeholder.png';
   }
 
   allerAuFormulaire(): void {

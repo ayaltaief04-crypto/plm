@@ -1,0 +1,275 @@
+<div class="textile-page">
+
+  <!-- ── ALERTS ─────────────────────────────────────────────── -->
+  <div class="alert alert-success" *ngIf="successMsg">
+    <mat-icon>check_circle</mat-icon> {{ successMsg }}
+  </div>
+  <div class="alert alert-error" *ngIf="errorMsg">
+    <mat-icon>error</mat-icon> {{ errorMsg }}
+  </div>
+
+  <!-- ── HEADER ─────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-titles">
+      <h1>Composants Textile</h1>
+      <p>Catalogue des matières et accessoires</p>
+    </div>
+    <button class="btn-primary" (click)="toggleForm()">
+      <mat-icon>add</mat-icon>
+      Nouveau Composant
+    </button>
+  </div>
+
+  <!-- ── SEARCH BAR ─────────────────────────────────────────── -->
+  <div class="search-bar">
+    <mat-icon>search</mat-icon>
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      (input)="onSearch()"
+      placeholder="Rechercher par désignation ou référence…"
+      class="search-input"
+    >
+    <button *ngIf="searchQuery" class="search-clear" (click)="clearSearch()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- ── LOADING ────────────────────────────────────────────── -->
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    Chargement du catalogue…
+  </div>
+
+  <!-- ── GRID ───────────────────────────────────────────────── -->
+  <div class="textile-grid" *ngIf="!isLoading">
+
+    <div *ngIf="filteredComposants.length === 0" class="empty-state">
+      <mat-icon>inventory_2</mat-icon>
+      <span>{{ searchQuery ? 'Aucun résultat pour « ' + searchQuery + ' ».' : 'Aucun composant dans le catalogue.' }}</span>
+    </div>
+
+    <div class="textile-card" *ngFor="let c of filteredComposants" (click)="openDetail(c)">
+
+      <div class="card-img">
+        <img [src]="c.Image || c.image || 'assets/placeholder-img.png'" alt="Textile">
+      </div>
+
+      <div class="card-body">
+        <span class="card-label">{{ c.Designation ?? c.designation }}</span>
+        <span class="card-ref">{{ c.Reference ?? c.reference }}</span>
+      </div>
+
+      <!-- Actions — toujours visibles, colorées -->
+      <div class="card-actions">
+        <button class="action-btn edit" (click)="onEdit($event, c)" matTooltip="Modifier">
+          <mat-icon>edit</mat-icon>
+          <span class="action-label">Modifier</span>
+        </button>
+        <button class="action-btn delete" (click)="onDelete($event, c)" matTooltip="Supprimer">
+          <mat-icon>delete</mat-icon>
+          <span class="action-label">Supprimer</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════ MODAL FORMULAIRE AJOUT / ÉDITION ════════════ -->
+  <div class="modal-overlay" *ngIf="showForm" (click)="cancelEdit()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+      <!-- Head -->
+      <div class="modal-head">
+        <div class="modal-head-left">
+          <div class="modal-head-icon">
+            <mat-icon>{{ isEditMode ? 'edit_note' : 'add_box' }}</mat-icon>
+          </div>
+          <div>
+            <h2>{{ isEditMode ? 'Modifier le composant' : 'Nouveau composant' }}</h2>
+            <p>{{ isEditMode ? 'Mettez à jour les informations' : 'Renseignez les informations du composant' }}</p>
+          </div>
+        </div>
+        <button class="modal-close" (click)="cancelEdit()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Steps -->
+      <div class="form-steps">
+        <div class="form-step" [class.done]="imagePreview" [class.active]="!imagePreview">
+          <span class="step-num">
+            <mat-icon *ngIf="imagePreview" style="font-size:13px;width:13px;height:13px;">check</mat-icon>
+            <span *ngIf="!imagePreview">1</span>
+          </span>
+          Visuel
+        </div>
+        <div class="step-sep"></div>
+        <div class="form-step active">
+          <span class="step-num">2</span>
+          Identification
+        </div>
+        <div class="step-sep"></div>
+        <div class="form-step">
+          <span class="step-num">3</span>
+          Détails techniques
+        </div>
+      </div>
+
+      <form [formGroup]="textileForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+
+          <!-- ── Section 1 : Visuel -->
+          <div class="form-section">
+            <div class="upload-row">
+              <div class="img-upload-zone" (click)="fileInput.click()">
+                <ng-container *ngIf="!imagePreview">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                </ng-container>
+                <img *ngIf="imagePreview" [src]="imagePreview" class="img-preview" alt="Aperçu">
+                <div class="img-upload-change" *ngIf="imagePreview">
+                  <mat-icon>photo_camera</mat-icon>
+                </div>
+                <input #fileInput type="file" accept="image/*" (change)="onImageUpload($event)" hidden>
+              </div>
+              <div class="upload-info">
+                <p class="upload-title">Image du composant</p>
+                <p class="upload-hint">PNG, JPG — max 5 Mo</p>
+                <button type="button" class="btn-upload" (click)="fileInput.click()">
+                  <mat-icon>upload</mat-icon>
+                  {{ imagePreview ? 'Changer l\'image' : 'Parcourir…' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Divider -->
+          <div class="section-divider">
+            <span>Identification</span>
+          </div>
+
+          <!-- ── Section 2 : Identification -->
+          <div class="form-section">
+            <div class="form-grid">
+              <div class="field full">
+                <label>Désignation <span class="req">*</span></label>
+                <input formControlName="designation" placeholder="ex: Coton Bio Premium">
+              </div>
+              <div class="field">
+                <label>Référence</label>
+                <input formControlName="reference" placeholder="ex: REF-001">
+              </div>
+              <div class="field">
+                <label>Unité</label>
+                <select formControlName="unite">
+                  <option *ngFor="let u of unites" [value]="u">{{ u }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Divider -->
+          <div class="section-divider">
+            <span>Détails techniques</span>
+          </div>
+
+          <!-- ── Section 3 : Détails -->
+          <div class="form-section">
+            <div class="form-grid">
+              <div class="field">
+                <label>Couleur</label>
+                <input formControlName="couleur" placeholder="ex: Bleu Marine">
+              </div>
+              <div class="field">
+                <label>Position</label>
+                <input formControlName="position" placeholder="ex: Devant">
+              </div>
+              <div class="field full">
+                <label>Article de remplacement</label>
+                <input formControlName="remplacement" placeholder="ex: REF-002">
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /modal-body -->
+
+        <!-- Foot -->
+        <div class="modal-foot">
+          <div class="saving-indicator" *ngIf="isSaving">
+            <mat-icon class="spin">refresh</mat-icon> Enregistrement…
+          </div>
+          <span class="foot-hint" *ngIf="!isSaving">
+            <mat-icon>info</mat-icon> Champs marqués * obligatoires
+          </span>
+          <div class="modal-foot__actions">
+            <button type="button" class="btn-ghost" (click)="cancelEdit()">
+              <mat-icon>close</mat-icon> Annuler
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="textileForm.invalid || isSaving">
+              <mat-icon>{{ isEditMode ? 'save' : 'check_circle' }}</mat-icon>
+              {{ isEditMode ? 'Enregistrer' : 'Créer le composant' }}
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ═══════════ MODAL DÉTAIL ════════════════════════════════ -->
+  <div class="modal-overlay" *ngIf="selectedTextile" (click)="closeDetail()">
+    <div class="modal-box modal-box--sm" (click)="$event.stopPropagation()">
+
+      <div class="modal-head">
+        <div class="modal-head-left">
+          <div class="modal-head-icon">
+            <mat-icon>info</mat-icon>
+          </div>
+          <div>
+            <h2>{{ selectedTextile.Designation ?? selectedTextile.designation }}</h2>
+            <p class="ref-code">{{ selectedTextile.Reference ?? selectedTextile.reference }}</p>
+          </div>
+        </div>
+        <button class="modal-close" (click)="closeDetail()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-img">
+          <img [src]="selectedTextile.Image || selectedTextile.image || 'assets/placeholder-img.png'">
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Couleur</label>
+            <span>{{ selectedTextile.Couleur ?? selectedTextile.couleur || '—' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Position</label>
+            <span>{{ selectedTextile.Position ?? selectedTextile.position || '—' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Unité</label>
+            <span>{{ selectedTextile.Unite ?? selectedTextile.unite }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Remplacement</label>
+            <span>{{ selectedTextile.Remplacement ?? selectedTextile.remplacement || '—' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Prix unitaire</label>
+            <span>{{ (selectedTextile.PrixUnitaire ?? selectedTextile.prixUnitaire) | number:'1.2-2' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Fournisseur</label>
+            <span>{{ selectedTextile.NomFournisseur ?? selectedTextile.nomFournisseur || '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

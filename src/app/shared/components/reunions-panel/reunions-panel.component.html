@@ -5,159 +5,180 @@
     <mat-icon class="rp-header__icon">event</mat-icon>
     <div>
       <h2 class="rp-header__title">Réunions</h2>
-      <p class="rp-header__sub">Planifier & notifier les acteurs</p>
+      <p class="rp-header__sub">
+        <ng-container *ngIf="canSchedule && isInProductTab">Planifier & notifier les acteurs</ng-container>
+        <ng-container *ngIf="!canSchedule || !isInProductTab">Vos réunions planifiées</ng-container>
+      </p>
     </div>
   </div>
 
-  <!-- ✅ MODE STYLISTE/ADMIN: calendrier + form -->
-  <div class="rp-layout" *ngIf="canSchedule">
+  <!-- ══════════════════════════════════════════
+       BOUTON PLANIFIER — onglet produit + rôle autorisé seulement
+  ══════════════════════════════════════════ -->
+  <div class="rp-planifier-bar" *ngIf="canSchedule && isInProductTab && !enEdition">
+    <button type="button" class="rp-btn-planifier" (click)="activerEdition()">
+      <mat-icon>add_circle_outline</mat-icon>
+      Planifier une réunion
+    </button>
+  </div>
 
-    <!-- CALENDRIER -->
-    <div class="rp-calendar">
-      <div class="cal-nav">
-        <button class="cal-nav__btn" type="button" (click)="prevMonth()">
-          <mat-icon>chevron_left</mat-icon>
-        </button>
+  <!-- ══════════════════════════════════════════
+       FORMULAIRE — onglet produit + rôle autorisé seulement
+  ══════════════════════════════════════════ -->
+  <ng-container *ngIf="canSchedule && isInProductTab">
+    <div class="rp-layout" [class.rp-layout--locked]="!enEdition">
 
-        <span class="cal-nav__label">{{ MONTH_NAMES[calMonth] }} {{ calYear }}</span>
-
-        <button class="cal-nav__btn" type="button" (click)="nextMonth()">
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-      </div>
-
-      <div class="cal-grid">
-        <div class="cal-day-name" *ngFor="let d of DAY_NAMES">{{ d }}</div>
-
-        <div
-          class="cal-cell"
-          *ngFor="let day of calDays"
-          [class.empty]="!day"
-          [class.today]="isToday(day)"
-          [class.selected]="isSelected(day)"
-          [class.past]="isPast(day)"
-          [class.has-event]="hasReunion(day)"
-          (click)="selectDay(day)"
-        >
-          <span *ngIf="day">{{ day.getDate() }}</span>
-          <span class="cal-cell__dot" *ngIf="day && hasReunion(day) && !isSelected(day)"></span>
+      <!-- CALENDRIER -->
+      <div class="rp-calendar" [class.rp-calendar--locked]="!enEdition">
+        <div class="cal-nav">
+          <button class="cal-nav__btn" type="button" (click)="prevMonth()" [disabled]="!enEdition">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span class="cal-nav__label">{{ MONTH_NAMES[calMonth] }} {{ calYear }}</span>
+          <button class="cal-nav__btn" type="button" (click)="nextMonth()" [disabled]="!enEdition">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-day-name" *ngFor="let d of DAY_NAMES">{{ d }}</div>
+          <div
+            class="cal-cell"
+            *ngFor="let day of calDays"
+            [class.empty]="!day"
+            [class.today]="isToday(day)"
+            [class.selected]="isSelected(day)"
+            [class.past]="isPast(day)"
+            [class.has-event]="hasReunion(day)"
+            [class.disabled]="!enEdition"
+            (click)="selectDay(day)"
+          >
+            <span *ngIf="day">{{ day.getDate() }}</span>
+            <span class="cal-cell__dot" *ngIf="day && hasReunion(day) && !isSelected(day)"></span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- FORMULAIRE -->
-    <form class="rp-form" [formGroup]="form" (ngSubmit)="enregistrer()">
+      <!-- FORMULAIRE -->
+      <form class="rp-form" [formGroup]="form" (ngSubmit)="enregistrer()">
 
-      <div class="rp-form__section-label">
-        <mat-icon>add_circle_outline</mat-icon> Nouvelle réunion
-      </div>
+        <div class="rp-form__section-label">
+          <mat-icon>{{ editingId ? 'edit' : 'add_circle_outline' }}</mat-icon>
+          {{ formTitle }}
+        </div>
 
-      <div class="rp-field">
-        <label class="rp-field__label">
-          <mat-icon>label</mat-icon> Désignation
-        </label>
-        <input
-          class="rp-field__input"
-          formControlName="designation"
-          placeholder="Ex : Revue de collection SS26"
-          [class.rp-field__input--error]="form.get('designation')?.invalid && form.get('designation')?.touched"
-        >
-        <span class="rp-field__error" *ngIf="form.get('designation')?.invalid && form.get('designation')?.touched">
-          Champ requis (min 2 car.)
-        </span>
-      </div>
-
-      <div class="rp-field">
-        <label class="rp-field__label">
-          <mat-icon>subject</mat-icon> Sujet
-        </label>
-        <textarea
-          class="rp-field__input rp-field__textarea"
-          formControlName="sujet"
-          placeholder="Décrire le sujet ou l'ordre du jour…"
-          rows="2"
-          [class.rp-field__input--error]="form.get('sujet')?.invalid && form.get('sujet')?.touched"
-        ></textarea>
-        <span class="rp-field__error" *ngIf="form.get('sujet')?.invalid && form.get('sujet')?.touched">
-          Champ requis (min 2 car.)
-        </span>
-      </div>
-
-      <div class="rp-fields-row">
         <div class="rp-field">
-          <label class="rp-field__label">
-            <mat-icon>calendar_today</mat-icon> Date
-          </label>
+          <label class="rp-field__label"><mat-icon>label</mat-icon> Désignation</label>
           <input
             class="rp-field__input"
-            type="date"
-            formControlName="date"
-            [class.rp-field__input--error]="form.get('date')?.invalid && form.get('date')?.touched"
+            formControlName="designation"
+            placeholder="Désignation du produit"
+            [class.rp-field__input--error]="form.get('designation')?.invalid && form.get('designation')?.touched"
           >
+          <span class="rp-field__error" *ngIf="form.get('designation')?.invalid && form.get('designation')?.touched">
+            Champ requis (min 2 car.)
+          </span>
+        </div>
+
+        <div class="rp-field">
+          <label class="rp-field__label"><mat-icon>subject</mat-icon> Sujet</label>
+          <textarea
+            class="rp-field__input rp-field__textarea"
+            formControlName="sujet"
+            placeholder="Décrire le sujet ou l'ordre du jour…"
+            rows="2"
+            [class.rp-field__input--error]="form.get('sujet')?.invalid && form.get('sujet')?.touched"
+          ></textarea>
+          <span class="rp-field__error" *ngIf="form.get('sujet')?.invalid && form.get('sujet')?.touched">
+            Champ requis (min 2 car.)
+          </span>
+        </div>
+
+        <div class="rp-fields-row">
+          <div class="rp-field">
+            <label class="rp-field__label"><mat-icon>calendar_today</mat-icon> Date</label>
+            <input
+              class="rp-field__input"
+              type="date"
+              formControlName="date"
+              [class.rp-field__input--error]="form.get('date')?.invalid && form.get('date')?.touched"
+            >
+            <span class="rp-field__error" *ngIf="form.get('date')?.invalid && form.get('date')?.touched">
+              Date requise
+            </span>
+          </div>
+          <div class="rp-field">
+            <label class="rp-field__label"><mat-icon>schedule</mat-icon> Heure</label>
+            <input
+              class="rp-field__input"
+              type="time"
+              formControlName="heure"
+              [class.rp-field__input--error]="form.get('heure')?.invalid && form.get('heure')?.touched"
+            >
+            <span class="rp-field__error" *ngIf="form.get('heure')?.invalid && form.get('heure')?.touched">
+              Heure requise
+            </span>
+          </div>
         </div>
 
         <div class="rp-field">
           <label class="rp-field__label">
-            <mat-icon>schedule</mat-icon> Heure
+            <mat-icon>send</mat-icon> Envoyer à
+            <span class="rp-dest-count" *ngIf="selectedDest.length > 0">{{ selectedDest.length }}</span>
           </label>
-          <input class="rp-field__input" type="time" formControlName="heure">
+          <div class="rp-dest-grid">
+            <button
+              type="button"
+              class="rp-dest-chip"
+              *ngFor="let a of allActeurs"
+              [class.rp-dest-chip--active]="isDestSelected(a.value)"
+              [disabled]="!enEdition"
+              (click)="toggleDest(a.value)"
+            >
+              <mat-icon>{{ a.icon }}</mat-icon>
+              {{ a.label }}
+              <mat-icon class="rp-dest-chip__check" *ngIf="isDestSelected(a.value)">check</mat-icon>
+            </button>
+          </div>
+          <span class="rp-field__error" *ngIf="selectedDest.length === 0 && form.touched && enEdition">
+            Choisissez au moins un destinataire
+          </span>
         </div>
-      </div>
 
-      <div class="rp-field">
-        <label class="rp-field__label">
-          <mat-icon>send</mat-icon> Envoyer à
-          <span class="rp-dest-count" *ngIf="selectedDest.length > 0">{{ selectedDest.length }}</span>
-        </label>
-
-        <div class="rp-dest-grid">
+        <!-- ACTIONS (seulement quand en édition) -->
+        <div class="rp-form__actions" *ngIf="enEdition">
+          <button type="button" class="rp-btn-cancel" (click)="annulerEdition()">
+            <mat-icon>close</mat-icon> Annuler
+          </button>
           <button
-            type="button"
-            class="rp-dest-chip"
-            *ngFor="let a of allActeurs"
-            [class.rp-dest-chip--active]="isDestSelected(a.value)"
-            (click)="toggleDest(a.value)"
+            type="submit"
+            class="rp-btn-save"
+            [class.rp-btn-save--loading]="saving"
+            [class.rp-btn-save--done]="saved"
+            [disabled]="saving"
           >
-            <mat-icon>{{ a.icon }}</mat-icon>
-            {{ a.label }}
-            <mat-icon class="rp-dest-chip__check" *ngIf="isDestSelected(a.value)">check</mat-icon>
+            <ng-container *ngIf="!saving && !saved">
+              <mat-icon>{{ editingId ? 'save' : 'event_available' }}</mat-icon>
+              {{ btnLabel }}
+            </ng-container>
+            <ng-container *ngIf="saving">
+              <span class="rp-spinner"></span> Envoi en cours…
+            </ng-container>
+            <ng-container *ngIf="saved">
+              <mat-icon>check_circle</mat-icon> Réunion planifiée !
+            </ng-container>
           </button>
         </div>
 
-        <span class="rp-field__error" *ngIf="selectedDest.length === 0 && form.touched">
-          Choisissez au moins un destinataire
-        </span>
-      </div>
+      </form>
+    </div>
+  </ng-container>
 
-      <button
-        type="submit"
-        class="rp-btn-save"
-        [class.rp-btn-save--loading]="saving"
-        [class.rp-btn-save--done]="saved"
-        [disabled]="saving"
-      >
-        <ng-container *ngIf="!saving && !saved">
-          <mat-icon>event_available</mat-icon>
-          Enregistrer la réunion
-        </ng-container>
+  <!-- ══════════════════════════════════════════
+       LISTE DES RÉUNIONS — visible par tous, partout
+  ══════════════════════════════════════════ -->
+  <div class="rp-list-section" *ngIf="upcoming.length > 0 || past.length > 0; else emptyState">
 
-        <ng-container *ngIf="saving">
-          <span class="rp-spinner"></span>
-          Envoi en cours…
-        </ng-container>
-
-        <ng-container *ngIf="saved">
-          <mat-icon>check_circle</mat-icon>
-          Réunion enregistrée !
-        </ng-container>
-      </button>
-    </form>
-  </div>
-
-  <!-- LISTE (tous: à venir; styliste/admin: passées aussi) -->
-  <div class="rp-list-section" *ngIf="upcoming.length > 0 || (canSchedule && past.length > 0)">
-
-    <!-- À venir (tout le monde) -->
+    <!-- À venir -->
     <div class="rp-list-group" *ngIf="upcoming.length > 0">
       <div class="rp-list-group__title">
         <mat-icon>upcoming</mat-icon> À venir
@@ -167,39 +188,37 @@
       <div class="rp-reunion-card" *ngFor="let r of upcoming">
         <div class="rp-reunion-card__left">
           <div class="rp-reunion-card__date-badge">
-            <span class="rp-reunion-card__day">{{ r.date | date:'dd' }}</span>
-            <span class="rp-reunion-card__mon">{{ r.date | date:'MMM':'':'fr' }}</span>
+            <span class="rp-reunion-card__day">{{ r.date ? (r.date | date:'dd') : '--' }}</span>
+            <span class="rp-reunion-card__mon">{{ r.date ? (r.date | date:'MMM') : '--' }}</span>
           </div>
         </div>
-
         <div class="rp-reunion-card__body">
           <p class="rp-reunion-card__name">{{ r.designation }}</p>
           <p class="rp-reunion-card__sujet">{{ r.sujet }}</p>
           <div class="rp-reunion-card__meta">
             <span class="rp-reunion-card__time">
-              <mat-icon>schedule</mat-icon> {{ r.date | date:'HH:mm' }}
+              <mat-icon>schedule</mat-icon>
+              {{ r.date ? (r.date | date:'HH:mm') : '--' }}
             </span>
             <span class="rp-reunion-card__dest" [title]="destLabel(r.destinataires)">
               <mat-icon>people</mat-icon> {{ destLabel(r.destinataires) }}
             </span>
           </div>
         </div>
-
-        <!-- ✅ bouton supprimer seulement si styliste/admin -->
-        <button
-          *ngIf="canSchedule"
-          class="rp-reunion-card__del"
-          type="button"
-          (click)="deleteReunion(r.id, $event)"
-          title="Supprimer"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
+        <!-- Boutons modifier/supprimer : onglet produit + rôle autorisé -->
+        <div class="rp-reunion-card__actions" *ngIf="canSchedule && isInProductTab">
+          <button class="rp-reunion-card__edit" type="button" (click)="modifierReunion(r, $event)" title="Modifier">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="rp-reunion-card__del" type="button" (click)="demanderSuppression(r, $event)" title="Supprimer">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Passées (styliste/admin seulement) -->
-    <div class="rp-list-group rp-list-group--past" *ngIf="canSchedule && past.length > 0">
+    <!-- Passées -->
+    <div class="rp-list-group rp-list-group--past" *ngIf="past.length > 0">
       <div class="rp-list-group__title">
         <mat-icon>history</mat-icon> Passées
         <span class="rp-list-group__count">{{ past.length }}</span>
@@ -208,37 +227,64 @@
       <div class="rp-reunion-card rp-reunion-card--past" *ngFor="let r of past">
         <div class="rp-reunion-card__left">
           <div class="rp-reunion-card__date-badge rp-reunion-card__date-badge--past">
-            <span class="rp-reunion-card__day">{{ r.date | date:'dd' }}</span>
-            <span class="rp-reunion-card__mon">{{ r.date | date:'MMM':'':'fr' }}</span>
+            <span class="rp-reunion-card__day">{{ r.date ? (r.date | date:'dd') : '--' }}</span>
+            <span class="rp-reunion-card__mon">{{ r.date ? (r.date | date:'MMM') : '--' }}</span>
           </div>
         </div>
-
         <div class="rp-reunion-card__body">
           <p class="rp-reunion-card__name">{{ r.designation }}</p>
           <p class="rp-reunion-card__sujet">{{ r.sujet }}</p>
           <div class="rp-reunion-card__meta">
             <span class="rp-reunion-card__time">
-              <mat-icon>schedule</mat-icon> {{ r.date | date:'HH:mm' }}
+              <mat-icon>schedule</mat-icon>
+              {{ r.date ? (r.date | date:'HH:mm') : '--' }}
             </span>
             <span class="rp-reunion-card__dest">
               <mat-icon>people</mat-icon> {{ destLabel(r.destinataires) }}
             </span>
           </div>
         </div>
-
-        <button class="rp-reunion-card__del" type="button" (click)="deleteReunion(r.id, $event)" title="Supprimer">
-          <mat-icon>close</mat-icon>
-        </button>
+        <!-- Bouton supprimer : onglet produit + rôle autorisé -->
+        <div class="rp-reunion-card__actions" *ngIf="canSchedule && isInProductTab">
+          <button class="rp-reunion-card__del" type="button" (click)="demanderSuppression(r, $event)" title="Supprimer">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
       </div>
     </div>
 
   </div>
 
-  <!-- Empty state -->
-  <div class="rp-empty" *ngIf="upcoming.length === 0 && (canSchedule ? past.length === 0 : true)">
-    <mat-icon>event_busy</mat-icon>
-    <p>Aucune réunion planifiée</p>
-    <span>Créez votre première réunion ci-dessus</span>
+  <!-- MESSAGE VIDE -->
+  <ng-template #emptyState>
+    <div class="rp-empty">
+      <mat-icon>event_busy</mat-icon>
+      <p>Aucune réunion planifiée</p>
+      <span *ngIf="canSchedule && isInProductTab">Cliquez sur "Planifier une réunion" pour commencer</span>
+      <span *ngIf="!canSchedule || !isInProductTab">Aucune réunion ne vous a encore été assignée</span>
+    </div>
+  </ng-template>
+
+  <!-- MODAL CONFIRMATION SUPPRESSION -->
+  <div class="rp-modal-overlay" *ngIf="showDeleteModal" (click)="fermerModal()">
+    <div class="rp-modal" (click)="$event.stopPropagation()">
+      <div class="rp-modal__icon">
+        <mat-icon>warning_amber</mat-icon>
+      </div>
+      <h3 class="rp-modal__title">Supprimer la réunion ?</h3>
+      <p class="rp-modal__msg">
+        La réunion <strong>« {{ reunionToDeleteName }} »</strong> sera supprimée définitivement.
+        Cette action est irréversible.
+      </p>
+      <div class="rp-modal__actions">
+        <button class="rp-btn-cancel" type="button" (click)="fermerModal()">
+          <mat-icon>close</mat-icon> Annuler
+        </button>
+        <button class="rp-btn-delete" type="button" (click)="confirmerSuppression()">
+          <mat-icon>delete</mat-icon> Supprimer
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>

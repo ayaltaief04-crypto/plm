@@ -154,20 +154,30 @@ export class GestionFournisseursComponent implements OnInit, OnDestroy {
     if (this.confirmDeleteId !== null && this.canEdit) {
       const idToDelete = this.confirmDeleteId;
       this.fournisseurSvc.delete(idToDelete).subscribe({
-        next: () => {
-          // Supprimer immédiatement du tableau local (front-end)
-          this.fournisseurs = this.fournisseurs.filter(f => f.id !== idToDelete);
-          this.successMsg = 'Fournisseur supprimé avec succès.';
-          this.confirmDeleteId = null;
-          setTimeout(() => this.successMsg = '', 2000);
-        },
+        next: () => this.onSupprime(idToDelete),
         error: (err) => {
-          console.error('Erreur suppression', err);
-          this.errorMsg = `Erreur ${err.status} : ${err.statusText}`;
-          this.confirmDeleteId = null;
+          // Un 404 = le fournisseur n'existe déjà plus côté serveur → c'est le
+          // résultat voulu : on le retire de la liste comme un succès.
+          if (err?.status === 404) {
+            this.onSupprime(idToDelete);
+          } else {
+            console.error('Erreur suppression', err);
+            this.errorMsg = `Erreur ${err.status} : ${err.statusText}`;
+            this.confirmDeleteId = null;
+          }
         }
       });
     }
+  }
+
+  /** Retire le fournisseur de l'affichage et confirme la suppression. */
+  private onSupprime(idToDelete: number): void {
+    // Retrait local immédiat (l'UI ne dépend plus du re-fetch ni du flux).
+    this.fournisseurs = this.fournisseurs.filter(f => Number(f.id) !== Number(idToDelete));
+    this.successMsg = 'Fournisseur supprimé avec succès.';
+    this.errorMsg = '';
+    this.confirmDeleteId = null;
+    setTimeout(() => this.successMsg = '', 2000);
   }
 
   cancelDelete(): void {

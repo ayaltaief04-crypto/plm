@@ -1,46 +1,59 @@
-<div class="tp-wrap" [class.is-locked]="isLocked">
+<div class="tp-wrap" [class.is-locked]="isLocked && viewMode !== 'version'">
 
   <!-- ═══════════════════════════════════════════ HEADER ═══ -->
   <header class="tp-header">
     <div class="tp-header__left">
       <div class="tp-logo">TF</div>
       <div class="tp-header__meta">
-        <span class="tp-header__brand">TEXTILE FLOW</span>
+        <span class="tp-header__brand">PLM TEXTILE </span>
         <span class="tp-header__doc">
-          {{ selectedVersion
-              ? 'TECH PACK · ' + (selectedVersion.numVersion || selectedVersion.statut)
-              : (isNewProduct ? 'NOUVEAU PRODUIT' : 'DOSSIER PRODUIT') }}
-          <span class="tp-status-pill" [attr.data-status]="currentStatus">{{ currentStatus }}</span>
+          <ng-container *ngIf="viewMode === 'version'">
+            NOUVELLE VERSION · {{ newVersionNum }}
+            <span class="tp-status-pill" data-status="EN COURS">EN COURS</span>
+          </ng-container>
+          <ng-container *ngIf="viewMode === 'view'">
+            {{ selectedVersion
+                ? 'TECH PACK · ' + (selectedVersion.numVersion || selectedVersion.statut)
+                : (isNewProduct ? 'NOUVEAU PRODUIT' : 'DOSSIER PRODUIT') }}
+            <span class="tp-status-pill" [attr.data-status]="currentStatusUpper">{{ currentStatus }}</span>
+          </ng-container>
         </span>
       </div>
     </div>
 
     <div class="tp-header__right">
-      <div class="tp-version-selector" *ngIf="historique.length > 0">
+      <div class="tp-version-selector" *ngIf="historique.length > 0 && viewMode === 'view'">
         <mat-icon>history</mat-icon>
         <select (change)="selectVersion($any($event.target).value !== '' ? historique[$any($event.target).value] : null)">
-          <option value="">Version actuelle</option>
+          <option value="">Version actuelle ({{ product.numVersion || 'V1.0' }})</option>
           <option *ngFor="let v of historique; let i = index" [value]="i">
             {{ v.numVersion || ('Version ' + (i+1)) }} — {{ v.statut }}
           </option>
         </select>
       </div>
-      <button class="tp-btn tp-btn--outline" (click)="retour()">
-        <mat-icon>arrow_back</mat-icon> Retour Catalogue
+      <button class="tp-btn tp-btn--outline" (click)="viewMode === 'version' ? annulerNouvelleVersion() : retour()">
+        <mat-icon>{{ viewMode === 'version' ? 'close' : 'arrow_back' }}</mat-icon>
+        {{ viewMode === 'version' ? 'Annuler' : 'Retour Catalogue' }}
       </button>
     </div>
   </header>
 
-  <!-- ═══════════════════════════════════════════ PRINT BAR ═══ -->
-  <div class="tp-print-bar" *ngIf="product.idProduct">
+  
+ <!-- ═══════════════════════════════════════════ PRINT BAR ═══ -->
+<div class="tp-print-bar" *ngIf="product.idProduct && viewMode === 'view' && productStatutUpper !== 'BROUILLON'">
     <button class="tp-btn-print" (click)="onPrintReport()">
       <mat-icon>print</mat-icon>
       <span>Imprimer Rapport</span>
     </button>
   </div>
+  <iframe id="printFrame" style="display:none;"></iframe>
 
   <!-- ═══════════════════════════════════════════ ONGLETS ═══ -->
-  <nav class="tp-tabs" *ngIf="product.idProduct && productStatutUpper !== 'BROUILLON' && productStatutUpper !== ''">
+  <nav class="tp-tabs"
+    *ngIf="product.idProduct
+      && productStatutUpper !== 'BROUILLON'
+      && productStatutUpper !== ''
+      && viewMode === 'view'">
     <button class="tp-tab-btn" [class.is-active]="activeSection === 'styliste'" (click)="setSection('styliste')">
       <mat-icon>brush</mat-icon>
       <span>{{ isStyliste ? 'Styliste' : 'Données Techniques' }}</span>
@@ -64,9 +77,17 @@
       <mat-icon>checklist</mat-icon>
       <span>Liste de Contrôle</span>
     </button>
+    <button class="tp-tab-btn tp-tab-btn--forum" [class.is-active]="activeSection === 'forum'" (click)="setSection('forum')">
+      <mat-icon>forum</mat-icon>
+      <span>Discussion</span>
+    </button>
+    <button class="tp-tab-btn" [class.is-active]="activeSection === 'reunion'" (click)="setSection('reunion')">
+      <mat-icon>event</mat-icon>
+      <span>Réunions</span>
+    </button>
   </nav>
 
-  <!-- Barre lecture seule pour acteurs non-styliste/admin -->
+  <!-- Barre lecture seule -->
   <div class="tp-workflow-bar" *ngIf="isReadOnlyViewer">
     <div class="tp-workflow-container">
       <div class="tp-workflow-message">
@@ -78,35 +99,35 @@
 
   <!-- ═══════════════════════════════════════════ BARRES WORKFLOW ═══ -->
 
-  <!-- Nouveau produit -->
-  <div class="tp-workflow-bar tp-workflow-bar--creation" *ngIf="isNewProduct && isStyliste">
-    <div class="tp-workflow-container">
-      <div class="tp-workflow-label">
-        <mat-icon>auto_awesome</mat-icon>
-        <span>Nouvelle idée — remplissez le formulaire ci-dessous</span>
-      </div>
-      <div class="tp-workflow-actions">
-        <button class="tp-btn tp-btn--outline" (click)="enregistrerBrouillon()">
-          <mat-icon>save</mat-icon> Enregistrer Brouillon
-        </button>
-        <button class="tp-btn tp-btn--success" (click)="soumettreIdee()">
-          <mat-icon>rocket_launch</mat-icon> Soumettre l'idée (V1.0)
-        </button>
-      </div>
+ <!-- Nouveau produit -->
+<div class="tp-workflow-bar tp-workflow-bar--creation" *ngIf="isNewProduct && isStyliste && viewMode === 'view'">
+  <div class="tp-workflow-container">
+    <div class="tp-workflow-label">
+      <mat-icon>auto_awesome</mat-icon>
+      <span>Nouvelle idée — remplissez le formulaire ci-dessous</span>
     </div>
-  </div>
-
-  <!-- Brouillon existant verrouillé -->
-  <div class="tp-workflow-bar" *ngIf="showContinuerEdition">
-    <div class="tp-workflow-container">
-      <span class="tp-workflow-info">
-        <mat-icon>info</mat-icon> Brouillon en lecture seule
-      </span>
-      <button class="tp-btn tp-btn--primary" (click)="continuerEdition()">
-        <mat-icon>edit</mat-icon> Continuer l'édition
+    <div class="tp-workflow-actions">
+      <button class="tp-btn tp-btn--outline" (click)="modeValidation='brouillon'; enregistrerBrouillon()">
+        <mat-icon>save</mat-icon> Enregistrer Brouillon
+      </button>
+      <button class="tp-btn tp-btn--success" (click)="modeValidation='soumettre'; soumettreIdee()">
+        <mat-icon>rocket_launch</mat-icon> Soumettre l'idée (V1.0)
       </button>
     </div>
   </div>
+</div>
+
+<!-- Brouillon existant verrouillé -->
+<div class="tp-workflow-bar" *ngIf="showContinuerEdition">
+  <div class="tp-workflow-container">
+    <span class="tp-workflow-info">
+      <mat-icon>info</mat-icon> Brouillon en lecture seule
+    </span>
+    <button class="tp-btn tp-btn--primary" (click)="continuerEdition()">
+      <mat-icon>edit</mat-icon> Continuer l'édition
+    </button>
+  </div>
+</div>
 
   <!-- Brouillon en cours d'édition -->
   <div class="tp-workflow-bar tp-workflow-bar--creation" *ngIf="showBrouillonActions">
@@ -133,71 +154,64 @@
   <div class="tp-workflow-bar" *ngIf="showWorkflowBar">
     <div class="tp-workflow-container">
 
-      <!-- ── CLÔTURÉ : message lecture seule uniquement ── -->
       <ng-container *ngIf="viewedVersionStatutUpper === 'CLOTURE'">
         <div class="tp-workflow-message tp-workflow-message--locked">
           <mat-icon>lock</mat-icon>
-          <span>
-            Cette version (<strong>{{ product.numVersion }}</strong>) est <strong>clôturée</strong> —
-            consultation en lecture seule uniquement. Aucune action possible.
-          </span>
+          <span>La version <strong>{{ product.numVersion }}</strong> est <strong>clôturée</strong> — consultation en lecture seule uniquement.</span>
         </div>
       </ng-container>
 
-      <!-- ── VALIDÉ : message + bouton version majeure ── -->
       <ng-container *ngIf="viewedVersionStatutUpper === 'VALIDE'">
         <div class="tp-workflow-message tp-workflow-message--success">
           <mat-icon>verified</mat-icon>
-          <span>
-            Version <strong>{{ product.numVersion }}</strong> validée.
-            Le statut <strong>VALIDÉ</strong> est conservé définitivement.
-            Vous pouvez générer une nouvelle version majeure.
-          </span>
+          <span>Version <strong>{{ product.numVersion }}</strong> validée définitivement. Générez une nouvelle version majeure pour reprendre l'édition.</span>
         </div>
-        <button class="tp-btn tp-btn--accent" (click)="genererVersionMajeure()">
+        <button class="tp-btn tp-btn--accent" (click)="ouvrirConfirmNouvelleVersion()">
           <mat-icon>upgrade</mat-icon>
           Nouvelle version majeure
-          <span class="tp-btn-hint">(ex: {{ product.numVersion }} → V{{ getNextMajorHint(product.numVersion) }}.0)</span>
+          <span class="tp-btn-hint">({{ product.numVersion }} → V{{ getNextMajorHint(product.numVersion) }}.0)</span>
         </button>
       </ng-container>
 
-      <!-- ── PUBLIÉ ou EN COURS : actions complètes ── -->
       <ng-container *ngIf="viewedVersionStatutUpper === 'PUBLIE' || viewedVersionStatutUpper === 'EN COURS'">
-
-        <!-- Statut info -->
         <div class="tp-workflow-status-chip" [attr.data-status]="viewedVersionStatutUpper">
           <mat-icon>{{ viewedVersionStatutUpper === 'PUBLIE' ? 'rocket_launch' : 'hourglass_top' }}</mat-icon>
-          <span>{{ product.numVersion }} — {{ currentStatus }}</span>
+          <span>{{ product.numVersion || 'V1.0' }} — {{ currentStatus }}</span>
         </div>
 
-        <!-- Modifier / Enregistrer -->
-        <button *ngIf="isLocked" class="tp-btn tp-btn--outline" (click)="activerModification()">
-          <mat-icon>edit</mat-icon> Modifier
-        </button>
-        <button *ngIf="!isLocked" class="tp-btn tp-btn--primary" (click)="enregistrerModifications()">
-          <mat-icon>save</mat-icon> Enregistrer modifications
-        </button>
+        <!-- CAS SPÉCIAL : PUBLIÉE ayant déjà engendré une mineure → uniquement nouvelle majeure -->
+        <ng-container *ngIf="isPublieAvecMineure">
+          <button class="tp-btn tp-btn--accent" (click)="ouvrirConfirmNouvelleVersion('majeure')"
+            title="Une version mineure a déjà été générée depuis cette version publiée. Seule une nouvelle version majeure est possible.">
+            <mat-icon>upgrade</mat-icon>
+            Générer nouvelle version majeure
+            <span class="tp-btn-hint">({{ product.numVersion || 'V1.0' }} → V{{ getNextMajorHint(product.numVersion || 'V1.0') }}.0)</span>
+          </button>
+        </ng-container>
 
-        <!-- Clôturer -->
-        <button *ngIf="isLocked" class="tp-btn tp-btn--warning" (click)="cloturerVersion()"
-          title="Clôture définitive — lecture seule">
-          <mat-icon>lock</mat-icon> Clôturer
-        </button>
-
-        <!-- Valider Tech Pack -->
-        <button *ngIf="isLocked" class="tp-btn tp-btn--success" (click)="validerVersion()"
-          title="Valide définitivement — statut VALIDÉ conservé">
-          <mat-icon>verified</mat-icon> Valider Tech Pack
-        </button>
-
-        <!-- Nouvelle version mineure -->
-        <button *ngIf="isLocked" class="tp-btn tp-btn--accent" (click)="genererVersionMineure()"
-          title="Clôture la version actuelle et crée une version mineure EN COURS">
-          <mat-icon>add_circle</mat-icon>
-          Nouvelle version mineure
-          <span class="tp-btn-hint">(ex: {{ product.numVersion }} → {{ getNextMinorHint(product.numVersion) }})</span>
-        </button>
-
+        <!-- CAS NORMAL -->
+        <ng-container *ngIf="!isPublieAvecMineure">
+          <button *ngIf="isLocked" class="tp-btn tp-btn--outline" (click)="activerModification()">
+            <mat-icon>edit</mat-icon> Modifier
+          </button>
+          <button *ngIf="!isLocked" class="tp-btn tp-btn--primary" (click)="enregistrerModifications()">
+            <mat-icon>save</mat-icon> Enregistrer modifications
+          </button>
+          <button *ngIf="isLocked" class="tp-btn tp-btn--warning" (click)="ouvrirConfirmCloture()"
+            title="Clôture définitive de cette version — lecture seule. Le produit passe CLÔTURÉ.">
+            <mat-icon>lock</mat-icon> Clôturer le produit
+          </button>
+          <button *ngIf="isLocked" class="tp-btn tp-btn--success" (click)="ouvrirConfirmValider()"
+            title="Valide définitivement ce Tech Pack. Le produit passe VALIDÉ.">
+            <mat-icon>verified</mat-icon> Valider le produit
+          </button>
+          <button *ngIf="isLocked" class="tp-btn tp-btn--accent" (click)="ouvrirConfirmNouvelleVersion()"
+            title="Ouvre le formulaire pour créer une nouvelle version mineure.">
+            <mat-icon>add_circle</mat-icon>
+            Générer nouvelle version
+            <span class="tp-btn-hint">({{ product.numVersion || 'V1.0' }} → {{ getNextMinorHint(product.numVersion || 'V1.0') }})</span>
+          </button>
+        </ng-container>
       </ng-container>
 
     </div>
@@ -212,126 +226,197 @@
   <!-- ═══════════════════════════════════════════ BODY ═══ -->
   <div class="tp-body" *ngIf="!isLoading">
 
-    <!-- ─── FORMULAIRE BROUILLON / NOUVEAU PRODUIT ─── -->
-    <ng-container *ngIf="isNewProduct || productStatutUpper === 'BROUILLON'">
+    <!-- MODE : FORMULAIRE NOUVELLE VERSION -->
+    <ng-container *ngIf="viewMode === 'version' && newVersionProduct">
+      <div class="tp-version-banner tp-version-banner--light">
+        <div class="tp-version-banner__actions tp-version-banner__actions--left">
+          <button class="tp-btn tp-btn--outline tp-btn--lg" (click)="annulerNouvelleVersion()">
+            <mat-icon>close</mat-icon> Annuler
+          </button>
+          <button class="tp-btn tp-btn--success tp-btn--lg" (click)="confirmerNouvelleVersion()">
+            <mat-icon>{{ newVersionType === 'majeure' ? 'upgrade' : 'add_circle' }}</mat-icon>
+            Générer la version {{ newVersionNum }}
+          </button>
+        </div>
+      </div>
       <div class="tp-body-inner">
         <aside class="tp-aside">
-          <ng-container [ngTemplateOutlet]="asideBloc" [ngTemplateOutletContext]="{editable: canEdit}"></ng-container>
+          <ng-container [ngTemplateOutlet]="asideBloc"
+            [ngTemplateOutletContext]="{editable: true, source: newVersionProduct}">
+          </ng-container>
         </aside>
         <main class="tp-main">
           <div class="tp-edit-content">
-            <ng-container [ngTemplateOutlet]="formSections" [ngTemplateOutletContext]="{editable: canEdit}"></ng-container>
+            <ng-container [ngTemplateOutlet]="formSections"
+              [ngTemplateOutletContext]="{editable: true, source: newVersionProduct}">
+            </ng-container>
           </div>
         </main>
       </div>
     </ng-container>
 
-    <!-- ─── CONTENU ONGLETS (PUBLIE / EN COURS / VALIDE / CLOTURE) ─── -->
-    <ng-container *ngIf="product.idProduct && productStatutUpper !== 'BROUILLON' && productStatutUpper !== ''">
+    <!-- MODE : VUE NORMALE -->
+    <ng-container *ngIf="viewMode === 'view'">
 
-      <!-- STYLISTE -->
-      <ng-container *ngIf="activeSection === 'styliste'">
-        <div class="tp-tab-content">
-          <div class="tp-readonly-banner" *ngIf="!isStyliste && !isAdmin">
-            <mat-icon>visibility</mat-icon>
-            <span>Vous consultez les données techniques en lecture seule.</span>
+     <!-- FORMULAIRE BROUILLON / NOUVEAU PRODUIT -->
+<ng-container *ngIf="isNewProduct || productStatutUpper === 'BROUILLON'">
+  <div class="tp-body-inner">
+    <aside class="tp-aside">
+      <ng-container [ngTemplateOutlet]="asideBloc"
+        [ngTemplateOutletContext]="{editable: canEdit, source: product}">
+      </ng-container>
+    </aside>
+    <main class="tp-main">
+      <div class="tp-edit-content">
+
+        <!-- BANDEAU ERREURS VALIDATION -->
+        <div class="tp-validation-error" *ngIf="missingFields.length > 0">
+          <mat-icon>error_outline</mat-icon>
+          <div>
+            <strong>Veuillez remplir tous les champs obligatoires :</strong>
+            <ul *ngIf="modeValidation !== 'soumettre'">
+              <li *ngFor="let f of missingFields">{{ f }}</li>
+            </ul>
           </div>
-          <!-- Bannière spéciale version clôturée -->
-          <div class="tp-readonly-banner tp-readonly-banner--locked" *ngIf="viewedVersionStatutUpper === 'CLOTURE'">
-            <mat-icon>lock</mat-icon>
-            <span>Version <strong>{{ product.numVersion }}</strong> clôturée — consultation uniquement.</span>
-          </div>
-          <div class="tp-body-inner">
-            <aside class="tp-aside">
-              <ng-container [ngTemplateOutlet]="asideBloc" [ngTemplateOutletContext]="{editable: canEdit && viewedVersionStatutUpper !== 'CLOTURE' && viewedVersionStatutUpper !== 'VALIDE'}"></ng-container>
-            </aside>
-            <main class="tp-main">
-              <div class="tp-edit-content">
-                <ng-container [ngTemplateOutlet]="formSections" [ngTemplateOutletContext]="{editable: canEdit && viewedVersionStatutUpper !== 'CLOTURE' && viewedVersionStatutUpper !== 'VALIDE'}"></ng-container>
-              </div>
-            </main>
-          </div>
+        </div>
+
+              <ng-container [ngTemplateOutlet]="formSections"
+                [ngTemplateOutletContext]="{editable: canEdit, source: product}">
+              </ng-container>
+            </div>
+          </main>
         </div>
       </ng-container>
 
-      <!-- MARKETING -->
-      <ng-container *ngIf="activeSection === 'marketing'">
-        <div class="tp-tab-content">
-          <div class="tp-readonly-banner" *ngIf="!canEditMarketing">
-            <mat-icon>visibility</mat-icon><span>Mode lecture seule — Marketing.</span>
-          </div>
-          <div class="tp-body-inner">
-            <aside class="tp-aside">
-              <ng-container [ngTemplateOutlet]="asideBloc" [ngTemplateOutletContext]="{editable: false}"></ng-container>
-            </aside>
-            <main class="tp-main">
-              <app-marketing-form [product]="product" [isLocked]="isLocked" [readOnly]="marketingReadOnly"></app-marketing-form>
-            </main>
-          </div>
-        </div>
-      </ng-container>
+      <!-- CONTENU ONGLETS -->
+      <ng-container *ngIf="product.idProduct && productStatutUpper !== 'BROUILLON' && productStatutUpper !== ''">
 
-      <!-- NOMENCLATURE -->
-      <ng-container *ngIf="activeSection === 'nomenclature'">
-        <div class="tp-tab-content">
-          <div class="tp-readonly-banner" *ngIf="!canEditNomenclature">
-            <mat-icon>visibility</mat-icon><span>Mode lecture seule — Nomenclature.</span>
+        <!-- STYLISTE -->
+        <ng-container *ngIf="activeSection === 'styliste'">
+          <div class="tp-tab-content">
+            <div class="tp-body-inner">
+              <aside class="tp-aside">
+                <ng-container [ngTemplateOutlet]="asideBloc"
+                  [ngTemplateOutletContext]="{
+                    editable: canEdit && viewedVersionStatutUpper !== 'CLOTURE' && viewedVersionStatutUpper !== 'VALIDE',
+                    source: product
+                  }">
+                </ng-container>
+              </aside>
+              <main class="tp-main">
+                <div class="tp-edit-content">
+                  <ng-container [ngTemplateOutlet]="formSections"
+                    [ngTemplateOutletContext]="{
+                      editable: canEdit && viewedVersionStatutUpper !== 'CLOTURE' && viewedVersionStatutUpper !== 'VALIDE',
+                      source: product
+                    }">
+                  </ng-container>
+                </div>
+              </main>
+            </div>
           </div>
-          <div class="tp-body-inner">
-            <aside class="tp-aside">
-              <ng-container [ngTemplateOutlet]="asideBloc" [ngTemplateOutletContext]="{editable: false}"></ng-container>
-            </aside>
-            <main class="tp-main">
-              <app-nomenclature-view
-                [product]="product"
-                [isLocked]="nomenclatureReadOnly ? true : isLocked"
-                [userRole]="userRole">
-              </app-nomenclature-view>
-            </main>
-          </div>
-        </div>
-      </ng-container>
+        </ng-container>
 
-      <!-- QUALITÉ -->
-      <ng-container *ngIf="activeSection === 'qualite'">
-        <div class="tp-tab-content">
-          <div class="tp-readonly-banner" *ngIf="!canEditQualite">
-            <mat-icon>visibility</mat-icon><span>Mode lecture seule — Contrôle Qualité.</span>
+        <!-- MARKETING -->
+        <ng-container *ngIf="activeSection === 'marketing'">
+          <div class="tp-tab-content">
+            <div class="tp-body-inner">
+              <aside class="tp-aside">
+                <ng-container [ngTemplateOutlet]="asideBloc"
+                  [ngTemplateOutletContext]="{editable: false, source: product}">
+                </ng-container>
+              </aside>
+              <main class="tp-main">
+                <app-marketing-form [product]="product" [isLocked]="isLocked" [readOnly]="marketingReadOnly"></app-marketing-form>
+              </main>
+            </div>
           </div>
-          <div class="tp-body-inner">
-            <aside class="tp-aside">
-              <ng-container [ngTemplateOutlet]="asideBloc" [ngTemplateOutletContext]="{editable: false}"></ng-container>
-            </aside>
-            <main class="tp-main">
-              <app-quality-control [product]="product" [readOnly]="qualiteReadOnly"></app-quality-control>
-            </main>
-          </div>
-        </div>
-      </ng-container>
+        </ng-container>
 
-      <!-- CHECKLIST -->
-      <ng-container *ngIf="activeSection === 'checklist' && product.idProduct">
-        <div class="tp-tab-content">
-          <div class="tp-body-inner">
-            <aside class="tp-aside">
-              <ng-container [ngTemplateOutlet]="asideBloc" [ngTemplateOutletContext]="{editable: false}"></ng-container>
-            </aside>
-            <main class="tp-main">
-              <app-checklist-version
-                [idProduct]="product.idProduct"
-                [idVersion]="getVersionIdPublic(selectedVersion)"
-                [versionName]="selectedVersion?.numVersion || 'V1'"
-                [userRole]="userRole">
-              </app-checklist-version>
-            </main>
+        <!-- NOMENCLATURE -->
+        <ng-container *ngIf="activeSection === 'nomenclature'">
+          <div class="tp-tab-content">
+            <div class="tp-body-inner">
+              <aside class="tp-aside">
+                <ng-container [ngTemplateOutlet]="asideBloc"
+                  [ngTemplateOutletContext]="{editable: false, source: product}">
+                </ng-container>
+              </aside>
+              <main class="tp-main">
+                <app-nomenclature-view [product]="product" [isLocked]="nomenclatureReadOnly" [userRole]="userRole"></app-nomenclature-view>
+              </main>
+            </div>
           </div>
-        </div>
-      </ng-container>
+        </ng-container>
 
+        <!-- QUALITÉ -->
+        <ng-container *ngIf="activeSection === 'qualite'">
+          <div class="tp-tab-content">
+            <div class="tp-body-inner">
+              <aside class="tp-aside">
+                <ng-container [ngTemplateOutlet]="asideBloc"
+                  [ngTemplateOutletContext]="{editable: false, source: product}">
+                </ng-container>
+              </aside>
+              <main class="tp-main">
+                <app-quality-control [product]="product" [readOnly]="qualiteReadOnly"></app-quality-control>
+              </main>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- CHECKLIST -->
+        <ng-container *ngIf="activeSection === 'checklist' && product.idProduct">
+          <div class="tp-tab-content">
+            <div class="tp-body-inner">
+              <aside class="tp-aside">
+                <ng-container [ngTemplateOutlet]="asideBloc"
+                  [ngTemplateOutletContext]="{editable: false, source: product}">
+                </ng-container>
+              </aside>
+              <main class="tp-main">
+                <app-checklist-version
+                  [idProduct]="product.idProduct"
+                  [idVersion]="getVersionIdPublic(selectedVersion)"
+                  [versionName]="selectedVersion?.numVersion || 'V1'"
+                  [userRole]="userRole"
+                  [readOnly]="isVersionVerrouillee"
+                  [lockReason]="isVersionVerrouillee ? viewedVersionStatutUpper : ''">
+                </app-checklist-version>
+              </main>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- FORUM -->
+        <ng-container *ngIf="activeSection === 'forum' && product.idProduct">
+          <div class="tp-tab-content tp-tab-content--forum">
+            <app-forum
+              [productId]="product.idProduct"
+              [productName]="product.designation || 'Produit'"
+              [versionId]="getVersionIdPublic(selectedVersion) || null"
+              [versionLabel]="selectedVersion ? ('V' + (selectedVersion.numVersion || '')) : ''">
+            </app-forum>
+          </div>
+        </ng-container>
+
+        <!-- RÉUNIONS -->
+        <ng-container *ngIf="activeSection === 'reunion' && product.idProduct">
+          <div class="tp-tab-content">
+           <app-reunions-panel 
+  [produitId]="product.idProduct"
+  [nomProduit]="product.designation"
+  [isInProductTab]="true">
+</app-reunions-panel>
+          </div>
+        </ng-container>
+
+      </ng-container>
     </ng-container>
+
   </div><!-- /tp-body -->
 
-  <!-- ═══════════════════════════════════════════ LIGHTBOX ═══ -->
+  <!-- LIGHTBOX -->
   <div class="tp-lightbox" *ngIf="lightboxOpen" (click)="closeLightbox()">
     <div class="tp-lightbox__backdrop"></div>
     <div class="tp-lightbox__container" (click)="$event.stopPropagation()">
@@ -342,15 +427,34 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════ MODALE CONFIRMATION ═══ -->
+  <div class="tp-modal-overlay" *ngIf="confirmModal.open" (click)="confirmModal.open = false">
+    <div class="tp-modal" (click)="$event.stopPropagation()">
+      <div class="tp-modal__icon" [attr.data-type]="confirmModal.type">
+        <mat-icon>{{ confirmModal.icon }}</mat-icon>
+      </div>
+      <h3 class="tp-modal__title">{{ confirmModal.title }}</h3>
+      <p class="tp-modal__message">{{ confirmModal.message }}</p>
+      <div class="tp-modal__actions">
+     <button class="tp-btn tp-btn--outline" (click)="confirmModal.open = false">
+  <mat-icon>close</mat-icon> Annuler
+</button>
+        <button class="tp-btn" [ngClass]="confirmModal.btnClass" (click)="confirmModal.action()">
+          <mat-icon>{{ confirmModal.icon }}</mat-icon> {{ confirmModal.btnLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div><!-- /tp-wrap -->
 
 <!-- ═══════════════════════════════════════════ TEMPLATE ASIDE ═══ -->
-<ng-template #asideBloc let-editable="editable">
+<ng-template #asideBloc let-editable="editable" let-source="source">
 
   <!-- Visuels -->
-  <div class="tp-panel">
-    <div class="tp-panel__head">
-      <mat-icon>photo_library</mat-icon>
+<div class="tp-panel" [class.is-invalid]="isInvalid('Au moins une image est requise')">
+  <div class="tp-panel__head">
+    <mat-icon>photo_library</mat-icon>
       <span>Visuels (max {{ MAX_IMAGES }})</span>
     </div>
     <div class="tp-gallery-main" [class.tp-gallery-main--clickable]="!!selectedImageUrl">
@@ -364,17 +468,17 @@
         <mat-icon>image_not_supported</mat-icon>
         <span>Pas de visuel</span>
       </div>
-      <div class="tp-gallery-main__overlay" *ngIf="selectedImageUrl">
+      <div class="tp-gallery-main__overlay" >
         <button class="tp-icon-btn tp-icon-btn--zoom" (click)="openLightbox(selectedImageUrl)" title="Agrandir">
           <mat-icon>zoom_in</mat-icon>
         </button>
-        <button class="tp-icon-btn tp-icon-btn--danger" *ngIf="editable" (click)="removeImage(selectedImageIndex)">
+        <button class="tp-icon-btn tp-icon-btn--danger" *ngIf="editable" (click)="confirmerSuppressionImage(selectedImageIndex)" title="Supprimer">
           <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
     <div class="tp-gallery-thumbs">
-      <div *ngFor="let img of product.images; let i = index; trackBy: trackByIndex"
+      <div *ngFor="let img of source?.images; let i = index; trackBy: trackByIndex"
         class="tp-thumb-wrap"
         [class.active]="i === selectedImageIndex"
         [class.dragging]="draggedImageIndex === i"
@@ -388,10 +492,10 @@
         <div class="tp-thumb-drag" *ngIf="editable"><mat-icon>drag_indicator</mat-icon></div>
       </div>
     </div>
-    <div class="tp-gallery-add" *ngIf="editable && product.images.length < MAX_IMAGES">
+    <div class="tp-gallery-add" *ngIf="editable && (source?.images?.length || 0) < MAX_IMAGES">
       <label class="tp-add-btn">
         <mat-icon>add_a_photo</mat-icon>
-        <span>Ajouter ({{ product.images.length }}/{{ MAX_IMAGES }})</span>
+        <span>Ajouter ({{ source?.images?.length || 0 }}/{{ MAX_IMAGES }})</span>
         <input type="file" multiple accept="image/*" (change)="addImages($event)" hidden>
       </label>
     </div>
@@ -401,31 +505,36 @@
   <div class="tp-panel">
     <div class="tp-panel__head"><mat-icon>info</mat-icon><span>Identité</span></div>
     <div class="tp-panel__body">
-      <div class="tp-field">
-        <label>Désignation</label>
-        <input [(ngModel)]="product.designation" [disabled]="!editable" placeholder="Nom du produit">
+      <div class="tp-field" [class.is-invalid]="isInvalid('Désignation')">
+        <label>Désignation <span class="tp-required">*</span></label>
+        <input [(ngModel)]="source.designation" [disabled]="!editable" placeholder="Nom du produit">
       </div>
       <div class="tp-field">
         <label>Référence <span class="tp-field__auto-badge">AUTO</span></label>
-        <input [value]="product.reference || ''" disabled class="tp-field__ref" placeholder="(générée automatiquement)">
+        <input [value]="source?.reference || ''" disabled class="tp-field__ref"
+          placeholder="(générée automatiquement)">
       </div>
-      <div class="tp-field" *ngIf="product.numVersion">
+      <div class="tp-field" *ngIf="source?.numVersion || viewMode === 'version'">
         <label>Version</label>
-        <input [value]="product.numVersion" disabled class="tp-field__ref">
+        <input [value]="viewMode === 'version' ? newVersionNum : (source?.numVersion || '')" disabled class="tp-field__ref">
       </div>
-      <div class="tp-field">
-        <label>Description</label>
-        <textarea [(ngModel)]="product.description" [disabled]="!editable" rows="3" placeholder="Description courte…"></textarea>
+      <div class="tp-field" [class.is-invalid]="isInvalid('Description')">
+        <label>Description <span class="tp-required">*</span></label>
+        <textarea [(ngModel)]="source.description" [disabled]="!editable"
+          rows="3" placeholder="Description courte…"></textarea>
       </div>
     </div>
   </div>
 
   <!-- Fichiers PDF -->
   <div class="tp-panel">
-    <div class="tp-panel__head"><mat-icon>folder</mat-icon><span>Fiche PDF (max {{ MAX_FILES }})</span></div>
+    <div class="tp-panel__head">
+      <mat-icon>folder</mat-icon>
+      <span>Fiche PDF (max {{ MAX_FILES }})</span>
+    </div>
     <div class="tp-panel__body">
-      <div class="tp-fichiers-list" *ngIf="product.fichiers?.length > 0">
-        <div class="tp-fichier-item" *ngFor="let f of product.fichiers; let i = index">
+      <div class="tp-fichiers-list" *ngIf="source?.fichiers?.length > 0">
+        <div class="tp-fichier-item" *ngFor="let f of source.fichiers; let i = index">
           <mat-icon class="tp-fichier-icon">{{ getFichierIcon(f.type) }}</mat-icon>
           <div class="tp-fichier-info">
             <span class="tp-fichier-nom">{{ f.nom }}</span>
@@ -441,19 +550,19 @@
           </div>
         </div>
       </div>
-      <div class="tp-fichier-item" *ngIf="product.fichePdf && !product.fichiers?.length">
+      <div class="tp-fichier-item" *ngIf="source?.fichePdf && !source?.fichiers?.length">
         <mat-icon class="tp-fichier-icon">picture_as_pdf</mat-icon>
         <div class="tp-fichier-info"><span class="tp-fichier-nom">Fiche technique PDF</span></div>
         <div class="tp-fichier-actions">
-          <a [href]="product.fichePdf" target="_blank" class="tp-icon-btn" title="Consulter">
+          <a [href]="source.fichePdf" target="_blank" class="tp-icon-btn" title="Consulter">
             <mat-icon>open_in_new</mat-icon>
           </a>
         </div>
       </div>
-      <div class="tp-fichiers-empty" *ngIf="!product.fichiers?.length && !product.fichePdf">
+      <div class="tp-fichiers-empty" *ngIf="!source?.fichiers?.length && !source?.fichePdf">
         <mat-icon>folder_open</mat-icon><span>Aucun fichier</span>
       </div>
-      <div class="tp-gallery-add" *ngIf="editable && (product.fichiers?.length || 0) < MAX_FILES">
+      <div class="tp-gallery-add" *ngIf="editable && (source?.fichiers?.length || 0) < MAX_FILES">
         <label class="tp-add-btn">
           <mat-icon>upload_file</mat-icon><span>Ajouter PDF</span>
           <input type="file" accept=".pdf,application/pdf" (change)="addFichiers($event)" hidden>
@@ -465,21 +574,30 @@
 </ng-template>
 
 <!-- ═══════════════════════════════════════════ TEMPLATE SECTIONS ═══ -->
-<ng-template #formSections let-editable="editable">
+<ng-template #formSections let-editable="editable" let-source="source">
 
+  <!-- Classification -->
   <div class="tp-section">
     <div class="tp-section__head"><mat-icon>category</mat-icon><h3>Classification</h3></div>
     <div class="tp-grid g4">
-      <div class="tp-field"><label>Catégorie</label><input [(ngModel)]="product.categorie" [disabled]="!editable" placeholder="Ex: Veste, Robe…"></div>
-      <div class="tp-field"><label>Collection</label><input [(ngModel)]="product.collection" [disabled]="!editable" placeholder="Nom de la collection"></div>
-      <div class="tp-field"><label>Saison</label>
-        <select [(ngModel)]="product.saison" [disabled]="!editable">
+      <div class="tp-field" [class.is-invalid]="isInvalid('Catégorie')">
+        <label>Catégorie <span class="tp-required">*</span></label>
+        <input [(ngModel)]="source.categorie" [disabled]="!editable" placeholder="Ex: Veste, Robe…">
+      </div>
+      <div class="tp-field" [class.is-invalid]="isInvalid('Collection')">
+        <label>Collection <span class="tp-required">*</span></label>
+        <input [(ngModel)]="source.collection" [disabled]="!editable" placeholder="Nom de la collection">
+      </div>
+      <div class="tp-field" [class.is-invalid]="isInvalid('Saison')">
+        <label>Saison <span class="tp-required">*</span></label>
+        <select [(ngModel)]="source.saison" [disabled]="!editable">
           <option value="">-- Choisir --</option>
           <option *ngFor="let s of SAISONS" [value]="s">{{ s }}</option>
         </select>
       </div>
-      <div class="tp-field"><label>Section</label>
-        <select [(ngModel)]="product.section" [disabled]="!editable">
+      <div class="tp-field" [class.is-invalid]="isInvalid('Section')">
+        <label>Section <span class="tp-required">*</span></label>
+        <select [(ngModel)]="source.section" [disabled]="!editable">
           <option value="">-- Choisir --</option>
           <option *ngFor="let s of SECTIONS" [value]="s">{{ s }}</option>
         </select>
@@ -487,44 +605,84 @@
     </div>
   </div>
 
+  <!-- Design & Finitions -->
   <div class="tp-section">
     <div class="tp-section__head"><mat-icon>straighten</mat-icon><h3>Design & Finitions</h3></div>
     <div class="tp-grid g3">
-      <div class="tp-field"><label>Silhouette</label><input [(ngModel)]="product.silhouette" [disabled]="!editable" placeholder="Ex: Oversize, Slim…"></div>
-      <div class="tp-field"><label>Type de Fermeture</label><input [(ngModel)]="product.typeFermeture" [disabled]="!editable" placeholder="Ex: Zip, Boutons…"></div>
-      <div class="tp-field"><label>Finitions</label><input [(ngModel)]="product.finitions" [disabled]="!editable" placeholder="Ex: Surpiqûre…"></div>
+      <div class="tp-field" [class.is-invalid]="isInvalid('Silhouette')">
+        <label>Silhouette <span class="tp-required">*</span></label>
+        <input [(ngModel)]="source.silhouette" [disabled]="!editable" placeholder="Ex: Oversize, Slim…">
+      </div>
+      <div class="tp-field" [class.is-invalid]="isInvalid('Type de Fermeture')">
+        <label>Type de Fermeture <span class="tp-required">*</span></label>
+        <input [(ngModel)]="source.typeFermeture" [disabled]="!editable" placeholder="Ex: Zip, Boutons…">
+      </div>
+      <div class="tp-field" [class.is-invalid]="isInvalid('Finitions')">
+        <label>Finitions <span class="tp-required">*</span></label>
+        <input [(ngModel)]="source.finitions" [disabled]="!editable" placeholder="Ex: Surpiqûre…">
+      </div>
     </div>
     <div class="tp-grid g2" style="margin-top: 1rem;">
-      <div class="tp-field"><label>Accessoires</label><textarea [(ngModel)]="product.accessoires" [disabled]="!editable" rows="3"></textarea></div>
-      <div class="tp-field"><label>Détails de l'Étiquette</label><textarea [(ngModel)]="product.detailsEtiquette" [disabled]="!editable" rows="3"></textarea></div>
+  <div class="tp-field" [class.is-invalid]="isInvalid('Accessoires')">
+    <label>Accessoires <span class="tp-required">*</span></label>
+    <textarea [(ngModel)]="source.accessoires" [disabled]="!editable" rows="3" placeholder="Ex: Boutons, fermetures, doublure…"></textarea>
+  </div>
+  <div class="tp-field" [class.is-invalid]="isInvalid('Détails de l\'Étiquette')">
+    <label>Détails de l'Étiquette <span class="tp-required">*</span></label>
+    <textarea [(ngModel)]="source.detailsEtiquette" [disabled]="!editable" rows="3" placeholder="Ex: Taille, composition, instructions lavage…"></textarea>
+  </div>
+</div>
+</div>
+
+<!-- Matières & Technique -->
+<div class="tp-section">
+  <div class="tp-section__head"><mat-icon>layers</mat-icon><h3>Matières & Technique</h3></div>
+  <div class="tp-grid g3">
+    <div class="tp-field" [class.is-invalid]="isInvalid('Matière Principale')">
+      <label>Matière Principale <span class="tp-required">*</span></label>
+      <input [(ngModel)]="source.matierePrincipale" [disabled]="!editable" placeholder="Ex: Coton 100%">
+    </div>
+    <div class="tp-field" [class.is-invalid]="isInvalid('Matière Secondaire')">
+      <label>Matière Secondaire <span class="tp-required">*</span></label>
+      <input [(ngModel)]="source.matiereSecondaire" [disabled]="!editable" placeholder="Ex: Polyester, Élasthanne…">
+    </div>
+    <div class="tp-field" [class.is-invalid]="isInvalid('Composition')">
+      <label>Composition <span class="tp-required">*</span></label>
+      <input [(ngModel)]="source.composition" [disabled]="!editable" placeholder="Ex: 80% Coton, 20% Polyester">
     </div>
   </div>
-
-  <div class="tp-section">
-    <div class="tp-section__head"><mat-icon>layers</mat-icon><h3>Matières & Technique</h3></div>
-    <div class="tp-grid g3">
-      <div class="tp-field"><label>Matière Principale</label><input [(ngModel)]="product.matierePrincipale" [disabled]="!editable" placeholder="Ex: Coton 100%"></div>
-      <div class="tp-field"><label>Matière Secondaire</label><input [(ngModel)]="product.matiereSecondaire" [disabled]="!editable"></div>
-      <div class="tp-field"><label>Composition</label><input [(ngModel)]="product.composition" [disabled]="!editable"></div>
+  <div class="tp-grid g4" style="margin-top: 1rem;">
+    <div class="tp-field" [class.is-invalid]="isInvalid('Type de Fil')">
+      <label>Type de Fil <span class="tp-required">*</span></label>
+      <input [(ngModel)]="source.typeFil" [disabled]="!editable" placeholder="Ex: Fil retors, fil mouliné…">
     </div>
-    <div class="tp-grid g4" style="margin-top: 1rem;">
-      <div class="tp-field"><label>Type de Fil</label><input [(ngModel)]="product.typeFil" [disabled]="!editable"></div>
-      <div class="tp-field"><label>Complexité Montage</label><input [(ngModel)]="product.complexiteMontage" [disabled]="!editable"></div>
-      <div class="tp-field"><label>Grille de tailles</label><input [(ngModel)]="product.grilleTailles" [disabled]="!editable"></div>
-      <div class="tp-field"><label>Type de coupage</label><input [(ngModel)]="product.typeCoupage" [disabled]="!editable"></div>
+    <div class="tp-field" [class.is-invalid]="isInvalid('Complexité Montage')">
+      <label>Complexité Montage <span class="tp-required">*</span></label>
+      <input [(ngModel)]="source.complexiteMontage" [disabled]="!editable" placeholder="Ex: Simple, Moyenne, Complexe">
+    </div>
+    <div class="tp-field" [class.is-invalid]="isInvalid('Grille de Tailles')">
+      <label>Grille de tailles <span class="tp-required">*</span></label>
+      <input [(ngModel)]="source.grilleTailles" [disabled]="!editable" placeholder="Ex: XS, S, M, L, XL">
+    </div>
+    <div class="tp-field" [class.is-invalid]="isInvalid('Type de Coupage')">
+      <label>Type de coupage <span class="tp-required">*</span></label>
+      <input [(ngModel)]="source.typeCoupage" [disabled]="!editable" placeholder="Ex: Droit fil, biais…">
     </div>
   </div>
-
-  <div class="tp-section">
-    <div class="tp-section__head"><mat-icon>palette</mat-icon><h3>Palette de Couleurs</h3></div>
+</div>
+  <!-- Palette de Couleurs -->
+<div class="tp-section" [class.is-invalid]="isInvalid('Au moins une couleur est requise')">
+  <div class="tp-section__head"><mat-icon>palette</mat-icon><h3>Palette de Couleurs</h3></div>
     <div class="tp-palette-container">
       <div class="tp-palette-swatches">
-        <div *ngFor="let couleur of product.paletteCouleurs; let i = index"
+        <div *ngFor="let couleur of source?.paletteCouleurs; let i = index"
           class="tp-swatch" [style.background]="couleur.hex" [title]="couleur.hex">
-          <button class="tp-swatch__remove" *ngIf="editable" (click)="supprimerCouleur(i)"><mat-icon>close</mat-icon></button>
+          <button class="tp-swatch__remove" *ngIf="editable" (click)="supprimerCouleur(i)">
+            <mat-icon>close</mat-icon>
+          </button>
           <span class="tp-swatch__hex">{{ couleur.hex }}</span>
         </div>
-        <div class="tp-palette-empty" *ngIf="!product.paletteCouleurs?.length">
+        <div class="tp-palette-empty" *ngIf="!source?.paletteCouleurs?.length">
           <mat-icon>palette</mat-icon><span>Aucune couleur définie</span>
         </div>
       </div>
@@ -539,11 +697,19 @@
     </div>
   </div>
 
+  <!-- Concept -->
   <div class="tp-section">
     <div class="tp-section__head"><mat-icon>lightbulb</mat-icon><h3>Concept</h3></div>
     <div class="tp-grid g2">
-      <div class="tp-field"><label>Thème</label><input [(ngModel)]="product.theme" [disabled]="!editable" placeholder="Ex: Casual chic…"></div>
-      <div class="tp-field"><label>Inspirations</label><textarea [(ngModel)]="product.inspirations" [disabled]="!editable" rows="3" placeholder="Moodboard, références…"></textarea></div>
+      <div class="tp-field" [class.is-invalid]="isInvalid('Thème')">
+        <label>Thème <span class="tp-required">*</span></label>
+        <input [(ngModel)]="source.theme" [disabled]="!editable" placeholder="Ex: Casual chic…">
+      </div>
+      <div class="tp-field" [class.is-invalid]="isInvalid('Inspirations')">
+        <label>Inspirations <span class="tp-required">*</span></label>
+        <textarea [(ngModel)]="source.inspirations" [disabled]="!editable"
+          rows="3" placeholder="Moodboard, références…"></textarea>
+      </div>
     </div>
   </div>
 
