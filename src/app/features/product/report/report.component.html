@@ -14,7 +14,7 @@
     <header class="rh">
       <div class="rh__brand">
         <div class="rh__logo">TF</div>
-        <span class="rh__name">TEXTILEFLOW <strong>PLM</strong></span>
+        <span class="rh__name">PLM <strong>Textile</strong></span>
       </div>
       <div class="rh__right">
         <span class="rh__ref">{{ rapport.Styliste?.Formulaire?.Reference || '—' }}</span>
@@ -22,13 +22,7 @@
       </div>
     </header>
 
-    <div class="page1-title">
-      <div class="pt-bar"></div>
-      <div class="pt-text">
-        <div class="pt-label">DOSSIER TECHNIQUE</div>
-        <div class="pt-product">{{ rapport.NomProduit | uppercase }}</div>
-      </div>
-    </div>
+    
 
     <div class="page1-body">
 
@@ -162,17 +156,16 @@
       </div>
     </div>
 
-    <!-- Formulaire marketing -->
-    <div class="data-group" *ngIf="rapport.Marketing?.Formulaire">
-      <div class="dg-title">DONNÉES MARKETING</div>
-      <table class="dt">
-        <tr><td class="dt-k">Public Cible</td><td class="dt-v">{{ rapport.Marketing.Formulaire.PublicCible || 'Vide' }}</td></tr>
-        <tr><td class="dt-k">Prix de Vente Estimé</td><td class="dt-v">{{ rapport.Marketing.Formulaire.PrixVenteEstime ? (rapport.Marketing.Formulaire.PrixVenteEstime + ' DT') : 'Vide' }}</td></tr>
-        <tr *ngIf="rapport.Marketing.Formulaire.Positionnement"><td class="dt-k">Positionnement</td><td class="dt-v">{{ rapport.Marketing.Formulaire.Positionnement || 'Vide' }}</td></tr>
-        <tr *ngIf="rapport.Marketing.Formulaire.CanauxDistribution"><td class="dt-k">Canaux Distribution</td><td class="dt-v">{{ rapport.Marketing.Formulaire.CanauxDistribution || 'Vide' }}</td></tr>
-        <tr *ngIf="rapport.Marketing.Formulaire.Concurrents"><td class="dt-k">Concurrents</td><td class="dt-v">{{ rapport.Marketing.Formulaire.Concurrents || 'Vide' }}</td></tr>
-      </table>
-    </div>
+    <!-- Formulaire marketing (OPTION 2 : boucle sur marketingFields) -->
+   <div class="data-group">
+  <div class="dg-title">DONNÉES MARKETING</div>
+  <table class="dt">
+    <tr *ngFor="let f of marketingFields">
+      <td class="dt-k">{{ f.label }}</td>
+      <td class="dt-v">{{ displayField(rapport.Marketing?.Formulaire, f.key, f.suffix) }}</td>
+    </tr>
+  </table>
+</div>
     <div class="empty-msg" *ngIf="!rapport.Marketing?.Formulaire">
       Aucune donnée marketing saisie pour ce produit.
     </div>
@@ -227,16 +220,16 @@
       </div>
     </div>
 
-    <!-- Formulaire qualité -->
-    <div class="data-group" *ngIf="rapport.Qualite?.Formulaire">
-      <div class="dg-title">DONNÉES QUALITÉ</div>
-      <table class="dt">
-        <tr><td class="dt-k">Tests Requis</td><td class="dt-v">{{ rapport.Qualite.Formulaire.TestsRequis || 'Vide' }}</td></tr>
-        <tr><td class="dt-k">Tolérances Dimensionnelles</td><td class="dt-v">{{ rapport.Qualite.Formulaire.TolerancesDim || 'Vide' }}</td></tr>
-        <tr *ngIf="rapport.Qualite.Formulaire.NormesCertifications"><td class="dt-k">Normes / Certifications</td><td class="dt-v">{{ rapport.Qualite.Formulaire.NormesCertifications || 'Vide' }}</td></tr>
-        <tr *ngIf="rapport.Qualite.Formulaire.FrequenceControle"><td class="dt-k">Fréquence Contrôle</td><td class="dt-v">{{ rapport.Qualite.Formulaire.FrequenceControle || 'Vide' }}</td></tr>
-      </table>
-    </div>
+    <!-- Formulaire qualité (OPTION 2 : boucle sur qualiteFields) -->
+    <div class="data-group">
+  <div class="dg-title">DONNÉES QUALITÉ</div>
+  <table class="dt">
+    <tr *ngFor="let f of qualiteFields">
+      <td class="dt-k">{{ f.label }}</td>
+      <td class="dt-v">{{ displayField(rapport.Qualite?.Formulaire, f.key, f.suffix) }}</td>
+    </tr>
+  </table>
+</div>
     <div class="empty-msg" *ngIf="!rapport.Qualite?.Formulaire">
       Aucune donnée qualité saisie pour ce produit.
     </div>
@@ -262,21 +255,6 @@
       </ng-template>
     </div>
 
-    <!-- Signatures -->
-    <div class="sigs">
-      <div class="sig">
-        <div class="sig__box"></div>
-        <div class="sig__lbl">Visa Bureau d'Études</div>
-      </div>
-      <div class="sig">
-        <div class="sig__box"></div>
-        <div class="sig__lbl">Visa Qualité</div>
-      </div>
-      <div class="sig">
-        <div class="sig__box"></div>
-        <div class="sig__lbl">Visa Direction</div>
-      </div>
-    </div>
 
     <footer class="pf">
       <span>{{ rapport.NomProduit | uppercase }} — {{ rapport.Styliste?.Formulaire?.NumVersion }}</span>

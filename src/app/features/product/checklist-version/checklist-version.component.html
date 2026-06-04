@@ -27,7 +27,7 @@
       <span class="cl-tab-score"
             *ngIf="o.data"
             [style.color]="couleurNote(o.data.noteFinale)">
-        {{ o.data.noteFinale | number:'1.1-1' }}/10
+        {{ o.data.noteFinale | number:'1.1-1' }}/100
       </span>
     </button>
   </div>
@@ -58,7 +58,7 @@
       <mat-icon>lock</mat-icon>
       <span>
         Liste <strong>finalisée</strong> — vous ne pouvez plus la modifier.
-        Note finale : <strong>{{ ongletActif.data!.noteFinale | number:'1.1-1' }}/10</strong>
+        Note finale : <strong>{{ ongletActif.data!.noteFinale | number:'1.1-1' }}/100</strong>
       </span>
     </div>
 
@@ -97,7 +97,7 @@
           <span class="cl-score-card__val" [style.color]="couleurNote(ongletActif.data.noteFinale)">
             {{ ongletActif.data.noteFinale | number:'1.1-1' }}
           </span>
-          <span class="cl-score-card__max">/10</span>
+          <span class="cl-score-card__max">/100</span>
         </div>
         <div class="cl-score-card__label" [style.color]="couleurNote(ongletActif.data.noteFinale)">
           {{ labelNote(ongletActif.data.noteFinale) }}

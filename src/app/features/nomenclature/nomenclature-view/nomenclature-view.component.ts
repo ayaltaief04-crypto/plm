@@ -60,7 +60,7 @@ export class NomenclatureViewComponent implements OnChanges {
 
   // ── Champs catalogue (verrouillés après sélection) ────────────────────────
   readonly CATALOGUE_FIELDS = [
-    'designation', 'reference', 'taille', 'couleur',
+    'designation', 'reference', 'couleur',
     'position', 'unite', 'imgUrl'
   ];
   readonly EDITABLE_FIELDS = ['quantite', 'articleRemplacement'];
@@ -386,23 +386,23 @@ export class NomenclatureViewComponent implements OnChanges {
   // EDIT ROW — INGÉNIEUR
   // ────────────────────────────────────────────────────────────────────────────
   editRow(index: number): void {
-    if (!this.isIngenieur || !this.isEditMode) return;
-    if (this.editingRowIndex !== null && this.editingRowIndex !== index) {
-      this.items.at(this.editingRowIndex).disable();
-    }
-    this.editingRowIndex = index;
-    const ctrl = this.items.at(index);
-    ctrl.enable();
-    ctrl.get('fournisseur')?.disable();
-    ctrl.get('prixUnitaire')?.disable();
-    ctrl.get('coutTotal')?.disable();
-    const hasBackendId  = !!ctrl.get('_backendId')?.value;
-    const fromCatalogue = !!ctrl.get('_fromCatalogue')?.value;
-    if (hasBackendId || fromCatalogue) {
-      this.CATALOGUE_FIELDS.forEach(f => ctrl.get(f)?.disable());
-    }
+  if (!this.isIngenieur || !this.isEditMode) return;
+  if (this.editingRowIndex !== null && this.editingRowIndex !== index) {
+    this.items.at(this.editingRowIndex).disable();
   }
-
+  this.editingRowIndex = index;
+  const ctrl = this.items.at(index);
+  ctrl.enable();
+  ctrl.get('fournisseur')?.disable();
+  ctrl.get('prixUnitaire')?.disable();
+  ctrl.get('coutTotal')?.disable();
+  ctrl.get('articleRemplacement')?.disable(); // ✅ AJOUT
+  const hasBackendId  = !!ctrl.get('_backendId')?.value;
+  const fromCatalogue = !!ctrl.get('_fromCatalogue')?.value;
+  if (hasBackendId || fromCatalogue) {
+    this.CATALOGUE_FIELDS.forEach(f => ctrl.get(f)?.disable());
+  }
+}
   cancelEditRow(): void {
     this.editingRowIndex = null;
     this.applyPermissions();

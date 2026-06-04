@@ -206,28 +206,26 @@ export class ProductSummaryComponent implements OnInit {
   }
 
   onArchiveClick(): void {
-    const id = this.product?.idProduct ?? this.product?.id;
-    if (!id) return;
-    if (!confirm('Voulez-vous vraiment archiver ce modèle ?')) return;
+  const id = this.product?.idProduct ?? this.product?.id;
+  if (!id) return;
+  if (!confirm('Voulez-vous vraiment archiver ce modèle ?')) return;
 
-    this.archiving = true;
-    const archived = { ...this.product, statut: 'Archivé', isArchived: true };
+  this.archiving = true;
 
-    this.productService.modifierProduit(id, archived, false).subscribe({
-      next: () => {
-        this.archiving = false;
-        this.onArchived.emit();
-        this.ngZone.run(() => {
-          this.router.navigateByUrl('/products/catalogue').then(ok => {
-            if (!ok) this.router.navigate(['/products/catalogue']);
-          });
+  this.productService.basculerArchivage(id).subscribe({
+    next: () => {
+      this.archiving = false;
+      this.onArchived.emit();
+      this.ngZone.run(() => {
+        this.router.navigateByUrl('/products/catalogue').then(ok => {
+          if (!ok) this.router.navigate(['/products/catalogue']);
         });
-      },
-      error: (err) => {
-        this.archiving = false;
-        console.error('Erreur archivage:', err);
-        this.router.navigate(['/products/catalogue']);
-      }
-    });
-  }
+      });
+    },
+    error: (err) => {
+      this.archiving = false;
+      console.error('Erreur archivage:', err);
+    }
+  });
+}
 }

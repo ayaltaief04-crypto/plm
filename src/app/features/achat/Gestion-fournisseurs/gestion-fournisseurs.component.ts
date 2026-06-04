@@ -52,11 +52,12 @@ export class GestionFournisseursComponent implements OnInit, OnDestroy {
     return role === 'responsableachat' || role === 'admin';
   }
 
-  ngOnInit(): void {
-    this.sub = this.fournisseurSvc.fournisseurs$.subscribe(
-      f => (this.fournisseurs = f)
-    );
-  }
+ ngOnInit(): void {
+  this.sub = this.fournisseurSvc.fournisseurs$.subscribe(f => {
+    console.log('fournisseurs$ emit — count:', f.length, '— ids:', f.map(x => x.id));
+    this.fournisseurs = f;
+  });
+}
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
@@ -170,15 +171,12 @@ export class GestionFournisseursComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Retire le fournisseur de l'affichage et confirme la suppression. */
   private onSupprime(idToDelete: number): void {
-    // Retrait local immédiat (l'UI ne dépend plus du re-fetch ni du flux).
-    this.fournisseurs = this.fournisseurs.filter(f => Number(f.id) !== Number(idToDelete));
-    this.successMsg = 'Fournisseur supprimé avec succès.';
-    this.errorMsg = '';
-    this.confirmDeleteId = null;
-    setTimeout(() => this.successMsg = '', 2000);
-  }
+  this.successMsg = 'Fournisseur supprimé avec succès.';
+  this.errorMsg = '';
+  this.confirmDeleteId = null;
+  setTimeout(() => this.successMsg = '', 2000);
+}
 
   cancelDelete(): void {
     this.confirmDeleteId = null;

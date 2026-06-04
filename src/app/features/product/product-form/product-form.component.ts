@@ -668,16 +668,24 @@ export class ProductFormComponent implements OnInit {
   }
 
   archiverProduit() {
-    if (!confirm('Archiver ce produit ? Il sera masqué du catalogue principal.')) return;
-    const productArchive = { ...this.product, isArchived: true, statut: 'ARCHIVE' };
-    this.api.modifierProduit(this.product.idProduct, productArchive, false).subscribe({
-      next: () => {
-        alert('Produit archivé.');
-        this.router.navigate(['/products/catalogue']);
-      },
-      error: (err) => { console.error(err); alert('Erreur lors de l\'archivage.'); }
-    });
-  }
+  const estArchive = this.product.isArchived;
+  const message = estArchive
+    ? 'Désarchiver ce produit ? Il réapparaîtra dans le catalogue.'
+    : 'Archiver ce produit ? Il sera masqué du catalogue principal.';
+
+  if (!confirm(message)) return;
+
+  this.api.basculerArchivage(this.product.idProduct).subscribe({
+    next: () => {
+      alert(estArchive ? 'Produit désarchivé.' : 'Produit archivé.');
+      this.router.navigate(['/products/catalogue']);
+    },
+    error: (err) => {
+      console.error(err);
+      alert('Erreur lors de l\'archivage.');
+    }
+  });
+}
 
   // ── CALCUL NUMÉROS DE VERSION ─────────────────────────────────────────────
 

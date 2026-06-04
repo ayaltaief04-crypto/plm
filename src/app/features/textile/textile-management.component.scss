@@ -233,6 +233,28 @@ $radius-xl:       14px;
   &:disabled { opacity: .5; cursor: not-allowed; }
 }
 
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: $red;
+  color: $white;
+  border: none;
+  padding: 9px 18px;
+  border-radius: $radius-md;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s;
+  white-space: nowrap;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &:hover { background: $red-hover; }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
 // ─── LOADING / EMPTY ─────────────────────────────────────────────────────────
 .loading-state {
   display: flex;
@@ -318,11 +340,22 @@ $radius-xl:       14px;
     margin-top: 2px;
   }
 
-  // ── Actions — TOUJOURS VISIBLES, colorées
+  // ── Actions — VISIBLES UNIQUEMENT AU SURVOL de la carte
   .card-actions {
     display: flex;
     gap: 6px;
     padding: 0 10px 10px;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+
+  &:hover .card-actions,
+  &:focus-within .card-actions {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
   }
 
   .action-btn {
@@ -395,8 +428,8 @@ $radius-xl:       14px;
   background: $white;
   border-radius: $radius-xl;
   width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
+  max-width: 640px;
+  max-height: 92vh;
   display: flex;
   flex-direction: column;
   border: 1px solid $gray-200;
@@ -404,6 +437,7 @@ $radius-xl:       14px;
   overflow: hidden;
 
   &--sm { max-width: 440px; }
+  &--confirm { max-width: 440px; }
 }
 
 // ─── MODAL HEAD ──────────────────────────────────────────────────────────────
@@ -442,6 +476,11 @@ $radius-xl:       14px;
     &--green {
       background: $green-bg;
       mat-icon { color: $green; }
+    }
+
+    &--danger {
+      background: $red-bg-solid;
+      mat-icon { color: $red; }
     }
   }
 
@@ -712,7 +751,7 @@ $radius-xl:       14px;
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
 
   .field.full { grid-column: 1 / -1; }
 }
@@ -824,6 +863,16 @@ $radius-xl:       14px;
   margin-top: 18px;
   display: flex;
   justify-content: flex-end;
+}
+
+// ─── CONFIRMATION SUPPRESSION ────────────────────────────────────────────────
+.confirm-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: $gray-700;
+
+  strong { color: $gray-800; font-weight: 600; }
 }
 
 // ─── SAVING INDICATOR ────────────────────────────────────────────────────────

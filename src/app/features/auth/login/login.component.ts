@@ -35,19 +35,19 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(this.email, this.motDePasse).subscribe({
       next: () => {
-      
         this.isLoading = false;
       },
-      error: () => {
-        this.erreur = 'Mot de passe incorrect ou Email inexistant';
-        this.isLoading = false;
-      }
+      error: (err) => {
+  this.isLoading = false;
+
+  if (err?.status === 403) {
+    this.erreur = 'Votre compte est inactif. Veuillez contacter un administrateur.';
+  } else {
+    this.erreur = 'Mot de passe incorrect ou Email inexistant.';
+  }
+}
     });
   }
-
- 
-
-  
 
   private redirectByRole(): void {
     const role = this.authService.getRole().toLowerCase();

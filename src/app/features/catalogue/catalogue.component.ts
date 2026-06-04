@@ -61,11 +61,15 @@ export class CatalogueComponent implements OnInit, OnDestroy {
   }
 
   loadProducts(): void {
-    this.productService.getCatalogue().subscribe({
-      next: (data) => {
-        this.allProducts = data.map((p: any) => this.productService.mapFromApi(p));
+  this.productService.getCatalogue().subscribe({
+    next: (data) => {
+      console.log('DEBUG RAW (brut de l\'API):', data);   // 👈 ajoute cette ligne
+      this.allProducts = data.map((p: any) => this.productService.mapFromApi(p));
+      console.log('DEBUG mappé:', this.allProducts.map(p => ({ ref: p.reference, isArchived: p.isArchived })));
+      // ... reste inchangé
 
-        if (this.selectedProduct) {
+      if (this.selectedProduct) {
+        // ... le reste inchangé
           const fresh = this.allProducts.find(
             p => p.idProduct === this.selectedProduct?.idProduct
           );
@@ -280,15 +284,12 @@ handleImageError(event: any): void {
   }
 
   onUnarchive(id: number, event: Event): void {
-    event.stopPropagation();
-    const product = this.allProducts.find(p => p.idProduct === id);
-    if (!product) return;
-    const updated = { ...product, statut: 'Publié', isArchived: false };
-    this.productService.modifierProduit(id, updated, false).subscribe({
-      next: () => this.loadProducts(),
-      error: (err) => console.error('Erreur désarchivage', err)
-    });
-  }
+  event.stopPropagation();
+  this.productService.basculerArchivage(id).subscribe({
+    next: () => this.loadProducts(),
+    error: (err) => console.error('Erreur désarchivage', err)
+  });
+}
 
   onProductArchived(): void {
     this.selectedProduct = null;

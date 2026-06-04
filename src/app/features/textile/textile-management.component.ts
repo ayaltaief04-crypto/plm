@@ -21,6 +21,11 @@ export class TextileManagementComponent implements OnInit {
   selectedTextile: any = null;
   editingId: number | null = null;
 
+  // ── Suppression (modale de confirmation) ──
+  showDeleteModal   = false;
+  composantToDelete: any = null;
+  isDeleting        = false;
+
   isLoading  = false;
   isSaving   = false;
   errorMsg   = '';
@@ -144,19 +149,40 @@ export class TextileManagementComponent implements OnInit {
     event.stopPropagation();
     const id = textile.id ?? textile.Id;
     if (!id) return;
-    if (!confirm(`Supprimer « ${textile.Designation ?? textile.designation} » ?`)) return;
+    this.composantToDelete = textile;
+    this.showDeleteModal   = true;
+  }
 
-    this.nomService.deleteComposant(id).subscribe({
-      next: () => {
-        this.composants = this.composants.filter(c => (c.id ?? c.Id) !== id);
-        this.applyFilter();
-        this.showSuccess('Composant supprimé.');
-        if (this.selectedTextile === textile) this.selectedTextile = null;
-      },
-      error: (err) => {
-        this.errorMsg = err?.error?.message ?? 'Erreur lors de la suppression.';
-      }
-    });
+  cancelDelete(): void {
+    if (this.isDeleting) return;
+    this.showDeleteModal   = false;
+    this.composantToDelete = null;
+  }
+
+  confirmDelete(): void {
+    const textile = this.composantToDelete;
+    if (!textile) return;
+    const id = textile.id ?? textile.Id;
+    if (!id) return;
+
+    this.isDeleting = true;
+    this.nomService.deleteComposant(id)
+      .pipe(finalize(() => (this.isDeleting = false)))
+      .subscribe({
+        next: () => {
+          this.composants = this.composants.filter(c => (c.id ?? c.Id) !== id);
+          this.applyFilter();
+          this.showSuccess('Composant supprimé.');
+          if (this.selectedTextile === textile) this.selectedTextile = null;
+          this.showDeleteModal   = false;
+          this.composantToDelete = null;
+        },
+        error: (err) => {
+          this.errorMsg = err?.error?.message ?? 'Erreur lors de la suppression.';
+          this.showDeleteModal   = false;
+          this.composantToDelete = null;
+        }
+      });
   }
 
   // ── Annuler ────────────────────────────────────────────────────────────────

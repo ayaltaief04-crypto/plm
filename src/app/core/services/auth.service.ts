@@ -24,7 +24,7 @@ export class AuthService {
     '5': 'Admin'
   };
 
-  // Initialisation avec SessionStorage (isolé par onglet)
+  
   private userSubject = new BehaviorSubject<UserSession>({
     name: sessionStorage.getItem('userName') || 'Utilisateur',
     role: sessionStorage.getItem('userRole') || 'Invite',
@@ -36,19 +36,19 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   login(email: string, motDePasse: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, { email, motDePasse }).pipe(
-      tap(res => {
-        if (res && res.token) {
-          this.saveSession(res.token);
-          this.handleNavigation();
-        }
-      }),
-      catchError(err => {
-        console.error('Erreur Login:', err);
-        return throwError(() => err);
-      })
-    );
-  }
+  return this.http.post<any>(`${this.apiUrl}/login`, { email, motDePasse }).pipe(
+    tap(res => {
+      if (res && res.token) {
+        this.saveSession(res.token);
+        this.handleNavigation();
+      }
+    }),
+    catchError(err => {
+      console.error('Erreur Login:', err);
+      return throwError(() => err);
+    })
+  );
+}
 
   public saveSession(token: string): void {
     if (!token) return;

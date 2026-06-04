@@ -272,4 +272,50 @@
     </div>
   </div>
 
+  <!-- ═══════════ MODAL CONFIRMATION SUPPRESSION ══════════════ -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
+    <div class="modal-box modal-box--confirm" (click)="$event.stopPropagation()">
+
+      <div class="modal-head">
+        <div class="modal-head-left">
+          <div class="modal-head-icon modal-head-icon--danger">
+            <mat-icon>delete</mat-icon>
+          </div>
+          <div>
+            <h2>Supprimer le composant</h2>
+            <p>Cette action est définitive et irréversible.</p>
+          </div>
+        </div>
+        <button class="modal-close" (click)="cancelDelete()" [disabled]="isDeleting">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="confirm-text">
+          Voulez-vous vraiment supprimer le composant
+          <strong>« {{ composantToDelete?.Designation ?? composantToDelete?.designation }} »</strong> ?
+        </p>
+      </div>
+
+      <div class="modal-foot">
+        <span class="foot-hint" *ngIf="!isDeleting">
+          <mat-icon>warning</mat-icon> Action irréversible
+        </span>
+        <div class="saving-indicator" *ngIf="isDeleting">
+          <mat-icon class="spin">refresh</mat-icon> Suppression…
+        </div>
+        <div class="modal-foot__actions">
+          <button type="button" class="btn-ghost" (click)="cancelDelete()" [disabled]="isDeleting">
+            <mat-icon>close</mat-icon> Annuler
+          </button>
+          <button type="button" class="btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
+            <mat-icon>delete</mat-icon> Supprimer
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div>

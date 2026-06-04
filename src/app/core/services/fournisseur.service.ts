@@ -56,27 +56,22 @@ export class FournisseurService {
   }
 
   delete(id: number): Observable<any> {
-    if (!id) throw new Error('ID fournisseur manquant pour la suppression');
-    const url = `${this.base}/${id}`;
-    console.log('DELETE →', url);
-    return this.http.delete(url).pipe(
-      // Un 404 signifie que le fournisseur n'existe plus côté serveur :
-      // c'est exactement le résultat voulu, on le traite comme un succès.
-      catchError(err => {
-        if (err?.status === 404) return of(null);
-        return throwError(() => err);
-      }),
-      tap(() => {
-        // Source de vérité unique : on retire l'élément du flux directement,
-        // sans relancer un GET (qui pouvait renvoyer une liste encore en cache
-        // et faire « réapparaître » le fournisseur supprimé).
-        const current = this.fournisseursSubject.getValue();
-        this.fournisseursSubject.next(
-          current.filter(f => Number(f.id) !== Number(id))
-        );
-      })
-    );
-  }
+  if (!id) throw new Error('ID fournisseur manquant pour la suppression');
+  const url = `${this.base}/${id}`;
+  console.log('DELETE →', url);
+  return this.http.delete(url, { responseType: 'text' }).pipe(  // ← ici
+    catchError(err => {
+      if (err?.status === 404) return of(null);
+      return throwError(() => err);
+    }),
+    tap(() => {
+      const current = this.fournisseursSubject.getValue();
+      this.fournisseursSubject.next(
+        current.filter(f => Number(f.id) !== Number(id))
+      );
+    })
+  );
+}
 
  
   private mapFromApi(item: any): Fournisseur {

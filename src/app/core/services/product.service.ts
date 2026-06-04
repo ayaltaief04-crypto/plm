@@ -42,10 +42,10 @@ export class ProductService {
   // ── Lecture ────────────────────────────────────────────────────────────────
 
   getCatalogue(statut?: string): Observable<any[]> {
-    let params = new HttpParams();
-    if (statut) params = params.set('statut', statut);
-    return this.http.get<any[]>(`${this.base}/catalogue`, { params });
-  }
+  let params = new HttpParams();
+  if (statut) params = params.set('statut', statut);
+  return this.http.get<any[]>(`${this.base}/catalogue`, { params });
+}
 
   getProductById(id: number): Observable<any> {
     return this.http.get<any>(`${this.base}/${id}`).pipe(
@@ -95,6 +95,8 @@ export class ProductService {
       categorie:        p.Categorie   ?? p.categorie   ?? '',
       saison:           p.Saison      ?? p.saison      ?? '',
       section:          p.Section     ?? p.section     ?? '',
+      dateCreationRef:  p.DateCreationRef ?? p.dateCreationRef ?? null,
+      dateVersion:      p.DateVersion     ?? p.dateVersion     ?? null,
       dateModification: p.DateVersion ?? p.DateCreationRef ?? null,
       updatedAt:        p.DateVersion ?? p.DateCreationRef ?? null,
       fichePdf:         p.FichePdf ?? null,
@@ -176,7 +178,9 @@ export class ProductService {
       reference:           p.Reference ?? '',
       numVersion:          p.NumVersion ?? '',
       statut:              this.normalizeStatut(p.Statut ?? ''),
-      isArchived:          !!(p.IsArchived ?? p.isArchived ?? (this.normalizeStatut(p.Statut ?? '') === 'ARCHIVE')),
+      // ← Lit le vrai champ renvoyé par l'API : EstArchive (PascalCase).
+      //    Fallbacks conservés au cas où la casse JSON changerait.
+      isArchived:          !!(p.EstArchive ?? p.estArchive ?? p.IsArchived ?? p.isArchived ?? false),
       complexiteMontage:   p.ComplexiteMontage != null ? String(p.ComplexiteMontage) : '',
       paletteCouleurs:     this.parsePalette(p.PalettesDeCouleur),
       fichePdf:            p.FichePdf ?? null,
@@ -210,8 +214,7 @@ export class ProductService {
   ): FormData {
     const fd = new FormData();
 
-    // ✅ CORRIGÉ : ForceUpdate envoyé pour TOUS les statuts non-BROUILLON en mode update
-    // Couvre : PUBLIE, VALIDE, CLOTURE, EN COURS, ARCHIVE
+   
     if (mode === 'update') {
   const s = (product.statut ?? '').toUpperCase().trim();
   if (s && s !== 'BROUILLON') {
@@ -298,5 +301,9 @@ export class ProductService {
     if (!raw) return [];
     if (Array.isArray(raw)) return raw;
     try { return JSON.parse(raw) ?? []; } catch { return []; }
+  }
+
+  basculerArchivage(id: number): Observable<any> {
+    return this.http.put<any>(`${this.base}/${id}/basculer-archivage`, {});
   }
 }

@@ -1,7 +1,7 @@
 // ─── RAPPORT TEXTILEFLOW PLM ──────────────────────────────────────────────────
 $navy:   #0D1F3C;
 $blue:   #1A65B5;
-$accent: #2563EB;
+$accent: #04153a;
 $light:  #F8FAFC;
 $border: #E2E8F0;
 $text:   #1E293B;
@@ -209,32 +209,28 @@ $green:  #10B981;
 .palette-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 10px;
 }
 
 .swatch {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  border: 1px solid rgba(0,0,0,.12);
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 
-  span {
-    display: none;
-    position: absolute;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: $navy;
-    color: $white;
-    font-size: 6pt;
-    padding: 2px 4px;
-    border-radius: 3px;
-    white-space: nowrap;
-    z-index: 10;
+  &__color {
+    width: 58px;
+    height: 48px;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 0, 0, .12);
   }
 
-  &:hover span { display: block; }
+  span {
+    font-size: 7pt;
+    color: $muted;
+    font-family: monospace;
+    letter-spacing: 0.3px;
+  }
 }
 
 // ── COLONNE DROITE ────────────────────────────────────────────────────────────
@@ -552,6 +548,17 @@ $green:  #10B981;
 
 // ── PRINT ─────────────────────────────────────────────────────────────────────
 @media print {
+  @page {
+    size: A4;
+    margin: 0;          /* 👈 enlève les marges d'impression du navigateur */
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
   .no-print { display: none !important; }
 
   .report-container {
@@ -561,6 +568,7 @@ $green:  #10B981;
   }
 
   .page {
+    box-sizing: border-box;   /* 👈 le padding est inclus dans les 297mm */
     width: 210mm;
     min-height: 297mm;
     margin: 0;
@@ -571,3 +579,4 @@ $green:  #10B981;
     &:last-child { page-break-after: avoid; }
   }
 }
+
